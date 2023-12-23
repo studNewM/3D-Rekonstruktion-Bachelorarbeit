@@ -1,0 +1,88 @@
+body,
+html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    display: flex;
+    height: 100%;
+}
+
+.sidebar {
+    width: 30%;
+    background-color: #f4f4f4;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.sidebar button,
+.sidebar input,
+.sidebar select {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-sizing: border-box;
+}
+
+.main {
+    flex-grow: 1;
+    background-color: #ddd;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+#threeJsContainer {
+    width: 100%;
+    height: 500px;
+    background-color: #ffffff;
+}
+
+.log-container {
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #eeeeee;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 0.9em;
+}
+
+#progressContainer {
+    display: flex;
+    /* Flex-Container */
+    flex-wrap: wrap;
+    /* Ermöglicht Umbruch auf die nächste Zeile */
+    padding: 10px;
+    /* Innenabstand des Containers */
+}
+
+.progressStep {
+    width: calc(50% - 20px);
+    /* Berechnet die Breite für zwei Elemente pro Zeile */
+    padding: 5px 10px;
+    /* Innenabstand */
+    min-height: 40px;
+    /* Minimale Höhe */
+    border: 1px solid #ddd;
+    margin: 10px;
+    /* Abstand zwischen den Elementen */
+    box-sizing: border-box;
+    text-align: center;
+    line-height: 30px;
+    /* Vertikale Ausrichtung des Textes */
+    position: relative;
+    /* Für absolute Positionierung der Linie */
+}
+
+.progressLine {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background-color: red;
+}

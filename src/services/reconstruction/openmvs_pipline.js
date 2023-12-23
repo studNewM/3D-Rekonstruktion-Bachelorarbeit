@@ -1,10 +1,10 @@
 import path from 'node:path';
-import execute_Command from '../helpers/execute_Command.js';
+import execute_Command from '../../utils/execute_Command.js';
 import fs from 'node:fs';
+import spawn_Command from '../../utils/spawn_command.js';
+import monitorLog from '../../utils/watchLog.js';
 
-
-
-function run_openMVS(workspace) {
+function run_openMVS(workspace, wss) {
     const sfm_path = path.join(workspace, "StructureFromMotion");
 
     const openMVS_path = path.join(workspace, "openMVS");
@@ -28,27 +28,35 @@ function run_openMVS(workspace) {
 
 
     const InterfaceCOLMAP_command = "InterfaceCOLMAP.exe --working-folder " + openMVS_path + " --input-file " + path.join(sfm_path, "dense/") + " --output-file " + path.join(openMVS_path, "model.mvs");
-    const DensifyPointCloud_command = "DensifyPointCloud.exe --resolution-level 2  --working-folder " + openMVS_path + " --input-file " + path.join(openMVS_path, "model.mvs") + " --output-file " + path.join(openMVS_path, "DensifyPointCloud", "model_dense.mvs");
+    const DensifyPointCloud_command = "DensifyPointCloud.exe --resolution-level 1" + " --working-folder " + openMVS_path + " --input-file " + path.join(openMVS_path, "model.mvs") + " --output-file " + path.join(openMVS_path, "DensifyPointCloud", "model_dense.mvs");
     const ReconstructMesh_command = "ReconstructMesh.exe --working-folder " + openMVS_path + " --input-file " + path.join(openMVS_path, "DensifyPointCloud", "model_dense.mvs") + " --output-file " + path.join(openMVS_path, "ReconstructMesh", "model_dense_mesh.mvs");
     const RefineMesh_command = "RefineMesh.exe --resolution-level 1 --working-folder " + openMVS_path + " --input-file " + path.join(openMVS_path, "ReconstructMesh", "model_dense_mesh.mvs") + " --output-file " + path.join(openMVS_path, "RefineMesh", "model_dense_mesh_refine.mvs");
     const TextureMesh_command = "TextureMesh.exe --working-folder " + openMVS_path + " --export-type obj --output-file " + path.join(openMVS_path, "TextureMesh", "model.obj") + " --input-file " + path.join(openMVS_path, "RefineMesh", "model_dense_mesh_refine.mvs");
 
 
-    execute_Command(InterfaceCOLMAP_command, "openMVS")
-    console.log("InterfaceCOLMAP done");
+    async function executeAndLog(command, message, wss) {
+        await spawn_Command(command, "openMVS", wss);
+        console.log(`${message} done`);
 
-    execute_Command(DensifyPointCloud_command, "openMVS")
 
-    console.log("DensifyPointCloud done");
+        // try {
+        // const directory = path.join(process.cwd(), "workspace", "OpenMVS");
+        // const pattern = new RegExp(`^${message}-\\d{14}[A-F0-9]+\\.log$`);
 
-    execute_Command(ReconstructMesh_command, "openMVS")
-    console.log("ReconstructMesh done");
+        // const stopMonitoring = monitorLog(directory, pattern, message, wss);
 
-    execute_Command(RefineMesh_command, "openMVS")
-    console.log("RefineMesh done");
 
-    execute_Command(TextureMesh_command, "openMVS")
-    console.log("TextureMesh done");
+        // stopMonitoring();
+        // } catch (error) {
+        //     console.error(`Fehler bei der Ausführung von ${message}:`, error);
+        // }
+    }
+
+    executeAndLog(InterfaceCOLMAP_command, "InterfaceCOLMAP", wss)
+        .then(() => executeAndLog(DensifyPointCloud_command, "DensifyPointCloud", wss))
+    // .then(() => executeAndLog(ReconstructMesh_command, "ReconstructMesh", wss))
+    // .then(() => executeAndLog(RefineMesh_command, "RefineMesh", wss))
+    // .then(() => executeAndLog(TextureMesh_command, "TextureMesh", wss));
 
 }
 export default run_openMVS;
