@@ -34,7 +34,7 @@ export default function monitorLog(directory, pattern, commandName, wss) {
                 }
             });
         }
-    }, 10000); // Überprüfung alle 1 Sekunde
+    }, 10000); 
 
     return () => {
         clearInterval(intervalId);

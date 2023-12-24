@@ -1,74 +1,69 @@
-// import * as THREE from 'three';
-// // import * as dat from 'dat.gui';
-// import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-// // import load_threeJS from './load_modell';
-// import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-// import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 const stepsByOption = {
-    'Meshroom': [
-        'CameraInit', 'DepthMap', 'DepthMapFilter', 'FeatureExtraction',
-        'FeatureMatching', 'ImageMatching', 'MeshFiltering', 'Meshing',
-        'PrepareDenseScene', 'Publish', 'StructureFromMotion', 'Texturing'
-    ],
+    'Meshroom': ['CameraInit', 'DepthMap', 'DepthMapFilter', 'FeatureExtraction', 'FeatureMatching', 'ImageMatching', 'MeshFiltering', 'Meshing', 'PrepareDenseScene', 'Publish', 'StructureFromMotion', 'Texturing'],
     'Colmap/OpenMVS': ['feature_extractor', 'exhaustive_matcher', 'mapper', 'image_undistorter', 'model_converter', 'InterfaceCOLMAP', 'DensifyPointCloud', 'ReconstructMesh', 'RefineMesh', 'TextureMesh'],
 };
-
-
-document.getElementById('startProcess').addEventListener('click', function () {
-    const selectedOption = document.getElementById('modelSelector').value;
-    const steps = stepsByOption[selectedOption] || [];
-
-    const progressContainer = document.getElementById('progressContainer');
-    progressContainer.innerHTML = '';
-
-    steps.forEach((stepName) => {
-        const step = document.createElement('div');
-        step.classList.add('progressStep');
-        step.textContent = stepName;
-
-        const progressLine = document.createElement('div');
-        progressLine.classList.add('progressLine');
-
-        step.appendChild(progressLine);
-        progressContainer.appendChild(step);
-    });
-
-    // const ws = new WebSocket('ws://localhost:3000');
-
-    // ws.onopen = function () {
-    //     console.log("WebSocket-Verbindung geöffnet");
-
-    //     axios.post('/model/reconstruction')
-    //         .then(function (response) {
-    //             console.log(response);
-    //         })
-    //         .catch(function (error) {
-    //             console.log(error);
-    //         });
-    // };
-
-    // ws.onmessage = function (event) {
-
-    //     const output = document.getElementById('output');
-    //     const newLogEntry = document.createElement('p');
-    //     newLogEntry.textContent = event.data;
-    //     output.appendChild(newLogEntry);
-
-    //     output.scrollTop = output.scrollHeight;
-    // };
-
-    // ws.onerror = function (error) {
-    //     console.error('WebSocket-Fehler:', error);
-    // };
-
-    // ws.onclose = function () {
-    //     console.log("WebSocket-Verbindung geschlossen");
-    // };
+document.addEventListener('DOMContentLoaded', () => {
+    createProgressNodes();
 });
 
-document.getElementById('uploadButton').addEventListener('click', function () {
-    const folderInput = document.getElementById('folderPicker');
-    const files = folderInput.files;
+document.getElementById('startProcess').addEventListener('click', function () {
+    let completedCount = 0;
+    const startButton = document.getElementById('startProcess');
+    startButton.disabled = true;
+    console.log("ISt disabled: ");
+
+    const selectedOption = document.getElementById('modelSelector').value;
+
+
+    const ws = new WebSocket('ws://localhost:3000');
+
+    ws.onopen = function () {
+        console.log("WebSocket-Verbindung geöffnet");
+        console.log("option: ", selectedOption);
+
+        axios.post('/model/reconstruction', {
+            model: selectedOption
+        })
+            .then(function (response) {
+                console.log(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    };
+
+    ws.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        const processElement = document.getElementById(`progress-${data.step}-line`);
+        if (processElement) {
+            if (data.status === 'started') {
+                processElement.style.backgroundColor = 'yellow';
+            } else if (data.status === 'completed') {
+                processElement.style.backgroundColor = 'green';
+                completedCount++;
+                if (selectedOption == "Colmap/OpenMVS" && completedCount >= 5) {
+                    startButton.disabled = false;
+                    completedCount = 0;
+                }
+                else if (selectedOption == "Meshroom" && completedCount >= 12) {
+                    startButton.disabled = false;
+                    completedCount = 0;
+                }
+            }
+        }
+    };
+
+    ws.onerror = function (error) {
+        console.error('WebSocket-Fehler:', error);
+    };
+
+    ws.onclose = function () {
+        console.log("WebSocket-Verbindung geschlossen");
+    };
+});
+
+document.getElementById('folderPicker').addEventListener('change', function () {
+    const files = this.files;
 
     if (files.length === 0) {
         alert('Bitte wählen Sie einen Ordner aus.');
@@ -83,52 +78,67 @@ document.getElementById('uploadButton').addEventListener('click', function () {
     axios.post('/image/upload', formData)
         .then(response => {
             console.log(response.data);
-            alert('Dateien erfolgreich hochgeladen!');
+            alert('Bilder erfolgreich hochgeladen!');
         })
         .catch(error => {
-            console.error('Fehler beim Hochladen der Dateien:', error);
-            alert('Fehler beim Hochladen der Dateien.');
+            console.error('Fehler beim Hochladen der Bilder:', error);
+            alert('Fehler beim Hochladen der Bilder.');
         });
+
+    const imagePreviewContainer = document.getElementById('imagePreview');
+    imagePreviewContainer.innerHTML = '';
+
+    const maxImagesToShow = 6;
+    for (let i = 0; i < Math.min(this.files.length, maxImagesToShow); i++) {
+        const file = this.files[i];
+        const imgElement = document.createElement('img');
+        imgElement.src = URL.createObjectURL(file);
+        imgElement.onload = function () {
+            URL.revokeObjectURL(this.src);
+        };
+        imagePreviewContainer.appendChild(imgElement);
+    }
+});
+document.getElementById('sidebarToggle').addEventListener('click', function () {
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.classList.toggle('collapsed');
+    const toggleIcon = document.querySelector('#sidebarToggle i');
+    if (sidebar.classList.contains('collapsed')) {
+        toggleIcon.className = 'fa fa-chevron-right';
+    } else {
+        toggleIcon.className = 'fa fa-chevron-left';
+    }
 });
 
 
 
+function createProgressNodes() {
 
-// const innerHeight = window.innerHeight / 1;
-// const innerWidth = window.innerWidth / 1.5;
+    const selectedOption = document.getElementById('modelSelector').value;
+    const steps = stepsByOption[selectedOption] || [];
 
-// const scene = new THREE.Scene();
-// const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 2000);
-// const renderer = new THREE.WebGLRenderer();
-// const controls = new OrbitControls(camera, renderer.domElement);
+    const progressContainer = document.getElementById('progressContainer');
+    progressContainer.innerHTML = '';
 
-// renderer.setPixelRatio(window.devicePixelRatio);
-// renderer.setSize(innerWidth, innerHeight);
-// // scene.background = new THREE.Color('#ffffff');
-// camera.position.setZ(30);
-// camera.position.setX(-30);
-
-// const threeJsSection = document.getElementById('threeJsContainer');
-// threeJsSection.appendChild(renderer.domElement);
-
-// const pointLight = new THREE.PointLight(0xffffff);
-// pointLight.position.set(50, 50, 50);
-
-// const ambientLight = new THREE.AmbientLight(0xffffff);
-// scene.add(pointLight, ambientLight);
-
-// // Helpers
-// const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-// scene.add(directionalLight);
+    steps.forEach((stepName) => {
+        const step = document.createElement('div');
+        step.classList.add('progressStep');
+        step.textContent = stepName;
+        step.id = `process-${stepName}`;
 
 
-// function animate() {
-//     requestAnimationFrame(animate);
+        const progressLine = document.createElement('div');
+        progressLine.classList.add('progressLine');
+        progressLine.id = `progress-${stepName}-line`;
 
-//     controls.update();
-//     renderer.render(scene, camera);
+        step.appendChild(progressLine);
+        progressContainer.appendChild(step);
+    });
+}
 
-// }
-// animate();
+document.getElementById('modelSelector').addEventListener('change', function () {
+    createProgressNodes();
+});
+
 
 

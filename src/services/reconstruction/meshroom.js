@@ -9,9 +9,7 @@ async function run_meshroom(workspace, wss) {
     const meshroom_command = `-i ${images} -p ${pipeline} -o ${output_path} --cache ${workspace}`;
 
 
-    await spawn_Command(meshroom_command, "meshroom", wss);
-
-
+    await spawn_Command(meshroom_command, "meshroom", wss,"");
 }
 
 export default run_meshroom;

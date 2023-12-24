@@ -24,15 +24,15 @@ async function run_colmap(workspace, wss) {
     const model_converter_command = "model_converter --input_path " + path.join(sfm_path, "dense/sparse") + " --output_path " + path.join(sfm_path, "dense/sparse") + "  --output_type TXT";
 
     async function executeAndLog(command, message, wss) {
-        await spawn_Command(command, "colmap", wss);
+        await spawn_Command(command, "colmap", wss, message);
         return console.log(`${message} done`);
     }
-    return executeAndLog(feature_extractor_command, "Feature extraction", wss)
-        .then(() => executeAndLog(matcher_command, "Matching", wss))
-        .then(() => executeAndLog(mapper_command, "Mapping", wss))
-        .then(() => executeAndLog(undistorter_command, "Undistortion", wss))
-        .then(() => executeAndLog(model_converter_command, "Model conversion", wss))
-        .then(() => deleteBinFiles(path.join(sfm_path, "dense/sparse")));
+    return executeAndLog(feature_extractor_command, "feature_extractor", wss)
+    .then(() => executeAndLog(matcher_command, "exhaustive_matcher", wss))
+    .then(() => executeAndLog(mapper_command, "mapper", wss))
+    .then(() => executeAndLog(undistorter_command, "image_undistorter", wss))
+    .then(() => executeAndLog(model_converter_command, "model_converter", wss))
+    .then(() => deleteBinFiles(path.join(sfm_path, "dense/sparse")));
 }
 
 export default run_colmap;

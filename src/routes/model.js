@@ -4,11 +4,9 @@ const modelRouter = Router();
 
 modelRouter.post('/reconstruction', (req, res) => {
     const wss = req.app.locals.wss;
+    const model_option = req.body.model;
     res.json({ message: 'Prozess gestartet' });
-
-    //TODO: get body from request
-    console.log('body is ', req.body);
-    run_reconstruction("workspace", "", wss);
+    run_reconstruction("workspace", model_option, wss);
 });
 
 export default modelRouter;

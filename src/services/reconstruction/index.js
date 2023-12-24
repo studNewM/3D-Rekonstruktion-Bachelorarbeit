@@ -13,24 +13,24 @@ function setWorkspace(workspace) {
 }
 
 
-export default function run_reconstruction(name = "workspace", type = "colmap_openmvs", wss) {
+export default function run_reconstruction(name = "workspace", type = "Colmap/OpenMVS", wss) {
 
     const workspace = path.normalize(path.join(process.cwd(), name));
     setWorkspace(workspace);
     console.log("Start reconstruction");
 
 
-    if (type == "meshroom") {
+    if (type == "Meshroom") {
         run_meshroom(workspace, wss).then(() => {
             console.log("Reconstruction done");
         });
 
     } else {
         move_images_to_workspace(workspace);
-        // run_colmap(workspace, wss).then(() => {
-        run_openMVS(workspace, wss);
-        // console.log("object");
-        // });
+        run_colmap(workspace, wss).then(() => {
+            run_openMVS(workspace, wss);
+        });
+
     }
 }
 

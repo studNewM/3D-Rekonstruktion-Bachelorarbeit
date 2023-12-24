@@ -1,8 +1,6 @@
 import path from 'node:path';
-import execute_Command from '../../utils/execute_Command.js';
 import fs from 'node:fs';
 import spawn_Command from '../../utils/spawn_command.js';
-import monitorLog from '../../utils/watchLog.js';
 
 function run_openMVS(workspace, wss) {
     const sfm_path = path.join(workspace, "StructureFromMotion");
@@ -35,28 +33,15 @@ function run_openMVS(workspace, wss) {
 
 
     async function executeAndLog(command, message, wss) {
-        await spawn_Command(command, "openMVS", wss);
+        await spawn_Command(command, "openMVS", wss,message);
         console.log(`${message} done`);
-
-
-        // try {
-        // const directory = path.join(process.cwd(), "workspace", "OpenMVS");
-        // const pattern = new RegExp(`^${message}-\\d{14}[A-F0-9]+\\.log$`);
-
-        // const stopMonitoring = monitorLog(directory, pattern, message, wss);
-
-
-        // stopMonitoring();
-        // } catch (error) {
-        //     console.error(`Fehler bei der Ausführung von ${message}:`, error);
-        // }
     }
 
     executeAndLog(InterfaceCOLMAP_command, "InterfaceCOLMAP", wss)
         .then(() => executeAndLog(DensifyPointCloud_command, "DensifyPointCloud", wss))
-    // .then(() => executeAndLog(ReconstructMesh_command, "ReconstructMesh", wss))
-    // .then(() => executeAndLog(RefineMesh_command, "RefineMesh", wss))
-    // .then(() => executeAndLog(TextureMesh_command, "TextureMesh", wss));
+        .then(() => executeAndLog(ReconstructMesh_command, "ReconstructMesh", wss))
+        .then(() => executeAndLog(RefineMesh_command, "RefineMesh", wss))
+        .then(() => executeAndLog(TextureMesh_command, "TextureMesh", wss));
 
 }
 export default run_openMVS;

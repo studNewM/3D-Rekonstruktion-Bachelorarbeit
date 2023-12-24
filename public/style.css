@@ -1,5 +1,7 @@
 body,
 html {
+    background-color: #121212;
+    color: #e0e0e0;
     margin: 0;
     padding: 0;
     width: 100%;
@@ -7,17 +9,115 @@ html {
     font-family: Arial, sans-serif;
 }
 
+h2 {
+    margin: 0;
+    padding: 0;
+    font-size: 1.5em;
+}
+
+p {
+    margin: 0;
+    padding: 10px;
+    font-size: 1em;
+}
+
 .container {
     display: flex;
     height: 100%;
 }
+
+#startProcess {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 50px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 1em;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: background-color 0.3s;
+}
+
+#startProcess:disabled {
+    background-color: #9e9e9e;
+    color: #cfcfcf;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+#startProcess:hover {
+    background-color: #45a049;
+}
+
+
+.main {
+    flex-grow: 1;
+    background-color: #ddd;
+    padding: 20px;
+    box-sizing: border-box;
+    background-color: #1c1c1c;
+
+}
+
+#threeJsContainer {
+    width: 100%;
+    height: 100%;
+    background-color: #1c1c1c;
+
+}
+
+
+#progressContainer {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 10px;
+    padding-top: revert;
+}
+
+
+.progressStep {
+    width: 190px;
+
+    padding: 5px;
+    min-height: 20px;
+    margin: 5px;
+    font-size: 0.9em;
+    border: 1px solid #ddd;
+    box-sizing: border-box;
+    text-align: center;
+    line-height: 20px;
+    position: relative;
+    background-color: #333333;
+    color: #e0e0e0;
+    display: inline-block;
+}
+
+.progressLine {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: red;
+}
+
 
 .sidebar {
     width: 30%;
     background-color: #f4f4f4;
     padding: 20px;
     box-sizing: border-box;
+    transition: width 0.3s;
+    position: relative;
+    background-color: #242424;
+    color: #e0e0e0;
 }
+
 
 .sidebar button,
 .sidebar input,
@@ -27,62 +127,44 @@ html {
     padding: 10px;
     margin-bottom: 10px;
     box-sizing: border-box;
+    background-color: #373737;
+    color: #ffffff;
+    border: 1px solid #525252;
 }
 
-.main {
-    flex-grow: 1;
-    background-color: #ddd;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-#threeJsContainer {
-    width: 100%;
-    height: 500px;
-    background-color: #ffffff;
-}
-
-.log-container {
-    max-height: 200px;
-    overflow-y: auto;
-    background-color: #eeeeee;
-    padding: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    font-size: 0.9em;
-}
-
-#progressContainer {
-    display: flex;
-    /* Flex-Container */
-    flex-wrap: wrap;
-    /* Ermöglicht Umbruch auf die nächste Zeile */
-    padding: 10px;
-    /* Innenabstand des Containers */
-}
-
-.progressStep {
-    width: calc(50% - 20px);
-    /* Berechnet die Breite für zwei Elemente pro Zeile */
-    padding: 5px 10px;
-    /* Innenabstand */
-    min-height: 40px;
-    /* Minimale Höhe */
-    border: 1px solid #ddd;
-    margin: 10px;
-    /* Abstand zwischen den Elementen */
-    box-sizing: border-box;
-    text-align: center;
-    line-height: 30px;
-    /* Vertikale Ausrichtung des Textes */
-    position: relative;
-    /* Für absolute Positionierung der Linie */
-}
-
-.progressLine {
+#sidebarToggle {
+    left: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
     position: absolute;
-    bottom: 0;
-    left: 0;
+    top: 50%;
+    font-size: 20px;
+    background-color: transparent;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    color: #e0e0e0;
+
+}
+
+.sidebar.collapsed {
+    margin-left: -30%;
+}
+
+.image-preview {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 10px;
+    border: 2px solid #525252;
+    min-height: 200px;
+    background-color: #383838;
+}
+
+.image-preview img {
     width: 100%;
-    height: 5px;
-    background-color: red;
+    height: auto;
 }
