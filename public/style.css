@@ -82,9 +82,8 @@ p {
 
 .progressStep {
     width: 190px;
-
     padding: 5px;
-    min-height: 20px;
+    min-height: 40px;
     margin: 5px;
     font-size: 0.9em;
     border: 1px solid #ddd;

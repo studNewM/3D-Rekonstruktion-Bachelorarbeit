@@ -28,7 +28,7 @@ export default function run_reconstruction(name = "workspace", type = "Colmap/Op
     } else {
         move_images_to_workspace(workspace);
         run_colmap(workspace, wss).then(() => {
-            run_openMVS(workspace, wss);
+            // run_openMVS(workspace, wss);
         });
 
     }

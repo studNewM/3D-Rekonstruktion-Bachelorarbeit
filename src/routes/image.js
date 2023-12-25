@@ -23,7 +23,7 @@ imageRouter.post('/upload', upload.array('fileList'), (req, res) => {
         console.log(file.path);
 
     });
-    res.send('Dateien hochgeladen und verschoben');
+    res.send('Dateien hochgeladen');
 });
 
 export default imageRouter;
