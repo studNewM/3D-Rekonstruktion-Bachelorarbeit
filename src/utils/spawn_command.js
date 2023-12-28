@@ -1,7 +1,9 @@
 import { spawn } from 'node:child_process';
+import { watch } from 'node:fs';
 import path from 'node:path';
 import WebSocket from 'ws';
-
+import watchDirectory from './watchDirectory.js';
+import e from 'cors';
 const typeConfigs = {
     colmap: {
         command: "cmd.exe",
@@ -22,6 +24,11 @@ const typeConfigs = {
 
 
 export default function spawn_Command(text, type = "", wss, step_name) {
+    if (type === "meshroom") {
+        setTimeout(() => {
+            watchDirectory(wss);
+        }, 10000);
+    }
     return new Promise((resolve, reject) => {
         const args = text.split(' ');
         const config = typeConfigs[type];
@@ -46,11 +53,35 @@ export default function spawn_Command(text, type = "", wss, step_name) {
 
         child.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
+            // wss.clients.forEach(client => {
+            //     if (client.readyState === WebSocket.OPEN) {
+            //         client.send(JSON.stringify('stdout: ' + data));
 
+            //     }
+            // });
         });
 
         child.stderr.on('data', (data) => {
             console.error(`stderr: ${data}`);
+            if (data.includes("Publish file")) {
+                wss.clients.forEach(client => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({ step: "Publish", status: 'started' }));
+                    }
+                });
+            } else if (data.includes("Publish end")) {
+                wss.clients.forEach(client => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({ step: "Publish", status: 'completed' }));
+                    }
+                });
+            }
+            // wss.clients.forEach(client => {
+            //     if (client.readyState === WebSocket.OPEN) {
+            //         client.send(JSON.stringify('stderr: ' + data));
+
+            //     }
+            // });
 
         });
 

@@ -22,7 +22,8 @@ p {
 }
 
 .container {
-    display: flex;
+    position: relative;
+    /* Container relativ positionieren */
     height: 100%;
 }
 
@@ -58,9 +59,16 @@ p {
 .main {
     flex-grow: 1;
     background-color: #ddd;
-    padding: 20px;
     box-sizing: border-box;
     background-color: #1c1c1c;
+    width: 70%;
+    position: absolute;
+    /* Three.js-Container absolut positionieren */
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+
 
 }
 
@@ -112,9 +120,18 @@ p {
     padding: 20px;
     box-sizing: border-box;
     transition: width 0.3s;
-    position: relative;
     background-color: #242424;
     color: #e0e0e0;
+    position: absolute;
+    /* Sidebar absolut positionieren */
+    top: 0;
+    left: 0;
+    width: 30%;
+    height: 100%;
+    z-index: 10;
+    /* Stellt sicher, dass die Sidebar über Three.js liegt */
+    transition: left 0.3s;
+    /* Sanfte Animation für das Ein- und Ausklappen */
 }
 
 
@@ -145,6 +162,7 @@ p {
     text-align: center;
     color: #e0e0e0;
 
+
 }
 
 .sidebar.collapsed {
@@ -166,4 +184,8 @@ p {
 .image-preview img {
     width: 100%;
     height: auto;
+}
+
+#gui {
+    position: relative;
 }

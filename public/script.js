@@ -1,5 +1,7 @@
 const stepsByOption = {
-    'Meshroom': ['CameraInit', 'DepthMap', 'DepthMapFilter', 'FeatureExtraction', 'FeatureMatching', 'ImageMatching', 'MeshFiltering', 'Meshing', 'PrepareDenseScene', 'Publish', 'StructureFromMotion', 'Texturing'],
+
+
+    'Meshroom': ['CameraInit', 'FeatureExtraction', 'ImageMatching', 'FeatureMatching', 'StructureFromMotion', 'PrepareDenseScene', 'DepthMap', 'DepthMapFilter', 'Meshing', 'MeshFiltering', 'Texturing','Publish'],
     'Colmap/OpenMVS': ['feature_extractor', 'exhaustive_matcher', 'mapper', 'image_undistorter', 'model_converter', 'InterfaceCOLMAP', 'DensifyPointCloud', 'ReconstructMesh', 'RefineMesh', 'TextureMesh'],
 };
 let completedCount = 0;

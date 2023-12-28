@@ -1,13 +1,14 @@
-import * as THREE from 'three';
+import * as THREE from '/build/three.module.js'
+
 // import * as dat from 'dat.gui';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+// import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 // import load_threeJS from './load_modell';
-import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
-import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
+// import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+// import { MTLLoader } from 'three/addons/loaders/MTLLoader.js';
 
 
 const innerHeight = window.innerHeight / 1;
-const innerWidth = window.innerWidth / 1.5;
+const innerWidth = window.innerWidth / 1;
 
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, innerWidth / innerHeight, 0.1, 2000);
