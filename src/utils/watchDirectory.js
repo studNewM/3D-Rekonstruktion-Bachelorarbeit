@@ -6,10 +6,11 @@ const meshroom_steps = ['CameraInit', 'FeatureExtraction', 'ImageMatching', 'Fea
 
 const watchedDir = path.join(process.cwd(), "workspace");
 let currentStep = null;
+let currentStepStartTime = null;
 
 
 export default function watchWorkspace(wss) {
-    const watcher = watch(`${watchedDir}/**`, { 
+    const watcher = watch(`${watchedDir}/**`, {
         ignored: /^\./,
         persistent: true,
         depth: 2,
@@ -24,15 +25,16 @@ export default function watchWorkspace(wss) {
         if (path.includes("log")) {
             if (foundStep !== currentStep) {
                 if (currentStep && wss.clients) {
-                    
+                    const duration = Date.now() - currentStepStartTime;
                     wss.clients.forEach(client => {
                         if (client.readyState === WebSocket.OPEN) {
-                            client.send(JSON.stringify({ step: currentStep, status: 'completed' }));
+                            client.send(JSON.stringify({ step: currentStep, status: 'completed', time: duration / 1000 }));
                         }
                     });
                 }
                 console.log(`Meshroom step ${foundStep} wurde hinzugefügt.`);
                 currentStep = foundStep;
+                currentStepStartTime = Date.now();
                 wss.clients.forEach(client => {
                     if (client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify({ step: currentStep, status: 'started' }));

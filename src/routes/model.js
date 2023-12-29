@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import path from 'path';
 import run_reconstruction from '../services/reconstruction/index.js';
 const modelRouter = Router();
 
@@ -8,5 +9,6 @@ modelRouter.post('/reconstruction', (req, res) => {
     res.json({ message: 'Prozess gestartet' });
     run_reconstruction("workspace", model_option, wss);
 });
+
 
 export default modelRouter;

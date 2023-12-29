@@ -28,6 +28,14 @@ function initRenderer() {
     return renderer;
 }
 
+function initGridHelper(scene) {
+    const size = 10;
+    const divisions = 10;
+
+    const gridHelper = new THREE.GridHelper(size, divisions);
+    scene.add(gridHelper);
+}
+
 function initControls(camera, renderer) {
     return new OrbitControls(camera, renderer.domElement);
 }
@@ -37,6 +45,7 @@ function initStats() {
     document.body.appendChild(stats.dom);
     return stats;
 }
+
 
 function loadObject(scene) {
     const mtlLoader = new MTLLoader();
@@ -65,6 +74,7 @@ function initLights(scene) {
 
 function createGUI(camera, lights, scene, params) {
     const gui = new dat.GUI();
+    gui.close()
     gui.domElement.id = 'gui';
     const { ambientLight, directionalLight, pointLight } = lights;
 
@@ -110,6 +120,9 @@ function animate(camera, scene, renderer, controls) {
     renderer.render(scene, camera);
 }
 
+export function initModels() {
+    loadObject(scene)
+}
 const threeJsSection = document.getElementById('threeJsContainer');
 const innerHeight = window.innerHeight / 1;
 const innerWidth = window.innerWidth / 1;
@@ -121,5 +134,6 @@ const controls = initControls(camera, renderer);
 const lights = initLights(scene);
 const stats = initStats();
 createGUI(camera, lights, scene, params);
-// loadObject(scene);
+initGridHelper(scene);
+
 animate(camera, scene, renderer, controls, stats);

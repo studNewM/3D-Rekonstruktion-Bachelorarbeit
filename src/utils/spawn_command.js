@@ -1,9 +1,7 @@
 import { spawn } from 'node:child_process';
-import { watch } from 'node:fs';
 import path from 'node:path';
 import WebSocket from 'ws';
 import watchDirectory from './watchDirectory.js';
-import e from 'cors';
 const typeConfigs = {
     colmap: {
         command: "cmd.exe",
@@ -53,12 +51,14 @@ export default function spawn_Command(text, type = "", wss, step_name) {
 
         child.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
-            // wss.clients.forEach(client => {
-            //     if (client.readyState === WebSocket.OPEN) {
-            //         client.send(JSON.stringify('stdout: ' + data));
+            if (data.includes("/workspace/Texturing")) {
+                wss.clients.forEach(client => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        client.send(JSON.stringify({ step: "Publish", status: 'completed' }));
+                    }
+                });
+            }
 
-            //     }
-            // });
         });
 
         child.stderr.on('data', (data) => {
@@ -76,12 +76,6 @@ export default function spawn_Command(text, type = "", wss, step_name) {
                     }
                 });
             }
-            // wss.clients.forEach(client => {
-            //     if (client.readyState === WebSocket.OPEN) {
-            //         client.send(JSON.stringify('stderr: ' + data));
-
-            //     }
-            // });
 
         });
 

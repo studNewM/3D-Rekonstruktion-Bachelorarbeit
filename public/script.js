@@ -1,10 +1,11 @@
+import { initModels } from './three.js';
+
 const stepsByOption = {
-
-
-    'Meshroom': ['CameraInit', 'FeatureExtraction', 'ImageMatching', 'FeatureMatching', 'StructureFromMotion', 'PrepareDenseScene', 'DepthMap', 'DepthMapFilter', 'Meshing', 'MeshFiltering', 'Texturing','Publish'],
+    'Meshroom': ['CameraInit', 'FeatureExtraction', 'ImageMatching', 'FeatureMatching', 'StructureFromMotion', 'PrepareDenseScene', 'DepthMap', 'DepthMapFilter', 'Meshing', 'MeshFiltering', 'Texturing', 'Publish'],
     'Colmap/OpenMVS': ['feature_extractor', 'exhaustive_matcher', 'mapper', 'image_undistorter', 'model_converter', 'InterfaceCOLMAP', 'DensifyPointCloud', 'ReconstructMesh', 'RefineMesh', 'TextureMesh'],
 };
 let completedCount = 0;
+
 
 function createProgressNodes() {
 
@@ -85,9 +86,11 @@ function handleWebSocketMessage(event) {
                 startButton.disabled = false;
                 completedCount = 0;
             }
-            else if (selectedOption == "Meshroom" && completedCount >= 12) {
+            else if (selectedOption == "Meshroom" && data.step == 'Publish' && data.status === 'completed') {
                 startButton.disabled = false;
                 completedCount = 0;
+                console.log("Prozess abgeschlossen!");
+                initModels();
             }
         }
     }
@@ -162,5 +165,4 @@ function handleWebSocketClose() {
     console.log("WebSocket-Verbindung geschlossen");
 }
 
-// Rufen Sie die WebSocket-Initialisierungsfunktion auf
 const ws = initializeWebSocket();
