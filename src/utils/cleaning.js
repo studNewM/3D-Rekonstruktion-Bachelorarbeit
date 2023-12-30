@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs';
 
-export default function deleteBinFiles(directory) {
+export default async function deleteBinFiles(directory) {
     fs.readdir(directory, (err, files) => {
       if (err) throw err;
   

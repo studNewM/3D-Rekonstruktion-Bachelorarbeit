@@ -1,18 +1,13 @@
-import { Router } from 'express';
-import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-const imageRouter = Router();
-const upload = multer({ dest: 'Tempuploads/' });
 
-imageRouter.post('/upload', upload.array('fileList'), (req, res) => {
+export const upload_images = (req, res) => {
     console.log("Lade Dateien hoch");
-
     const imagesDir = path.join(process.cwd(), 'images');
 
     if (fs.existsSync(imagesDir)) {
-        fs.rmdirSync(imagesDir, { recursive: true });
+        fs.rmSync(imagesDir, { recursive: true });
     }
 
     fs.mkdirSync(imagesDir);
@@ -24,6 +19,4 @@ imageRouter.post('/upload', upload.array('fileList'), (req, res) => {
 
     });
     res.send('Dateien hochgeladen');
-});
-
-export default imageRouter;
+}

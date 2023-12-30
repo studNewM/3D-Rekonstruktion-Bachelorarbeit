@@ -61,7 +61,7 @@ function startReconstructionProcess() {
 function handleWebSocketOpen(selectedOption) {
     return function () {
         console.log("WebSocket-Verbindung geöffnet");
-        axios.post('/model/reconstruction', {
+        axios.post('/reconstruction', {
             model: selectedOption
         }).then(function (response) {
             console.log(response);
@@ -90,6 +90,7 @@ function handleWebSocketMessage(event) {
                 startButton.disabled = false;
                 completedCount = 0;
                 console.log("Prozess abgeschlossen!");
+                alert('Prozess abgeschlossen!');
                 initModels();
             }
         }
@@ -109,7 +110,7 @@ function handleFileSelection() {
         formData.append('fileList', files[i]);
     }
 
-    axios.post('/image/upload', formData)
+    axios.post('/upload', formData)
         .then(response => {
             console.log(response.data);
             alert('Bilder erfolgreich hochgeladen!');

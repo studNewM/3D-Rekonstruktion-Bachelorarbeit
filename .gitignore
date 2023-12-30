@@ -131,6 +131,6 @@ dist
 
 # Reconstructions
 
-workspace*
+workspace
 images
 tools

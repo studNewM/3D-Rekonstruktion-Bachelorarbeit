@@ -1,90 +1,45 @@
-import { spawn } from 'node:child_process';
-import path from 'node:path';
 import WebSocket from 'ws';
-import watchDirectory from './watchDirectory.js';
-const typeConfigs = {
-    colmap: {
-        command: "cmd.exe",
-        args: args => ["/c", "COLMAP.bat"].concat(args),
-        cwd: path.normalize(path.join(process.cwd(), "tools", "COLMAP-3.8-windows-cuda"))
-    },
-    openMVS: {
-        command: args => args[0],
-        args: args => args.slice(1),
-        cwd: path.normalize(path.join(process.cwd(), "tools", "OpenMVS_Windows_x64"))
-    },
-    meshroom: {
-        command: "meshroom_batch.exe",
-        args: args => args,
-        cwd: path.normalize(path.join(process.cwd(), "tools", "Meshroom"))
+import { watchWorkspace } from './watchDirectory.js';
+import { spawn } from 'node:child_process';
+import { typeConfigs } from './commandConfigs.js';
+import sendToAllClients from './websocketToClient.js';
+
+export default function spawnCommand(commandText, type = "", wss, stepName) {
+    if (!typeConfigs[type]) {
+        console.error(`Unknown type: ${type}`);
+        throw new Error(`Unknown type: ${type}`);
     }
-};
-
-
-export default function spawn_Command(text, type = "", wss, step_name) {
     if (type === "meshroom") {
-        setTimeout(() => {
-            watchDirectory(wss);
-        }, 10000);
+        setTimeout(() => watchWorkspace(wss), 10000);
     }
     return new Promise((resolve, reject) => {
-        const args = text.split(' ');
+        const args = commandText.split(' ');
         const config = typeConfigs[type];
 
-        if (!config) {
-            console.error(`Unknown type: ${type}`);
-            reject(new Error(`Unknown type: ${type}`));
-            return;
-        }
-
-        wss.clients.forEach(client => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({ step: step_name, status: 'started' }));
-            }
-        });
 
         const command = typeof config.command === "function" ? config.command(args) : config.command;
         const commandArgs = config.args(args);
         const cwd = config.cwd;
 
         const child = spawn(command, commandArgs, { cwd });
+        console.log(`Running command: ${command} ${cwd} ${commandArgs.join(' ')}`);
 
-        child.stdout.on('data', (data) => {
-            console.log(`stdout: ${data}`);
-            if (data.includes("/workspace/Texturing")) {
-                wss.clients.forEach(client => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({ step: "Publish", status: 'completed' }));
-                    }
-                });
-            }
 
+        if (type !== "meshroom") {
+            sendToAllClients(wss, { step: stepName, status: 'started' });
+        }
+        child.stdout.on('data', data => {
+            console.log(data.toString());
         });
 
-        child.stderr.on('data', (data) => {
-            console.error(`stderr: ${data}`);
-            if (data.includes("Publish file")) {
-                wss.clients.forEach(client => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({ step: "Publish", status: 'started' }));
-                    }
-                });
-            } else if (data.includes("Publish end")) {
-                wss.clients.forEach(client => {
-                    if (client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({ step: "Publish", status: 'completed' }));
-                    }
-                });
-            }
-
+        child.stderr.on('data', data => {
+            console.error(data.toString());
         });
 
-        child.on('close', (code) => {
-            wss.clients.forEach(client => {
-                if (client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({ step: step_name, status: 'completed' }));
-                }
-            });
+        child.on('close', code => {
+            if (type !== "meshroom") {
+                sendToAllClients(wss, { step: stepName, status: 'completed' });
+            }
             if (code !== 0) {
                 reject(new Error(`Command exited with code ${code}`));
             } else {
