@@ -41,7 +41,35 @@ function setupEventListeners() {
     document.getElementById('folderPicker').addEventListener('change', handleFileSelection);
     document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
     document.getElementById('modelSelector').addEventListener('change', createProgressNodes);
+
+    const dropArea = document.getElementById('dropArea');
+    dropArea.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        dropArea.classList.add('drag-over');
+    });
+
+    dropArea.addEventListener('dragleave', () => {
+        dropArea.classList.remove('drag-over');
+    });
+
+    dropArea.addEventListener('drop', (event) => {
+        event.preventDefault();
+        dropArea.classList.remove('drag-over');
+
+        const files = event.dataTransfer.files;
+        if (Array.from(files).some(file => !/\.(jpg|png)$/i.test(file.name))) {
+            alert('Bitte wählen Sie nur .jpg oder .png Dateien.');
+            return;
+        }
+
+        handleFileSelection(event);
+    });
 }
+
+function areValidFiles(files) {
+    return Array.from(files).every(file => /\.(jpg|png)$/i.test(file.name));
+}
+
 function startReconstructionProcess() {
     const startButton = document.getElementById('startProcess');
     startButton.disabled = true;
@@ -97,11 +125,22 @@ function handleWebSocketMessage(event) {
     }
 }
 
-function handleFileSelection() {
-    const files = this.files;
+function handleFileSelection(event) {
+
+    let files;
+    if (event.type === 'drop') {
+        files = event.dataTransfer.files;
+    } else {
+        files = event.target.files;
+    }
 
     if (files.length === 0) {
-        alert('Bitte wählen Sie einen Ordner aus.');
+        alert('Bitte wählen Sie Dateien aus.');
+        return;
+    }
+
+    if (!areValidFiles(files)) {
+        alert('Bitte wählen Sie nur .jpg oder .png Dateien.');
         return;
     }
 
@@ -114,6 +153,7 @@ function handleFileSelection() {
         .then(response => {
             console.log(response.data);
             alert('Bilder erfolgreich hochgeladen!');
+            updateImagePreview(files);
             document.getElementById('startProcess').disabled = false;
         })
         .catch(error => {
@@ -121,12 +161,25 @@ function handleFileSelection() {
             alert('Fehler beim Hochladen der Bilder.');
         });
 
+}
+function updateImagePreview(files) {
     const imagePreviewContainer = document.getElementById('imagePreview');
     imagePreviewContainer.innerHTML = '';
+    imagePreviewContainer.innerHTML = '';
+    imagePreviewContainer.style.display = 'grid';
+    imagePreviewContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
+    imagePreviewContainer.style.gridTemplateRows = 'repeat(2, 1fr)';
+    imagePreviewContainer.style.flexDirection = '';
+    imagePreviewContainer.style.border = '2px dashed #525252';
+    imagePreviewContainer.style.gap = '0px';
+    imagePreviewContainer.style.maxHeight = '150px';
+    imagePreviewContainer.style.justifyItems = 'center';
+    imagePreviewContainer.style.alignItems = 'center';
+    imagePreviewContainer.style.border = '0px'
+    const maxImagesToShow = 8;
 
-    const maxImagesToShow = 6;
-    for (let i = 0; i < Math.min(this.files.length, maxImagesToShow); i++) {
-        const file = this.files[i];
+    for (let i = 0; i < Math.min(files.length, maxImagesToShow); i++) {
+        const file = files[i];
         const imgElement = document.createElement('img');
         imgElement.src = URL.createObjectURL(file);
         imgElement.onload = function () {

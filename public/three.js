@@ -116,7 +116,7 @@ function updateLightVisibility(light, visibility) {
 function animate(camera, scene, renderer, controls) {
     requestAnimationFrame(() => animate(camera, scene, renderer, controls));
     controls.update();
-    stats.update();
+    // stats.update();
     renderer.render(scene, camera);
 }
 
@@ -132,8 +132,9 @@ const camera = initCamera();
 const renderer = initRenderer();
 const controls = initControls(camera, renderer);
 const lights = initLights(scene);
-const stats = initStats();
+// const stats = initStats();
 createGUI(camera, lights, scene, params);
 initGridHelper(scene);
 
-animate(camera, scene, renderer, controls, stats);
+// animate(camera, scene, renderer, controls, stats);
+animate(camera, scene, renderer, controls);

@@ -19,24 +19,36 @@
             <button id="sidebarToggle"><i class="fa fa-chevron-left"></i></button>
             <h2>3D-Rekonstruktions-Tool</h2>
             <br>
-            <p>Wählen Sie einen Ordner mit Bildern aus</p>
-            <input type="file" id="folderPicker" webkitdirectory multiple>
-            <div id="imagePreview" class="image-preview"></div>
-
+            <br>
+            <div id="imagePreview" class="image-preview">
+                <div id="dropArea" class="drop-area">
+                    <i class="fa fa-upload" id="upload_icon"></i>
+                    <p>Drag & Drop Ihre Dateien hier <br />
+                        <label for="folderPicker" class="file-input-label">oder klicken Sie, um Dateien
+                            auszuwählen</label>
+                    </p>
+                    <input type="file" id="folderPicker" webkitdirectory multiple style="display: none;" />
+                </div>
+            </div>
+            <br>
+            <p>Extracted Details:</p>
+            <br>
+            <br>
             <p>Wählen Sie die Rekonstruktions-Pipeline:</p>
             <select id="modelSelector">
                 <option>Meshroom</option>
                 <option>Colmap/OpenMVS</option>
             </select>
+            <p>Options:</p>
+            <br>
+            <br>
             <br>
             <div id="progressContainer"></div>
-            <br>
-            <button title="Bitte wählen sie ihre Bilder aus" id="startProcess">3D-Rekonstruktion starten</button>
-
+            <button title="Bitte wählen sie ihre Bilder aus" disabled id="startProcess">3D-Rekonstruktion
+                starten</button>
         </div>
         <div class="main">
             <div id="threeJsContainer"></div>
-
         </div>
     </div>
 
