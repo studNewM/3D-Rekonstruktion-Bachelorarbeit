@@ -3,12 +3,16 @@ import fs from 'fs'
 
 const setupWorkspace = (name) => {
     const workspace = path.normalize(path.join(process.cwd(), name));
-    if (!fs.existsSync(workspace)) {
-        fs.mkdirSync(workspace);
-        console.log("Workspace created");
-    } else {
-        console.log("Workspace does exist");
+    if (fs.existsSync(workspace)) {
+        console.log("Workspace already exists");
+        fs.rmSync(workspace, { recursive: true }, (err) => {
+            if (err) {
+                throw err;
+            }
+        });
     }
+    fs.mkdirSync(workspace);
+    console.log("Workspace created");
 }
 
 const moveImagesToWorkspace = (workspace_path) => {

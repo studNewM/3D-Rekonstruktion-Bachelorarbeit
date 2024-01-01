@@ -2,11 +2,10 @@ import { watch } from 'chokidar';
 import path from 'path';
 import sendToAllClients from './websocketToClient.js';
 import fs from 'fs';
-const meshroomSteps = ['CameraInit', 'FeatureExtraction', 'ImageMatching', 'FeatureMatching', 'StructureFromMotion', 'PrepareDenseScene', 'DepthMapFilter', 'DepthMap', 'Meshing', 'MeshFiltering', 'Texturing','Publish']
+const meshroomSteps = ['CameraInit', 'FeatureExtraction', 'ImageMatching', 'FeatureMatching', 'StructureFromMotion', 'PrepareDenseScene', 'DepthMapFilter', 'DepthMap', 'Meshing', 'MeshFiltering', 'Texturing', 'Publish']
 const workspaceDir = path.join(process.cwd(), "workspace");
 
-let currentStep = null;
-let currentStepStartTime = null;
+
 
 
 
@@ -16,18 +15,21 @@ const watchWorkspace = (wss) => {
         persistent: true,
         depth: 2,
     });
+    let currentStep = null;
+    let currentStepStartTime = null;
 
     watcher.on('add', filePath => {
-        console.log(`Datei ${filePath} wurde hinzugefügt.`);
         const foundStep = meshroomSteps.find(step => filePath.includes(step));
-
+        console.log(`Datei ${filePath} wurde hinzugefügt.`);
         if (filePath.includes("log") && foundStep) {
             if (foundStep !== currentStep) {
                 if (currentStep) {
+                    console.log(currentStep);
                     const duration = (Date.now() - currentStepStartTime) / 1000;
                     sendToAllClients(wss, { step: currentStep, status: 'completed', time: duration });
                 }
                 currentStep = foundStep;
+                console.log(currentStep);
                 currentStepStartTime = Date.now();
                 sendToAllClients(wss, { step: currentStep, status: 'started' });
             }

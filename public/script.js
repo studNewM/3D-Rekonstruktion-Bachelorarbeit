@@ -8,7 +8,6 @@ let completedCount = 0;
 
 
 function createProgressNodes() {
-
     const selectedOption = document.getElementById('modelSelector').value;
     const steps = stepsByOption[selectedOption] || [];
 
@@ -20,7 +19,6 @@ function createProgressNodes() {
         step.classList.add('progressStep');
         step.textContent = stepName;
         step.id = `process-${stepName}`;
-
 
         const progressLine = document.createElement('div');
         progressLine.classList.add('progressLine');
@@ -34,6 +32,8 @@ function createProgressNodes() {
 document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     createProgressNodes();
+    initializeWebSocket();
+
 });
 
 function setupEventListeners() {
@@ -41,27 +41,37 @@ function setupEventListeners() {
     document.getElementById('folderPicker').addEventListener('change', handleFileSelection);
     document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
     document.getElementById('modelSelector').addEventListener('change', createProgressNodes);
+    setupDragAndDrop();
 
+}
+
+
+function initializeWebSocket() {
+    const ws = new WebSocket('ws://localhost:3000');
+    ws.onopen = handleWebSocketOpen;
+    ws.onmessage = handleWebSocketMessage;
+    ws.onerror = handleWebSocketError;
+    ws.onclose = handleWebSocketClose;
+}
+
+function handleWebSocketOpen() {
+    console.log("WebSocket-Verbindung geöffnet");
+}
+
+function handleWebSocketError(error) {
+    console.error('WebSocket-Fehler:', error);
+}
+
+function handleWebSocketClose() {
+    console.log("WebSocket-Verbindung geschlossen");
+}
+function setupDragAndDrop() {
     const dropArea = document.getElementById('dropArea');
-    dropArea.addEventListener('dragover', (event) => {
-        event.preventDefault();
-        dropArea.classList.add('drag-over');
-    });
-
-    dropArea.addEventListener('dragleave', () => {
-        dropArea.classList.remove('drag-over');
-    });
-
-    dropArea.addEventListener('drop', (event) => {
+    dropArea.addEventListener('dragover', event => event.preventDefault());
+    dropArea.addEventListener('dragleave', () => dropArea.classList.remove('drag-over'));
+    dropArea.addEventListener('drop', event => {
         event.preventDefault();
         dropArea.classList.remove('drag-over');
-
-        const files = event.dataTransfer.files;
-        if (Array.from(files).some(file => !/\.(jpg|png)$/i.test(file.name))) {
-            alert('Bitte wählen Sie nur .jpg oder .png Dateien.');
-            return;
-        }
-
         handleFileSelection(event);
     });
 }
@@ -75,55 +85,50 @@ function startReconstructionProcess() {
     startButton.disabled = true;
 
     const selectedOption = document.getElementById('modelSelector').value;
-    const ws = new WebSocket('ws://localhost:3000');
 
-    ws.onopen = handleWebSocketOpen(selectedOption);
-    ws.onmessage = handleWebSocketMessage;
-    ws.onerror = function (error) {
-        console.error('WebSocket-Fehler:', error);
-    };
-    ws.onclose = function () {
-        console.log("WebSocket-Verbindung geschlossen");
-    };
+    axios.post('/reconstruction', {
+        model: selectedOption
+    }).then(function (response) {
+        console.log(response);
+    }).catch(function (error) {
+        console.log(error);
+    });
 }
-function handleWebSocketOpen(selectedOption) {
-    return function () {
-        console.log("WebSocket-Verbindung geöffnet");
-        axios.post('/reconstruction', {
-            model: selectedOption
-        }).then(function (response) {
-            console.log(response);
-        }).catch(function (error) {
-            console.log(error);
-        });
-    }
-}
+
 function handleWebSocketMessage(event) {
-    const startButton = document.getElementById('startProcess');
-    const selectedOption = document.getElementById('modelSelector').value;
     const data = JSON.parse(event.data);
     const processElement = document.getElementById(`progress-${data.step}-line`);
-    if (processElement) {
-        if (data.status === 'started') {
+
+    switch (data.status) {
+        case 'started':
             processElement.style.backgroundColor = 'yellow';
-        } else if (data.status === 'completed') {
+            break;
+        case 'completed':
             completedCount++;
             processElement.style.backgroundColor = 'green';
-            if (selectedOption == "Colmap/OpenMVS" && completedCount >= 20) {
-                console.log("object");
-                startButton.disabled = false;
-                completedCount = 0;
-            }
-            else if (selectedOption == "Meshroom" && data.step == 'Publish' && data.status === 'completed') {
-                startButton.disabled = false;
-                completedCount = 0;
-                console.log("Prozess abgeschlossen!");
-                alert('Prozess abgeschlossen!');
-                initModels();
-            }
+            handleStepCompletion(data.step);
+            break;
+        case 'failed':
+            processElement.style.backgroundColor = 'red';
+            alert(`${data.step} fehlgeschlagen:\n${data.message}`);
+            break;
+        default:
+            console.warn('Unbekannter Status:', data.status);
+    }
+}
+
+function handleStepCompletion(stepName) {
+    const selectedOption = document.getElementById('modelSelector').value;
+    if ((selectedOption === "Colmap/OpenMVS" && completedCount >= 20) || (selectedOption === "Meshroom" && stepName === 'Publish')) {
+        document.getElementById('startProcess').disabled = false;
+        completedCount = 0;
+        alert('Prozess abgeschlossen!');
+        if (selectedOption === "Meshroom") {
+            initModels();
         }
     }
 }
+
 
 function handleFileSelection(event) {
 
@@ -148,23 +153,26 @@ function handleFileSelection(event) {
     for (let i = 0; i < files.length; i++) {
         formData.append('fileList', files[i]);
     }
-
     axios.post('/upload', formData)
         .then(response => {
             console.log(response.data);
-            alert('Bilder erfolgreich hochgeladen!');
             updateImagePreview(files);
             document.getElementById('startProcess').disabled = false;
+            getFileDetails(formData);
+            alert('Bilder erfolgreich hochgeladen!');
         })
         .catch(error => {
             console.error('Fehler beim Hochladen der Bilder:', error);
             alert('Fehler beim Hochladen der Bilder.');
         });
-
 }
-function updateImagePreview(files) {
+
+function getFileDetails(formData) {
+    console.log(formData);
+}
+
+function changeCSS() {
     const imagePreviewContainer = document.getElementById('imagePreview');
-    imagePreviewContainer.innerHTML = '';
     imagePreviewContainer.innerHTML = '';
     imagePreviewContainer.style.display = 'grid';
     imagePreviewContainer.style.gridTemplateColumns = 'repeat(4, 1fr)';
@@ -176,6 +184,18 @@ function updateImagePreview(files) {
     imagePreviewContainer.style.justifyItems = 'center';
     imagePreviewContainer.style.alignItems = 'center';
     imagePreviewContainer.style.border = '0px'
+
+    const imagePreviewTitel = document.getElementById('imagePreviewTitel');
+    imagePreviewTitel.innerHTML = 'Image Preview';
+    imagePreviewTitel.style.padding = '0px';
+    imagePreviewTitel.style.paddingBottom = '5px';
+
+
+    return imagePreviewContainer;
+
+}
+function updateImagePreview(files) {
+    const imagePreviewContainer = changeCSS();
     const maxImagesToShow = 8;
 
     for (let i = 0; i < Math.min(files.length, maxImagesToShow); i++) {
@@ -201,22 +221,4 @@ function toggleSidebar() {
 }
 
 
-function initializeWebSocket() {
-    const ws = new WebSocket('ws://localhost:3000');
-    ws.onopen = handleWebSocketOpen;
-    ws.onmessage = handleWebSocketMessage;
-    ws.onerror = handleWebSocketError;
-    ws.onclose = handleWebSocketClose;
-    return ws;
-}
 
-
-function handleWebSocketError(error) {
-    console.error('WebSocket-Fehler:', error);
-}
-
-function handleWebSocketClose() {
-    console.log("WebSocket-Verbindung geschlossen");
-}
-
-const ws = initializeWebSocket();

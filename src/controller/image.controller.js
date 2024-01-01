@@ -15,7 +15,6 @@ export const upload_images = (req, res) => {
     req.files.forEach(file => {
         const newPath = path.join('images', file.originalname);
         fs.renameSync(file.path, newPath);
-        console.log(file.path);
 
     });
     res.send('Dateien hochgeladen');

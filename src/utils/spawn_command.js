@@ -13,6 +13,8 @@ export default function spawnCommand(commandText, type = "", wss, stepName) {
         setTimeout(() => watchWorkspace(wss), 10000);
     }
     return new Promise((resolve, reject) => {
+        let stderrOutput = '';
+
         const args = commandText.split(' ');
         const config = typeConfigs[type];
 
@@ -22,7 +24,6 @@ export default function spawnCommand(commandText, type = "", wss, stepName) {
         const cwd = config.cwd;
 
         const child = spawn(command, commandArgs, { cwd });
-        console.log(`Running command: ${command} ${cwd} ${commandArgs.join(' ')}`);
 
 
         if (type !== "meshroom") {
@@ -33,16 +34,24 @@ export default function spawnCommand(commandText, type = "", wss, stepName) {
         });
 
         child.stderr.on('data', data => {
+            stderrOutput += data.toString();
             console.error(data.toString());
         });
+
+
 
         child.on('close', code => {
             if (type !== "meshroom") {
                 sendToAllClients(wss, { step: stepName, status: 'completed' });
             }
             if (code !== 0) {
-                reject(new Error(`Command exited with code ${code}`));
+                if (stderrOutput.includes('fatal')) {
+                    const nodeType = stderrOutput.split('RuntimeError: Error on node')[1].split(':')[0].split('_1')[0].replace(/"/g, '').trimStart();
+                    const fatalMessage = stderrOutput.split('[fatal]')[1].split('\n')[0].trimStart();
+                    sendToAllClients(wss, { step: nodeType, status: 'failed', message: fatalMessage });
+                }
             } else {
+                console.log('Prozess erfolgreich beendet');
                 resolve();
             }
         });
