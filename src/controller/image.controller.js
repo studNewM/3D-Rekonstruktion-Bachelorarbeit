@@ -1,8 +1,8 @@
 import path from 'path';
 import fs from 'fs';
+import { processImages } from '../services/exifExtraction.js'
 
-
-export const upload_images = (req, res) => {
+const upload_images = (req, res) => {
     console.log("Lade Dateien hoch");
     const imagesDir = path.join(process.cwd(), 'images');
 
@@ -18,4 +18,32 @@ export const upload_images = (req, res) => {
 
     });
     res.send('Dateien hochgeladen');
+}
+
+const getMetdata = async (req, res) => {
+    const cameraInfo = await processImages();
+    const metadata = {
+        totalCameras: Object.keys(cameraInfo).length,
+        cameras: [],
+        totalImages: Object.values(cameraInfo).reduce((total, info) => total + info.count, 0),
+
+    };
+
+    Object.entries(cameraInfo).forEach(([cameraModel, info]) => {
+        metadata.cameras.push({
+            combine: cameraModel,
+            maker: info.maker,
+            model: info.model,
+            imageCount: info.count,
+            focalLengths: Array.from(info.focalLengths),
+            isoValues: Array.from(info.isoValues),
+            imageCountsByFocalLength: info.imageCountsByFocalLength
+        });
+    });
+    res.send(metadata);
+}
+
+export {
+    upload_images,
+    getMetdata
 }

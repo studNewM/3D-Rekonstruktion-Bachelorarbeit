@@ -13,10 +13,11 @@ html {
     position: relative;
 }
 
-h2 {
+h3 {
     margin: 0;
     padding: 0;
-    font-size: 1.5em;
+    font-size: 1.4em;
+    padding-bottom: 10px;
 }
 
 p {
@@ -114,8 +115,94 @@ p {
     left: 0;
     width: 100%;
     height: 3px;
-    background-color: red;
+    background-color: rgb(255, 255, 255);
 }
+
+
+/* .activateIcon {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 0.8em;
+    cursor: pointer;
+} */
+
+.dropdown {
+    position: absolute;
+    top: 8px;
+    right: 5px;
+}
+
+.dropbtn.icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: none;
+    border: none;
+    cursor: pointer;
+    height: 22px;
+    padding: 10px;
+    margin: -10px;
+}
+
+.dropbtn.icons li {
+    background: #fff;
+    height: 3px;
+    width: 3px;
+    margin: 1px 0;
+    border-radius: 50%;
+    list-style-type: none;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #000000;
+    min-width: 120px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    right: 0;
+    top: 100%;
+    margin-top: 2px;
+}
+
+.dropdown-content .dropdown-btn {
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+    border: none;
+    background-color: transparent;
+    width: 100%;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: block;
+    margin: 0;
+}
+
+.dropdown-content .dropdown-btn.disabled {
+    color: rgb(255, 255, 255);
+    pointer-events: none;
+    opacity: 0.5;
+}
+
+.dropdown-content .dropdown-btn:hover {
+    background-color: #f1f1f1;
+    color: black;
+}
+
+.dropdown-btn:hover {
+    background-color: #f1f1f1;
+    color: black;
+}
+
+.show {
+    display: block;
+}
+
+
+
+
 
 .sidebar {
     width: 30%;
@@ -167,6 +254,7 @@ p {
 .sidebar.collapsed {
     margin-left: -30%;
 }
+
 .image-preview {
     display: flex;
     flex-direction: column;
@@ -214,4 +302,139 @@ p {
     color: #4a90e2;
     text-decoration: underline;
     cursor: pointer;
+}
+
+/* .info-panel {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 1px;
+    padding: 10px;
+    background-color: #242424;
+    font-size: 15px;
+}
+
+.info-panel div {
+    flex: 1 1 50%;
+    margin-bottom: 10px;
+} */
+
+.info-panel {
+    display: flex;
+    background-color: #242424;
+    /* Äußeren Container grau färben */
+    color: #f0f0f0;
+    font-size: 12px;
+    padding: 10px 0;
+    justify-content: space-between;
+    /* Sorgt für gleichmäßige Verteilung der inneren Divs */
+}
+
+.info-panel div {
+    background-color: #343434;
+    /* Farbe der inneren Divs */
+    padding: 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    /* Erlaubt den Divs, gleichmäßig zu wachsen */
+    flex-basis: calc(33.333% - 20px);
+    /* Berechnet die Breite jedes Divs */
+    margin: 0 10px;
+    /* Setzt Abstand zwischen den Divs */
+}
+
+.info-panel div:first-child {
+    margin-left: 0;
+}
+
+.info-panel div:last-child {
+    margin-right: 0;
+}
+
+.info-panel div img {
+    margin-right: 5px;
+    height: 20px;
+    width: 20px;
+}
+
+img {
+    margin-right: 5px;
+    height: 20px;
+    width: 20px;
+}
+
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted black;
+}
+
+.tooltiptext {
+    /* visibility: hidden; */
+    width: 120px;
+    background-color: transparent;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+
+
+.tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+}
+
+
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 10px;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-bottom: 10px;
+}
+
+.checkbox-item {
+    display: grid;
+    grid-template-columns: 80% 20%;
+    align-items: center;
+    /* Zentriert den Inhalt vertikal */
+
+}
+
+.checkbox-item label {
+    text-align: left;
+    font-size: 13px;
+}
+
+.checkbox-item input {
+    justify-self: start;
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    justify-self: end;
 }

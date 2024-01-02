@@ -44,7 +44,7 @@ const watchOutput = (name, wss) => {
     fs.readdir(outputDir, (err, files) => {
         if (err) {
             console.error(`Fehler beim Lesen des Verzeichnisses: ${err}`);
-        } else if (files.length === 5) {
+        } else if (files.length >= 3) {
             sendToAllClients(wss, { step: 'Publish', status: 'completed' });
 
         }

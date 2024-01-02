@@ -5,8 +5,89 @@ const stepsByOption = {
     'Colmap/OpenMVS': ['feature_extractor', 'exhaustive_matcher', 'mapper', 'image_undistorter', 'model_converter', 'InterfaceCOLMAP', 'DensifyPointCloud', 'ReconstructMesh', 'RefineMesh', 'TextureMesh'],
 };
 let completedCount = 0;
+function activateButton(process) {
+    const buttons = ['Anzeigen', 'Export'].map(action => document.getElementById(`button-${action}-${process}`));
+    buttons.forEach(button => {
+        if (button) {
+            button.classList.remove('disabled');
+        }
+    });
+}
 
 
+function handleExportClick(stepName) {
+    console.log(`Export für Schritt ${stepName} ausgelöst.`);
+    // Fügen Sie hier die Logik für die Export-Funktion ein
+}
+
+function handleShowClick(stepName) {
+    alert(`Anzeigen für Schritt ${stepName} ausgelöst.`);
+    // axios.post('/model', {
+    //     step: stepName
+    // }).then(function (response) {
+    //     console.log(response);
+    // }).catch(function (error) {
+    //     console.log(error);
+    // });
+}
+
+
+// Working for all Nodes
+
+// function createProgressNodes() {
+//     const selectedOption = document.getElementById('modelSelector').value;
+//     const steps = stepsByOption[selectedOption] || [];
+
+//     const progressContainer = document.getElementById('progressContainer');
+//     progressContainer.innerHTML = '';
+
+//     steps.forEach((stepName) => {
+//         const step = document.createElement('div');
+//         step.classList.add('progressStep');
+//         step.textContent = stepName;
+//         step.id = `process-${stepName}`;
+
+
+//         const dropdown = document.createElement('div');
+//         dropdown.classList.add('dropdown');
+//         const dropbtn = document.createElement('ul');
+//         dropbtn.classList.add('dropbtn', 'icons', 'btn-right', 'showLeft');
+//         dropbtn.onclick = () => showDropdown(`dropdown-${stepName}`);
+
+//         for (let i = 0; i < 3; i++) {
+//             dropbtn.appendChild(document.createElement('li'));
+//         }
+
+//         dropdown.appendChild(dropbtn);
+
+//         const dropdownContent = document.createElement('div');
+//         dropdownContent.classList.add('dropdown-content');
+//         dropdownContent.id = `dropdown-${stepName}`;
+//         ['Export'].forEach(text => {
+//             const button = document.createElement('button');
+//             button.textContent = text;
+//             button.classList.add('dropdown-btn', 'disabled');
+//             dropdownContent.appendChild(button);
+//         });
+
+//         if (['StructureFromMotion', 'Meshing', 'Texturing'].includes(stepName)) {
+//             const specialButton = document.createElement('button');
+//             specialButton.textContent = 'Anzeigen';
+//             specialButton.classList.add('dropdown-btn', 'disabled');
+//             dropdownContent.appendChild(specialButton);
+//         }
+
+//         dropdown.appendChild(dropdownContent);
+//         step.appendChild(dropdown);
+//         const progressLine = document.createElement('div');
+//         progressLine.classList.add('progressLine');
+//         progressLine.id = `progress-${stepName}-line`;
+
+
+//         step.appendChild(progressLine);
+//         progressContainer.appendChild(step);
+//     });
+// }
 function createProgressNodes() {
     const selectedOption = document.getElementById('modelSelector').value;
     const steps = stepsByOption[selectedOption] || [];
@@ -20,18 +101,68 @@ function createProgressNodes() {
         step.textContent = stepName;
         step.id = `process-${stepName}`;
 
+        // Erstellen des Dropdown-Menüs nur für spezifizierte Schritte
+        if (['StructureFromMotion', 'Meshing', 'Texturing'].includes(stepName)) {
+            const dropdown = document.createElement('div');
+            dropdown.classList.add('dropdown');
+            const dropbtn = document.createElement('ul');
+            dropbtn.classList.add('dropbtn', 'icons', 'btn-right', 'showLeft');
+            dropbtn.onclick = () => showDropdown(`dropdown-${stepName}`);
+
+            for (let i = 0; i < 3; i++) {
+                dropbtn.appendChild(document.createElement('li'));
+            }
+
+            dropdown.appendChild(dropbtn);
+
+            const dropdownContent = document.createElement('div');
+            dropdownContent.classList.add('dropdown-content');
+            dropdownContent.id = `dropdown-${stepName}`;
+
+            ['Anzeigen', 'Export'].forEach(text => {
+                const button = document.createElement('button');
+                button.textContent = text;
+                button.id = `button-${text}-${stepName}`;
+                button.classList.add('dropdown-btn', 'disabled');
+                dropdownContent.appendChild(button);
+            });
+
+            dropdown.appendChild(dropdownContent);
+            step.appendChild(dropdown);
+        }
+
         const progressLine = document.createElement('div');
         progressLine.classList.add('progressLine');
         progressLine.id = `progress-${stepName}-line`;
-
         step.appendChild(progressLine);
+
         progressContainer.appendChild(step);
     });
 }
+function showDropdown(id) {
+    document.getElementById(id).classList.toggle("show");
+}
 
+window.onclick = function (event) {
+    if (!event.target.matches('.dropbtn')) {
+        var dropdowns = document.getElementsByClassName("dropdown-content");
+        var i;
+        for (i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+                openDropdown.classList.remove('show');
+            }
+        }
+    }
+}
+
+window.addEventListener('beforeunload', function (e) {
+    e.preventDefault();
+    e.returnValue = '';
+});
 document.addEventListener('DOMContentLoaded', () => {
-    setupEventListeners();
     createProgressNodes();
+    setupEventListeners();
     initializeWebSocket();
 
 });
@@ -43,6 +174,14 @@ function setupEventListeners() {
     document.getElementById('modelSelector').addEventListener('change', createProgressNodes);
     setupDragAndDrop();
 
+
+    document.getElementById('button-Export-StructureFromMotion').addEventListener('click', () => handleExportClick('StructureFromMotion'));
+    document.getElementById('button-Export-Meshing').addEventListener('click', () => handleExportClick('Meshing'));
+    document.getElementById('button-Export-Texturing').addEventListener('click', () => handleExportClick('Texturing'));
+
+    document.getElementById('button-Anzeigen-StructureFromMotion').addEventListener('click', () => handleShowClick('StructureFromMotion'));
+    document.getElementById('button-Anzeigen-Meshing').addEventListener('click', () => handleShowClick('Meshing'));
+    document.getElementById('button-Anzeigen-Texturing').addEventListener('click', () => handleShowClick('Texturing'));
 }
 
 
@@ -107,6 +246,7 @@ function handleWebSocketMessage(event) {
             completedCount++;
             processElement.style.backgroundColor = 'green';
             handleStepCompletion(data.step);
+            activateButton(data.step);
             break;
         case 'failed':
             processElement.style.backgroundColor = 'red';
@@ -158,8 +298,8 @@ function handleFileSelection(event) {
             console.log(response.data);
             updateImagePreview(files);
             document.getElementById('startProcess').disabled = false;
-            getFileDetails(formData);
             alert('Bilder erfolgreich hochgeladen!');
+            getFileDetails();
         })
         .catch(error => {
             console.error('Fehler beim Hochladen der Bilder:', error);
@@ -167,9 +307,63 @@ function handleFileSelection(event) {
         });
 }
 
-function getFileDetails(formData) {
-    console.log(formData);
+function getFileDetails() {
+    axios.get('/metadata')
+        .then(response => {
+            console.log("Metadaten extrahiert");
+            displayMetadata(response.data);
+        })
+        .catch(error => {
+            console.error('Fehler beim Extrahieren der Metadaten', error);
+        });
 }
+
+function displayMetadata(metadata) {
+    const imageCount = document.getElementById('imageCount');
+    imageCount.innerText = metadata.totalImages;
+
+    const cameraInfos = metadata.cameras.map(camera => camera.maker).join('|');
+    const cameraDetails = document.getElementById('cameraDetails');
+    cameraDetails.innerText = cameraInfos;
+
+    const focalLengthsDetails = metadata.cameras.map(camera => camera.focalLengths).flat().join('|');
+    const focalLengths = document.getElementById('focalLength');
+    focalLengths.innerText = focalLengthsDetails;
+
+    updateTooltips(metadata);
+}
+function updateTooltips(cameraInfo) {
+    let imageCountTooltipContent = '';
+    let cameraTypesTooltipContent = '';
+    let otherInfoTooltipContent = '';
+
+
+    console.log(cameraInfo);
+
+    for (const camera of cameraInfo.cameras) {
+        imageCountTooltipContent += `${camera.maker}:<br>`;
+        for (const [focalLength, count] of Object.entries(camera.imageCountsByFocalLength)) {
+            imageCountTooltipContent += `&nbsp;&nbsp;${focalLength}: ${count} Bild(er)<br>`;
+        }
+        imageCountTooltipContent += '<br>';
+        cameraTypesTooltipContent += `${camera.combine}<br>`;
+        otherInfoTooltipContent += `Kamera: ${camera.combine}, ISO: ${camera.isoValues.join(', ')}, Brennweiten: ${camera.focalLengths.join(', ')}<br>`;
+    }
+
+    const imagecount = document.getElementById('imageCountTooltip')
+    imagecount.innerHTML = imageCountTooltipContent;
+    imagecount.style.backgroundColor = '#525252';
+
+    const cameraTypes = document.getElementById('cameraTypesTooltip');
+    cameraTypes.innerHTML = cameraTypesTooltipContent;
+    cameraTypes.style.backgroundColor = '#525252';
+
+    const otherInfo = document.getElementById('otherInfoTooltip');
+    otherInfo.innerHTML = otherInfoTooltipContent;
+    otherInfo.style.backgroundColor = '#525252';
+
+}
+
 
 function changeCSS() {
     const imagePreviewContainer = document.getElementById('imagePreview');
@@ -183,14 +377,7 @@ function changeCSS() {
     imagePreviewContainer.style.maxHeight = '150px';
     imagePreviewContainer.style.justifyItems = 'center';
     imagePreviewContainer.style.alignItems = 'center';
-    imagePreviewContainer.style.border = '0px'
-
-    const imagePreviewTitel = document.getElementById('imagePreviewTitel');
-    imagePreviewTitel.innerHTML = 'Image Preview';
-    imagePreviewTitel.style.padding = '0px';
-    imagePreviewTitel.style.paddingBottom = '5px';
-
-
+    imagePreviewContainer.style.border = '2px solid #525252'
     return imagePreviewContainer;
 
 }

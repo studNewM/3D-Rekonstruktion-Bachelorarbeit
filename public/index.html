@@ -15,11 +15,8 @@
 <body>
     <div class="container">
         <div class="sidebar">
-
             <button id="sidebarToggle"><i class="fa fa-chevron-left"></i></button>
-            <h2>3D-Rekonstruktions-Tool</h2>
-            <br>
-            <br>
+            <h3>3D-Rekonstruktions-Tool</h3>
             <div id="imagePreview" class="image-preview">
                 <div id="dropArea" class="drop-area">
                     <i class="fa fa-upload" id="upload_icon"></i>
@@ -30,19 +27,49 @@
                     <input type="file" id="folderPicker" webkitdirectory multiple style="display: none;" />
                 </div>
             </div>
-            <br>
-            <p>Extracted Details:</p>
-            <br>
-            <br>
+            <div class="info-panel">
+                <div id="imageCountDiv" class="tooltip">
+                    <img src="./css/image-regular.svg" alt="">
+                    <span class="tooltiptext" id="imageCountTooltip"></span>
+                    <span id="imageCount"></span>
+                </div>
+                <div id="cameraDetailsDiv" class="tooltip">
+                    <img src="./css/icons8-camera-20.png" class="tooltip" alt="">
+                    <span id="cameraDetails"></span>
+                    <span class="tooltiptext" id="cameraTypesTooltip"></span>
+                </div>
+                <div id="focalLengthDiv" class="tooltip">
+                    <img src="./css/icons8-aperture-20 (1).png" class="tooltip" alt="">
+                    <span id="focalLength"></span>
+                    <span class="tooltiptext" id="otherInfoTooltip"></span>
+                </div>
+            </div>
+            <br />
             <p>Wählen Sie die Rekonstruktions-Pipeline:</p>
             <select id="modelSelector">
                 <option>Meshroom</option>
                 <option>Colmap/OpenMVS</option>
             </select>
-            <p>Options:</p>
-            <br>
-            <br>
-            <br>
+            <br />
+            <div class="grid-container">
+                <div title="ThreeJS während dem Prozess deaktivieren" class="checkbox-item">
+                    <label for="checkbox1">ThreeJS deaktivieren</label>
+                    <input type="checkbox" id="checkbox1">
+                </div>
+                <div title="Wenn die Intrinsischen Kameraparameter gleich bleiben" class="checkbox-item">
+                    <label for="checkbox2">Eine Kamera/Linse</label>
+                    <input type="checkbox" id="checkbox2">
+                </div>
+                <div title="Die CPU wird in Rechenintensiven Tätigkeiten bevorzugt" class="checkbox-item">
+                    <label for="checkbox3">CPU bevorzugen</label>
+                    <input type="checkbox" id="checkbox3">
+                </div>
+                <div title="Automatisches Laden der Ergebnisse" class="checkbox-item">
+                    <label for="checkbox4">Zwischenergebnisse laden</label>
+                    <input type="checkbox" id="checkbox4">
+                </div>
+            </div>
+            <br />
             <div id="progressContainer"></div>
             <button title="Bitte wählen sie ihre Bilder aus" disabled id="startProcess">3D-Rekonstruktion
                 starten</button>
