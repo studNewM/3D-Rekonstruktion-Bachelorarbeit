@@ -16,7 +16,11 @@
     <div class="container">
         <div class="sidebar">
             <button id="sidebarToggle"><i class="fa fa-chevron-left"></i></button>
-            <h3>3D-Rekonstruktions-Tool</h3>
+            <div id="header">
+                <h3>3D-Rekonstruktions-Tool</h3>
+                <button id="restart">Test</button>
+
+            </div>
             <div id="imagePreview" class="image-preview">
                 <div id="dropArea" class="drop-area">
                     <i class="fa fa-upload" id="upload_icon"></i>
@@ -52,27 +56,29 @@
             </select>
             <br />
             <div class="grid-container">
-                <div title="ThreeJS während dem Prozess deaktivieren" class="checkbox-item">
+                <!-- <div title="ThreeJS während dem Prozess deaktivieren" class="checkbox-item">
                     <label for="checkbox1">ThreeJS deaktivieren</label>
                     <input type="checkbox" id="checkbox1">
                 </div>
                 <div title="Wenn die Intrinsischen Kameraparameter gleich bleiben" class="checkbox-item">
                     <label for="checkbox2">Eine Kamera/Linse</label>
                     <input type="checkbox" id="checkbox2">
-                </div>
+                </div> -->
                 <div title="Die CPU wird in Rechenintensiven Tätigkeiten bevorzugt" class="checkbox-item">
                     <label for="checkbox3">CPU bevorzugen</label>
-                    <input type="checkbox" id="checkbox3">
+                    <input class="runOption" type="checkbox" id="checkbox3">
                 </div>
                 <div title="Automatisches Laden der Ergebnisse" class="checkbox-item">
                     <label for="checkbox4">Zwischenergebnisse laden</label>
-                    <input type="checkbox" id="checkbox4">
+                    <input class="runOption" type="checkbox" id="checkbox4">
                 </div>
             </div>
             <br />
             <div id="progressContainer"></div>
             <button title="Bitte wählen sie ihre Bilder aus" disabled id="startProcess">3D-Rekonstruktion
                 starten</button>
+            <button id="restartProcess">3D-Rekonstruktion
+                neustarten</button>
         </div>
         <div class="main">
             <div id="threeJsContainer"></div>

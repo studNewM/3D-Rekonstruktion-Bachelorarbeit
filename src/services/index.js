@@ -30,12 +30,12 @@ export const runReconstruction = (name = "workspace", type = "Colmap/OpenMVS", w
     } else {
         moveImagesToWorkspace(name);
         runColmap(name, wss)
-            .then(() => {
-                runOpenMVS(name, wss)
-                const durationInMs = performance.now() - start;
-                const durationInMin = durationInMs / 60000;
-                console.log(`Reconstruction done. Time: ${durationInMin.toFixed(2)} minutes`)
-            })
-            .catch(error => console.error("Colmap/OpenMVS reconstruction failed:", error));
+            // .then(() => {
+            //     runOpenMVS(name, wss)
+            //     const durationInMs = performance.now() - start;
+            //     const durationInMin = durationInMs / 60000;
+            //     console.log(`Reconstruction done. Time: ${durationInMin.toFixed(2)} minutes`)
+            // })
+            // .catch(error => console.error("Colmap/OpenMVS reconstruction failed:", error));
     }
 };

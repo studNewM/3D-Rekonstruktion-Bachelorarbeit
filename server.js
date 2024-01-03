@@ -5,11 +5,16 @@ import path from 'path';
 import { WebSocketServer } from 'ws';
 import bodyParser from 'body-parser';
 
+
 const app = express();
 const port = 3000;
 
 app.use('/build/', express.static(path.join(process.cwd(), 'node_modules/dat.gui/build')));
 app.use('/assets/', express.static(path.join(process.cwd(), 'workspace', 'output')));
+app.use('/assets/', express.static(path.join(process.cwd(), 'workspace', 'ConvertSFMFormat')));
+app.use('/assets/', express.static(path.join(process.cwd(), 'workspace', 'Meshing')));
+app.use('/assets/', express.static(path.join(process.cwd(), 'workspace', 'Texturing')));
+
 app.use(express.static('public'));
 
 app.use(cors());

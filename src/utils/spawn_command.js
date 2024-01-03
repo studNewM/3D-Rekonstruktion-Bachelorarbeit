@@ -31,16 +31,23 @@ export default function spawnCommand(commandText, type = "", wss, stepName) {
         }
         child.stdout.on('data', data => {
             console.log(data.toString());
+            if (data.includes('ERROR')) {
+                sendToAllClients(wss, { message: data.toString() });
+            }
         });
 
         child.stderr.on('data', data => {
             stderrOutput += data.toString();
             console.error(data.toString());
+            if (data.includes('ERROR')) {
+                sendToAllClients(wss, { step: stepName, status: "ERROR", message: data.toString() });
+            }
         });
 
 
 
         child.on('close', code => {
+
             if (type !== "meshroom") {
                 sendToAllClients(wss, { step: stepName, status: 'completed' });
             }
@@ -48,6 +55,11 @@ export default function spawnCommand(commandText, type = "", wss, stepName) {
                 if (stderrOutput.includes('fatal')) {
                     const nodeType = stderrOutput.split('RuntimeError: Error on node')[1].split(':')[0].split('_1')[0].replace(/"/g, '').trimStart();
                     const fatalMessage = stderrOutput.split('[fatal]')[1].split('\n')[0].trimStart();
+                    sendToAllClients(wss, { step: nodeType, status: 'failed', message: fatalMessage });
+                }
+                else if (stderrOutput.includes('RuntimeError')) {
+                    const nodeType = stderrOutput.split('RuntimeError: Error on node')[1].split(':')[0].split('_1')[0].replace(/"/g, '').trimStart();
+                    const fatalMessage = stderrOutput.split('RuntimeError: Error on node')[1].split(':')[1].split('\n')[0].trimStart();
                     sendToAllClients(wss, { step: nodeType, status: 'failed', message: fatalMessage });
                 }
             } else {

@@ -179,10 +179,17 @@ async function loadMeshObject(scene, objName) {
 
 
 
-export async function loadModel(stepName, runType) {
+export async function loadModel(stepName, runType, path = '') {
     let runDict;
-    const meshroomnameTypes = { StructureFromMotion: 'sfm.ply', Meshing: 'mesh.obj', Texturing: 'texturedMesh.obj' };
-    const colmapOpenMVSTypes = { StructureFromMotion: 'sparse', Meshing: 'dense', Texturing: 'texturedMesh.obj' };
+    let meshroomnameTypes;
+    let colmapOpenMVSTypes;
+    if (!path) {
+        meshroomnameTypes = { StructureFromMotion: 'sfm.ply', Meshing: 'mesh.obj', Texturing: 'texturedMesh.obj' };
+        colmapOpenMVSTypes = { StructureFromMotion: 'sparse', Meshing: 'dense', Texturing: 'texturedMesh.obj' };
+    } else {
+        meshroomnameTypes = { StructureFromMotion: path + '/sfm.ply', Meshing: path + '/mesh.obj', Texturing: path + '/texturedMesh.obj' };
+        colmapOpenMVSTypes = { StructureFromMotion: 'sparse', Meshing: 'dense', Texturing: 'texturedMesh.obj' };
+    }
 
     if (!stepName) {
         return;
@@ -199,7 +206,7 @@ export async function loadModel(stepName, runType) {
         let loadedObject;
         switch (stepName) {
             case 'StructureFromMotion':
-                loadedObject = await loadPly(scene, 'sfm.ply');
+                loadedObject = await loadPly(scene, runDict[stepName]);
                 guiHelperBox(scene, loadedObject);
                 break;
             case 'Meshing':

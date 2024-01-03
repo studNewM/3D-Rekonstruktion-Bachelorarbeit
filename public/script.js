@@ -4,7 +4,9 @@ const stepsByOption = {
     'Meshroom': ['CameraInit', 'FeatureExtraction', 'ImageMatching', 'FeatureMatching', 'StructureFromMotion', 'PrepareDenseScene', 'DepthMap', 'DepthMapFilter', 'Meshing', 'MeshFiltering', 'Texturing', 'Publish'],
     'Colmap/OpenMVS': ['feature_extractor', 'exhaustive_matcher', 'mapper', 'image_undistorter', 'model_converter', 'InterfaceCOLMAP', 'DensifyPointCloud', 'ReconstructMesh', 'RefineMesh', 'TextureMesh'],
 };
+let paths = {};
 let completedCount = 0;
+
 function activateButton(process) {
     const buttons = ['Anzeigen', 'Export'].map(action => document.getElementById(`button-${action}-${process}`));
     buttons.forEach(button => {
@@ -31,7 +33,11 @@ function handleAutomaticModelLoading(stepName) {
     const selectedOption = document.getElementById('modelSelector').value;
 
     if (['StructureFromMotion', 'Meshing', 'Texturing'].includes(stepName)) {
-        loadModel(stepName, selectedOption);
+
+        getModelPath(stepName).then((response) => {
+            const path = response.data[0].split("\\")[2]
+            loadModel(stepName, selectedOption, path);
+        });
     }
 }
 
@@ -92,6 +98,86 @@ function handleAutomaticModelLoading(stepName) {
 //         progressContainer.appendChild(step);
 //     });
 // }
+
+function reloadCss() {
+
+    const imageCount = document.getElementById('imageCount');
+    imageCount.innerText = '';
+
+    const cameraDetails = document.getElementById('cameraDetails');
+    cameraDetails.innerText = '';
+
+    const focalLengths = document.getElementById('focalLength');
+    focalLengths.innerText = '';
+
+    const imagecount = document.getElementById('imageCountTooltip')
+    imagecount.innerHTML = '';
+    imagecount.style.backgroundColor = '';
+
+    const cameraTypes = document.getElementById('cameraTypesTooltip');
+    cameraTypes.innerHTML = '';
+    cameraTypes.style.backgroundColor = '';
+
+    const otherInfo = document.getElementById('otherInfoTooltip');
+    otherInfo.innerHTML = '';
+    otherInfo.style.backgroundColor = '';
+
+    const processElements = document.getElementsByClassName('progressLine');
+
+    for (let i = 0; i < processElements.length; i++) {
+        processElements[i].style.backgroundColor = 'white';
+    }
+
+    const imagePreview = document.getElementById('imagePreview');
+    imagePreview.innerHTML = '';
+    imagePreview.style = '';
+
+    // Erstellen des Drop-Area-Divs
+    const dropArea = document.createElement('div');
+    dropArea.id = 'dropArea';
+    dropArea.className = 'drop-area';
+
+    // Erstellen des Upload-Icons
+    const uploadIcon = document.createElement('i');
+    uploadIcon.className = 'fa fa-upload';
+    uploadIcon.id = 'upload_icon';
+
+    // Erstellen des Paragraphs für den Text
+    const textParagraph = document.createElement('p');
+    textParagraph.innerHTML = 'Drag & Drop Ihre Dateien hier <br />';
+
+    // Erstellen des Labels
+    const fileInputLabel = document.createElement('label');
+    fileInputLabel.className = 'file-input-label';
+    fileInputLabel.htmlFor = 'folderPicker';
+    fileInputLabel.textContent = 'oder klicken Sie, um Dateien auszuwählen';
+
+    // Hinzufügen des Labels zum Paragraph
+    textParagraph.appendChild(fileInputLabel);
+
+    // Erstellen des Dateiauswahl-Inputs
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.id = 'folderPicker';
+    fileInput.setAttribute('webkitdirectory', '');
+    fileInput.multiple = true;
+    fileInput.style.display = 'none';
+
+    // Hinzufügen der Elemente zum Drop-Area-Div
+    dropArea.appendChild(uploadIcon);
+    dropArea.appendChild(textParagraph);
+    dropArea.appendChild(fileInput);
+
+    // Hinzufügen des Drop-Area-Divs zum Hauptdiv-Container
+    imagePreview.appendChild(dropArea);
+    setupDragAndDrop();
+}
+
+document.getElementById('restart').addEventListener('click', () => reloadCss());
+
+
+document.getElementById('restartProcess').addEventListener('click', () => handleCheckboxChange());
+
 function createProgressNodes() {
     const selectedOption = document.getElementById('modelSelector').value;
     const steps = stepsByOption[selectedOption] || [];
@@ -140,7 +226,7 @@ function createProgressNodes() {
                 }
                 element.textContent = text;
                 element.id = `button-${text}-${stepName}`;
-                element.classList.add('dropdown-btn');
+                element.classList.add('dropdown-btn', 'disabled');
                 dropdownContent.appendChild(element);
             });
 
@@ -173,6 +259,17 @@ window.onclick = function (event) {
     }
 }
 
+
+function handleCheckboxChange() {
+    const checkbox = document.getElementsByClassName('runOption');
+    for (let item of checkbox) {
+        item.disabled = true;
+    }
+    const selectedOption = { [checkbox[0].labels[0].innerHTML]: checkbox[0].checked, [checkbox[1].labels[0].innerHTML]: checkbox[1].checked };
+    return selectedOption;
+}
+
+
 window.addEventListener('beforeunload', function (e) {
     e.preventDefault();
     e.returnValue = '';
@@ -199,6 +296,9 @@ function setupEventListeners() {
     document.getElementById('button-Anzeigen-StructureFromMotion').addEventListener('click', () => handleShowClick('StructureFromMotion'));
     document.getElementById('button-Anzeigen-Meshing').addEventListener('click', () => handleShowClick('Meshing'));
     document.getElementById('button-Anzeigen-Texturing').addEventListener('click', () => handleShowClick('Texturing'));
+
+
+
 }
 
 
@@ -241,19 +341,26 @@ function startReconstructionProcess() {
     startButton.disabled = true;
 
     const selectedOption = document.getElementById('modelSelector').value;
-
+    const pipelineOptions = handleCheckboxChange();
     axios.post('/reconstruction', {
-        model: selectedOption
+        model: selectedOption,
+        options: pipelineOptions
     }).then(function (response) {
         console.log(response);
     }).catch(function (error) {
         console.log(error);
     });
 }
+async function getModelPath(step) {
+    const modelPath = await axios.get('/modelPath', { params: { modelRequest: step } })
+    return modelPath;
+}
 
 function handleWebSocketMessage(event) {
     const data = JSON.parse(event.data);
     const processElement = document.getElementById(`progress-${data.step}-line`);
+    const pipelineOptions = handleCheckboxChange();
+    console.log(pipelineOptions['Zwischenergebnisse laden']);
 
 
     switch (data.status) {
@@ -265,9 +372,15 @@ function handleWebSocketMessage(event) {
             processElement.style.backgroundColor = 'green';
             handleStepCompletion(data.step);
             activateButton(data.step);
-            // handleAutomaticModelLoading(data.step);
+            if (pipelineOptions['Zwischenergebnisse laden'] === true) {
+                handleAutomaticModelLoading(data.step);
+            }
             break;
         case 'failed':
+            processElement.style.backgroundColor = 'red';
+            alert(`${data.step} fehlgeschlagen:\n${data.message}`);
+            break;
+        case 'ERROR':
             processElement.style.backgroundColor = 'red';
             alert(`${data.step} fehlgeschlagen:\n${data.message}`);
             break;
@@ -314,7 +427,6 @@ function handleFileSelection(event) {
     }
     axios.post('/upload', formData)
         .then(response => {
-            console.log(response.data);
             updateImagePreview(files);
             document.getElementById('startProcess').disabled = false;
             alert('Bilder erfolgreich hochgeladen!');
@@ -356,8 +468,6 @@ function updateTooltips(cameraInfo) {
     let cameraTypesTooltipContent = '';
     let otherInfoTooltipContent = '';
 
-
-    console.log(cameraInfo);
 
     for (const camera of cameraInfo.cameras) {
         imageCountTooltipContent += `${camera.maker}:<br>`;
