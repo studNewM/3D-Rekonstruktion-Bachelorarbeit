@@ -1,4 +1,4 @@
-import { initModels } from './three.js';
+import { loadModel } from './three.js';
 
 const stepsByOption = {
     'Meshroom': ['CameraInit', 'FeatureExtraction', 'ImageMatching', 'FeatureMatching', 'StructureFromMotion', 'PrepareDenseScene', 'DepthMap', 'DepthMapFilter', 'Meshing', 'MeshFiltering', 'Texturing', 'Publish'],
@@ -21,14 +21,18 @@ function handleExportClick(stepName) {
 }
 
 function handleShowClick(stepName) {
-    alert(`Anzeigen für Schritt ${stepName} ausgelöst.`);
-    // axios.post('/model', {
-    //     step: stepName
-    // }).then(function (response) {
-    //     console.log(response);
-    // }).catch(function (error) {
-    //     console.log(error);
-    // });
+    const selectedOption = document.getElementById('modelSelector').value;
+
+    loadModel(stepName, selectedOption);
+    // alert(`Anzeigen für Schritt ${stepName} ausgelöst.`);
+}
+
+function handleAutomaticModelLoading(stepName) {
+    const selectedOption = document.getElementById('modelSelector').value;
+
+    if (['StructureFromMotion', 'Meshing', 'Texturing'].includes(stepName)) {
+        loadModel(stepName, selectedOption);
+    }
 }
 
 
@@ -101,7 +105,6 @@ function createProgressNodes() {
         step.textContent = stepName;
         step.id = `process-${stepName}`;
 
-        // Erstellen des Dropdown-Menüs nur für spezifizierte Schritte
         if (['StructureFromMotion', 'Meshing', 'Texturing'].includes(stepName)) {
             const dropdown = document.createElement('div');
             dropdown.classList.add('dropdown');
@@ -119,12 +122,26 @@ function createProgressNodes() {
             dropdownContent.classList.add('dropdown-content');
             dropdownContent.id = `dropdown-${stepName}`;
 
+
+            const runType = {
+                Meshroom: { StructureFromMotion: 'sfm.ply', Meshing: 'mesh.obj', Texturing: 'texturedMesh.obj' }, Colmap: { StructureFromMotion: 'sparse', Meshing: 'dense', Texturing: 'texturedMesh.obj' }
+            };
+
             ['Anzeigen', 'Export'].forEach(text => {
-                const button = document.createElement('button');
-                button.textContent = text;
-                button.id = `button-${text}-${stepName}`;
-                button.classList.add('dropdown-btn', 'disabled');
-                dropdownContent.appendChild(button);
+                let element;
+
+                if (text === 'Export') {
+                    element = document.createElement('a');
+                    element.href = '/assets/';
+                    element.download = runType[selectedOption][stepName];
+                } else {
+                    element = document.createElement('button');
+
+                }
+                element.textContent = text;
+                element.id = `button-${text}-${stepName}`;
+                element.classList.add('dropdown-btn');
+                dropdownContent.appendChild(element);
             });
 
             dropdown.appendChild(dropdownContent);
@@ -238,6 +255,7 @@ function handleWebSocketMessage(event) {
     const data = JSON.parse(event.data);
     const processElement = document.getElementById(`progress-${data.step}-line`);
 
+
     switch (data.status) {
         case 'started':
             processElement.style.backgroundColor = 'yellow';
@@ -247,6 +265,7 @@ function handleWebSocketMessage(event) {
             processElement.style.backgroundColor = 'green';
             handleStepCompletion(data.step);
             activateButton(data.step);
+            // handleAutomaticModelLoading(data.step);
             break;
         case 'failed':
             processElement.style.backgroundColor = 'red';
@@ -264,7 +283,7 @@ function handleStepCompletion(stepName) {
         completedCount = 0;
         alert('Prozess abgeschlossen!');
         if (selectedOption === "Meshroom") {
-            initModels();
+            // initModels();
         }
     }
 }
