@@ -19,14 +19,11 @@ function activateButton(process) {
 
 function handleExportClick(stepName) {
     console.log(`Export für Schritt ${stepName} ausgelöst.`);
-    // Fügen Sie hier die Logik für die Export-Funktion ein
 }
 
 function handleShowClick(stepName) {
     const selectedOption = document.getElementById('modelSelector').value;
-
     loadModel(stepName, selectedOption);
-    // alert(`Anzeigen für Schritt ${stepName} ausgelöst.`);
 }
 
 function handleAutomaticModelLoading(stepName) {
@@ -38,66 +35,11 @@ function handleAutomaticModelLoading(stepName) {
             const path = response.data[0].split("\\")[2]
             loadModel(stepName, selectedOption, path);
         });
+    } else if (['model_converter', 'ReconstructMesh', 'TextureMesh'].includes(stepName)) {
+        console.log("Automatic Model Loading");
+        loadModel(stepName, selectedOption);
     }
 }
-
-
-// Working for all Nodes
-
-// function createProgressNodes() {
-//     const selectedOption = document.getElementById('modelSelector').value;
-//     const steps = stepsByOption[selectedOption] || [];
-
-//     const progressContainer = document.getElementById('progressContainer');
-//     progressContainer.innerHTML = '';
-
-//     steps.forEach((stepName) => {
-//         const step = document.createElement('div');
-//         step.classList.add('progressStep');
-//         step.textContent = stepName;
-//         step.id = `process-${stepName}`;
-
-
-//         const dropdown = document.createElement('div');
-//         dropdown.classList.add('dropdown');
-//         const dropbtn = document.createElement('ul');
-//         dropbtn.classList.add('dropbtn', 'icons', 'btn-right', 'showLeft');
-//         dropbtn.onclick = () => showDropdown(`dropdown-${stepName}`);
-
-//         for (let i = 0; i < 3; i++) {
-//             dropbtn.appendChild(document.createElement('li'));
-//         }
-
-//         dropdown.appendChild(dropbtn);
-
-//         const dropdownContent = document.createElement('div');
-//         dropdownContent.classList.add('dropdown-content');
-//         dropdownContent.id = `dropdown-${stepName}`;
-//         ['Export'].forEach(text => {
-//             const button = document.createElement('button');
-//             button.textContent = text;
-//             button.classList.add('dropdown-btn', 'disabled');
-//             dropdownContent.appendChild(button);
-//         });
-
-//         if (['StructureFromMotion', 'Meshing', 'Texturing'].includes(stepName)) {
-//             const specialButton = document.createElement('button');
-//             specialButton.textContent = 'Anzeigen';
-//             specialButton.classList.add('dropdown-btn', 'disabled');
-//             dropdownContent.appendChild(specialButton);
-//         }
-
-//         dropdown.appendChild(dropdownContent);
-//         step.appendChild(dropdown);
-//         const progressLine = document.createElement('div');
-//         progressLine.classList.add('progressLine');
-//         progressLine.id = `progress-${stepName}-line`;
-
-
-//         step.appendChild(progressLine);
-//         progressContainer.appendChild(step);
-//     });
-// }
 
 function reloadCss() {
 
@@ -176,7 +118,6 @@ function reloadCss() {
 document.getElementById('restart').addEventListener('click', () => reloadCss());
 
 
-document.getElementById('restartProcess').addEventListener('click', () => handleCheckboxChange());
 
 function createProgressNodes() {
     const selectedOption = document.getElementById('modelSelector').value;
@@ -191,7 +132,7 @@ function createProgressNodes() {
         step.textContent = stepName;
         step.id = `process-${stepName}`;
 
-        if (['StructureFromMotion', 'Meshing', 'Texturing'].includes(stepName)) {
+        if (['StructureFromMotion', 'Meshing', 'Texturing', 'model_converter', 'ReconstructMesh', 'TextureMesh'].includes(stepName)) {
             const dropdown = document.createElement('div');
             dropdown.classList.add('dropdown');
             const dropbtn = document.createElement('ul');
@@ -210,23 +151,25 @@ function createProgressNodes() {
 
 
             const runType = {
-                Meshroom: { StructureFromMotion: 'sfm.ply', Meshing: 'mesh.obj', Texturing: 'texturedMesh.obj' }, Colmap: { StructureFromMotion: 'sparse', Meshing: 'dense', Texturing: 'texturedMesh.obj' }
+                Meshroom: { StructureFromMotion: 'sfm.ply', Meshing: 'mesh.obj', Texturing: 'texturedMesh.obj' }, Colmap: { StructureFromMotion: 'sparse/0/sfm.ply', Meshing: 'dense', Texturing: 'texturedMesh.obj' }
             };
 
             ['Anzeigen', 'Export'].forEach(text => {
                 let element;
 
                 if (text === 'Export') {
+                    //TODO: Pfad anpassen
                     element = document.createElement('a');
                     element.href = '/assets/';
-                    element.download = runType[selectedOption][stepName];
+                    // element.download = runType[selectedOption][stepName];
                 } else {
                     element = document.createElement('button');
 
                 }
                 element.textContent = text;
                 element.id = `button-${text}-${stepName}`;
-                element.classList.add('dropdown-btn', 'disabled');
+                console.log(stepName);
+                element.classList.add('dropdown-btn');
                 dropdownContent.appendChild(element);
             });
 
@@ -241,6 +184,24 @@ function createProgressNodes() {
 
         progressContainer.appendChild(step);
     });
+    if (selectedOption === "Meshroom") {
+        document.getElementById('button-Export-StructureFromMotion').addEventListener('click', () => handleExportClick('StructureFromMotion'));
+        document.getElementById('button-Export-Meshing').addEventListener('click', () => handleExportClick('Meshing'));
+        document.getElementById('button-Export-Texturing').addEventListener('click', () => handleExportClick('Texturing'));
+
+        document.getElementById('button-Anzeigen-StructureFromMotion').addEventListener('click', () => handleShowClick('StructureFromMotion'));
+        document.getElementById('button-Anzeigen-Meshing').addEventListener('click', () => handleShowClick('Meshing'));
+        document.getElementById('button-Anzeigen-Texturing').addEventListener('click', () => handleShowClick('Texturing'));
+    } else {
+        document.getElementById('button-Anzeigen-model_converter').addEventListener('click', () => handleShowClick('model_converter'));
+        document.getElementById('button-Anzeigen-ReconstructMesh').addEventListener('click', () => handleShowClick('ReconstructMesh'));
+        document.getElementById('button-Anzeigen-TextureMesh').addEventListener('click', () => handleShowClick('TextureMesh'));
+
+        document.getElementById('button-Export-model_converter').addEventListener('click', () => handleExportClick('model_converter'));
+        document.getElementById('button-Export-ReconstructMesh').addEventListener('click', () => handleExportClick('ReconstructMesh'));
+        document.getElementById('button-Export-TextureMesh').addEventListener('click', () => handleExportClick('TextureMesh'));
+    }
+
 }
 function showDropdown(id) {
     document.getElementById(id).classList.toggle("show");
@@ -287,18 +248,6 @@ function setupEventListeners() {
     document.getElementById('sidebarToggle').addEventListener('click', toggleSidebar);
     document.getElementById('modelSelector').addEventListener('change', createProgressNodes);
     setupDragAndDrop();
-
-
-    document.getElementById('button-Export-StructureFromMotion').addEventListener('click', () => handleExportClick('StructureFromMotion'));
-    document.getElementById('button-Export-Meshing').addEventListener('click', () => handleExportClick('Meshing'));
-    document.getElementById('button-Export-Texturing').addEventListener('click', () => handleExportClick('Texturing'));
-
-    document.getElementById('button-Anzeigen-StructureFromMotion').addEventListener('click', () => handleShowClick('StructureFromMotion'));
-    document.getElementById('button-Anzeigen-Meshing').addEventListener('click', () => handleShowClick('Meshing'));
-    document.getElementById('button-Anzeigen-Texturing').addEventListener('click', () => handleShowClick('Texturing'));
-
-
-
 }
 
 
@@ -370,9 +319,11 @@ function handleWebSocketMessage(event) {
         case 'completed':
             completedCount++;
             processElement.style.backgroundColor = 'green';
+            console.log(completedCount);
             handleStepCompletion(data.step);
             activateButton(data.step);
             if (pipelineOptions['Zwischenergebnisse laden'] === true) {
+                console.log("LAde Zwischenergebnisse", data.step);
                 handleAutomaticModelLoading(data.step);
             }
             break;
@@ -391,7 +342,7 @@ function handleWebSocketMessage(event) {
 
 function handleStepCompletion(stepName) {
     const selectedOption = document.getElementById('modelSelector').value;
-    if ((selectedOption === "Colmap/OpenMVS" && completedCount >= 20) || (selectedOption === "Meshroom" && stepName === 'Publish')) {
+    if ((selectedOption === "Colmap/OpenMVS" && completedCount >= 10) || (selectedOption === "Meshroom" && stepName === 'Publish')) {
         document.getElementById('startProcess').disabled = false;
         completedCount = 0;
         alert('Prozess abgeschlossen!');

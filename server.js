@@ -15,6 +15,10 @@ app.use('/assets/', express.static(path.join(process.cwd(), 'workspace', 'Conver
 app.use('/assets/', express.static(path.join(process.cwd(), 'workspace', 'Meshing')));
 app.use('/assets/', express.static(path.join(process.cwd(), 'workspace', 'Texturing')));
 
+app.use('/assets/', express.static(path.join(process.cwd(), 'workspace', 'StructureFromMotion', 'sparse', '0')));
+app.use('/assets/', express.static(path.join(process.cwd(), 'workspace', 'OpenMVS', 'ReconstructMesh')));
+app.use('/assets/', express.static(path.join(process.cwd(), 'workspace', 'OpenMVS', 'TextureMesh')));
+
 app.use(express.static('public'));
 
 app.use(cors());

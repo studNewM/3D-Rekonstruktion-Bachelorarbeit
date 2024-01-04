@@ -128,6 +128,7 @@ function guiHelperBox(scene, mesh) {
 
 async function loadPly(scene, plyName) {
     const plyloader = new PLYLoader();
+    console.log("loadPly", plyName);
 
     return new Promise((resolve, reject) => {
         plyloader.load(`/assets/${plyName}`, (geometry) => {
@@ -180,30 +181,30 @@ async function loadMeshObject(scene, objName) {
 
 
 export async function loadModel(stepName, runType, path = '') {
+
     let runDict;
     let meshroomnameTypes;
     let colmapOpenMVSTypes;
     if (!path) {
         meshroomnameTypes = { StructureFromMotion: 'sfm.ply', Meshing: 'mesh.obj', Texturing: 'texturedMesh.obj' };
-        colmapOpenMVSTypes = { StructureFromMotion: 'sparse', Meshing: 'dense', Texturing: 'texturedMesh.obj' };
+        colmapOpenMVSTypes = { model_converter: 'sfm.ply', ReconstructMesh: 'model_dense_mesh.ply', TextureMesh: 'model.obj' };
     } else {
         meshroomnameTypes = { StructureFromMotion: path + '/sfm.ply', Meshing: path + '/mesh.obj', Texturing: path + '/texturedMesh.obj' };
-        colmapOpenMVSTypes = { StructureFromMotion: 'sparse', Meshing: 'dense', Texturing: 'texturedMesh.obj' };
+        colmapOpenMVSTypes = { model_converter: 'sfm.ply', ReconstructMesh: 'model_dense_mesh.ply', TextureMesh: 'model.obj' };
     }
-
     if (!stepName) {
         return;
     }
-    console.log(runType, stepName);
     if (runType === 'Meshroom') {
         runDict = meshroomnameTypes;
-    } else if (runType === 'colmap') {
+    } else if (runType === 'Colmap/OpenMVS') {
         runDict = colmapOpenMVSTypes;
 
     }
 
     try {
         let loadedObject;
+
         switch (stepName) {
             case 'StructureFromMotion':
                 loadedObject = await loadPly(scene, runDict[stepName]);
@@ -213,6 +214,16 @@ export async function loadModel(stepName, runType, path = '') {
                 loadedObject = await loadMeshObject(scene, runDict[stepName]);
                 break;
             case 'Texturing':
+                loadedObject = await loadTexturedObject(scene, runDict[stepName], runDict[stepName].replace('.obj', '.mtl'));
+                break;
+            case 'model_converter':
+                loadedObject = await loadPly(scene, runDict[stepName]);
+                guiHelperBox(scene, loadedObject);
+                break;
+            case 'ReconstructMesh':
+                loadedObject = await loadMeshObject(scene, runDict[stepName]);
+                break;
+            case 'TextureMesh':
                 loadedObject = await loadTexturedObject(scene, runDict[stepName], runDict[stepName].replace('.obj', '.mtl'));
                 break;
             default:

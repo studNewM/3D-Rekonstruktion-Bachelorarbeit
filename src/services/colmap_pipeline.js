@@ -32,7 +32,7 @@ async function runColmap(name, wss) {
             `feature_extractor --database_path ${databasePath} --image_path ${imagesPath}`,
             `exhaustive_matcher --database_path ${databasePath}`,
             `mapper --database_path ${databasePath} --image_path ${imagesPath} --output_path ${sparsePath}`,
-            `model_converter --input_path ${sparsePath} --output_path ${denseSparsePath} --output_type ply`
+            `model_converter --input_path ${path.join(sparsePath, "0")} --output_path ${path.join(sparsePath, "0", 'sfm.ply')} --output_type ply`,
             `image_undistorter --image_path ${imagesPath} --input_path ${path.join(sparsePath, "0")} --output_path ${densePath} --output_type COLMAP`,
             `model_converter --input_path ${denseSparsePath} --output_path ${denseSparsePath} --output_type TXT`
         ];
