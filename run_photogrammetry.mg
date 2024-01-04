@@ -5,27 +5,27 @@
         "fileVersion": "1.1",
         "template": false,
         "nodesVersions": {
-            "Meshing": "7.0",
+            "DepthMapFilter": "4.0",
             "DepthMap": "5.0",
-            "MeshFiltering": "3.0",
-            "FeatureMatching": "2.0",
-            "PrepareDenseScene": "3.1",
-            "ConvertSfMFormat": "2.0",
             "CameraInit": "9.0",
-            "Texturing": "6.0",
+            "FeatureMatching": "2.0",
+            "ConvertSfMFormat": "2.0",
+            "Publish": "1.3",
             "FeatureExtraction": "1.3",
             "StructureFromMotion": "3.3",
+            "PrepareDenseScene": "3.1",
+            "Meshing": "7.0",
+            "Texturing": "6.0",
             "ImageMatching": "2.0",
-            "Publish": "1.3",
-            "DepthMapFilter": "4.0"
+            "MeshFiltering": "3.0"
         }
     },
     "graph": {
         "ConvertSfMFormat_1": {
             "nodeType": "ConvertSfMFormat",
             "position": [
-                1020,
-                -56
+                1003,
+                244
             ],
             "parallelization": {
                 "blockSize": 0,
@@ -555,11 +555,11 @@
             ],
             "parallelization": {
                 "blockSize": 0,
-                "size": 4,
+                "size": 5,
                 "split": 1
             },
             "uids": {
-                "0": "daed687215cdeda1520b73901419341f7e0330aa"
+                "0": "f7b8f8ffdd5cae6a11d56a62b94f1450823ad92e"
             },
             "internalFolder": "{cache}/{nodeType}/{uid0}/",
             "inputs": {
@@ -567,7 +567,8 @@
                     "{Meshing_1.outputMesh}",
                     "{Texturing_1.outputMesh}",
                     "{Texturing_1.outputMaterial}",
-                    "{Texturing_1.outputTextures}"
+                    "{Texturing_1.outputTextures}",
+                    "{ConvertSfMFormat_1.output}"
                 ],
                 "output": "output",
                 "verboseLevel": "info"

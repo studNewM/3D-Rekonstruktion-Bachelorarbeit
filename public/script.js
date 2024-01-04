@@ -1,5 +1,6 @@
 import { loadModel } from './three.js';
 
+
 const stepsByOption = {
     'Meshroom': ['CameraInit', 'FeatureExtraction', 'ImageMatching', 'FeatureMatching', 'StructureFromMotion', 'PrepareDenseScene', 'DepthMap', 'DepthMapFilter', 'Meshing', 'MeshFiltering', 'Texturing', 'Publish'],
     'Colmap/OpenMVS': ['feature_extractor', 'exhaustive_matcher', 'mapper', 'image_undistorter', 'model_converter', 'InterfaceCOLMAP', 'DensifyPointCloud', 'ReconstructMesh', 'RefineMesh', 'TextureMesh'],
@@ -309,7 +310,6 @@ function handleWebSocketMessage(event) {
     const data = JSON.parse(event.data);
     const processElement = document.getElementById(`progress-${data.step}-line`);
     const pipelineOptions = handleCheckboxChange();
-    console.log(pipelineOptions['Zwischenergebnisse laden']);
 
 
     switch (data.status) {
@@ -342,7 +342,7 @@ function handleWebSocketMessage(event) {
 
 function handleStepCompletion(stepName) {
     const selectedOption = document.getElementById('modelSelector').value;
-    if ((selectedOption === "Colmap/OpenMVS" && completedCount >= 10) || (selectedOption === "Meshroom" && stepName === 'Publish')) {
+    if ((selectedOption === "Colmap/OpenMVS" && completedCount >= 11) || (selectedOption === "Meshroom" && stepName === 'Publish')) {
         document.getElementById('startProcess').disabled = false;
         completedCount = 0;
         alert('Prozess abgeschlossen!');

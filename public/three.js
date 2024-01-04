@@ -14,6 +14,7 @@ gui.close()
 gui.domElement.id = 'gui';
 const objectsFolder = gui.addFolder("3dObjects");
 objectsFolder.open();
+let model_converter = 0;
 
 const threeJsSection = document.getElementById('threeJsContainer');
 const innerHeight = window.innerHeight / 1;
@@ -152,6 +153,7 @@ async function loadPly(scene, plyName) {
 }
 
 async function loadTexturedObject(scene, objName, mtlName) {
+    console.log("LOAD TEXTURED OBJECT", objName, mtlName);
     const mtlLoader = new MTLLoader();
     return new Promise((resolve, reject) => {
         mtlLoader.load(`/assets/${mtlName}`, (materials) => {
@@ -178,10 +180,97 @@ async function loadMeshObject(scene, objName) {
     });
 }
 
+async function loadColmapTextued(scene, objName) {
+    const textureLoader = new THREE.TextureLoader();
+
+    return new Promise((resolve, reject) => {
+        textureLoader.load('/assets/model_material_0_map_Kd.jpg', (texture) => {
+            const objLoader = new OBJLoader();
+            objLoader.load(`/assets/${objName}`, (object) => {
+                object.traverse((child) => {
+                    if (child instanceof THREE.Mesh) {
+                        child.geometry.computeFaceNormals();
+                        child.geometry.computeVertexNormals();
+
+                        child.material.map = texture;
+                        child.material.needsUpdate = true;
+                    }
+                });
+
+                object.position.set(0, 7, 0);
+                object.rotation.set(40, 0, 0);
+
+                const box = new THREE.Box3().setFromObject(object);
+                const center = box.getCenter(new THREE.Vector3());
+
+                controls.target.copy(center);
+                camera.position.set(center.x, 3, center.z + 5);
+
+                scene.add(object);
+                resolve(object);
+            }, undefined, reject);
+        }, undefined, reject);
+    });
+}
+async function loadColmapMesh(scene, plyName) {
+    const plyLoader = new PLYLoader();
+
+    return new Promise((resolve, reject) => {
+        plyLoader.load(`/assets/${plyName}`, (geometry) => {
+            const material = new THREE.MeshStandardMaterial();
+
+            const mesh = new THREE.Mesh(geometry, material);
+
+            geometry.computeVertexNormals();
+
+            mesh.position.set(0, 7, 0);
+            mesh.rotation.set(40, 0, 0);
+
+            scene.add(mesh);
+
+            const box = new THREE.Box3().setFromObject(mesh);
+            const center = box.getCenter(new THREE.Vector3());
+
+            controls.target.copy(center);
+            camera.position.set(center.x, 3, center.z + 5);
+
+            resolve(mesh);
+        }, undefined, reject);
+    });
+}
+
+
+async function loadColmapPLY(scene, plyName) {
+    const plyloader = new PLYLoader();
+
+    return new Promise((resolve, reject) => {
+        plyloader.load(`/assets/${plyName}`, (geometry) => {
+            const material = new THREE.PointsMaterial({
+                size: 0.01,
+                vertexColors: THREE.VertexColors
+            });
+            const mesh = new THREE.Points(geometry, material);
+
+            mesh.geometry.computeVertexNormals();
+            mesh.position.set(0, 7, 0);
+            mesh.rotation.set(40, 0, 0);
+            scene.add(mesh);
+
+            const box = new THREE.Box3().setFromObject(mesh);
+            const center = box.getCenter(new THREE.Vector3());
+
+            controls.target.copy(center);
+
+            camera.position.set(center.x, 3, center.z + 5);
+            resolve(mesh);
+        }, undefined, reject);
+    });
+
+}
+
 
 
 export async function loadModel(stepName, runType, path = '') {
-
     let runDict;
     let meshroomnameTypes;
     let colmapOpenMVSTypes;
@@ -204,33 +293,38 @@ export async function loadModel(stepName, runType, path = '') {
 
     try {
         let loadedObject;
+        if (model_converter === 0) {
 
-        switch (stepName) {
-            case 'StructureFromMotion':
-                loadedObject = await loadPly(scene, runDict[stepName]);
-                guiHelperBox(scene, loadedObject);
-                break;
-            case 'Meshing':
-                loadedObject = await loadMeshObject(scene, runDict[stepName]);
-                break;
-            case 'Texturing':
-                loadedObject = await loadTexturedObject(scene, runDict[stepName], runDict[stepName].replace('.obj', '.mtl'));
-                break;
-            case 'model_converter':
-                loadedObject = await loadPly(scene, runDict[stepName]);
-                guiHelperBox(scene, loadedObject);
-                break;
-            case 'ReconstructMesh':
-                loadedObject = await loadMeshObject(scene, runDict[stepName]);
-                break;
-            case 'TextureMesh':
-                loadedObject = await loadTexturedObject(scene, runDict[stepName], runDict[stepName].replace('.obj', '.mtl'));
-                break;
-            default:
-                return;
+            switch (stepName) {
+                case 'StructureFromMotion':
+                    loadedObject = await loadPly(scene, runDict[stepName]);
+                    guiHelperBox(scene, loadedObject);
+                    break;
+                case 'Meshing':
+                    loadedObject = await loadMeshObject(scene, runDict[stepName]);
+                    break;
+                case 'Texturing':
+                    loadedObject = await loadTexturedObject(scene, runDict[stepName], runDict[stepName].replace('.obj', '.mtl'));
+                    break;
+                case 'model_converter':
 
+                    loadedObject = await loadColmapPLY(scene, runDict[stepName]);
+                    guiHelperBox(scene, loadedObject);
+                    model_converter += 1;
+
+                    break;
+                case 'ReconstructMesh':
+                    loadedObject = await loadColmapMesh(scene, runDict[stepName]);
+                    break;
+                case 'TextureMesh':
+                    loadedObject = await loadColmapTextued(scene, runDict[stepName]);
+                    break;
+                default:
+                    return;
+
+            }
+            addToGUI(loadedObject, stepName);
         }
-        addToGUI(loadedObject, stepName);
     } catch (error) {
         console.error('Fehler beim Laden des Modells:', error);
     }
