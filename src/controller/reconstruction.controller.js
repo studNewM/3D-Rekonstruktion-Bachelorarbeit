@@ -8,7 +8,7 @@ export const start_reconstruction = (req, res) => {
     console.log(run_options);
 
     try {
-        runReconstruction("workspace", model_option, wss);
+        runReconstruction("workspace", model_option, wss,run_options);
 
     } catch (e) {
         console.log(e.message)

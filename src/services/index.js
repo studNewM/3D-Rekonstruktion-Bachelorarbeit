@@ -3,6 +3,7 @@ import { moveImagesToWorkspace, setupWorkspace } from "../utils/workspaceSetup.j
 import { watchOutput } from "../utils/watchDirectory.js";
 import runColmap from './colmap_pipeline.js'
 import runOpenMVS from './openmvs_pipeline.js'
+
 /**
  * Führt die Rekonstruktion mit Meshroom oder Colmap und OpenMVS durch.
  * - Meshroom sollte verwendet werden wenn eine normale GPU vorhanden ist.
@@ -14,12 +15,13 @@ import runOpenMVS from './openmvs_pipeline.js'
  */
 
 const start = performance.now();
-export const runReconstruction = (name = "workspace", type = "Colmap/OpenMVS", wss) => {
+export const runReconstruction = (name = "workspace", type = "Colmap/OpenMVS", wss, run_options) => {
+
     setupWorkspace(name);
     console.log("Start reconstruction");
 
     if (type === "Meshroom") {
-        runMeshroom(name, wss)
+        runMeshroom(name, wss,run_options)
             .then(() => {
                 watchOutput(name, wss);
                 const durationInMs = performance.now() - start;
@@ -29,9 +31,9 @@ export const runReconstruction = (name = "workspace", type = "Colmap/OpenMVS", w
             .catch(error => console.error("Meshroom reconstruction failed:", error));
     } else {
         moveImagesToWorkspace(name);
-        runColmap(name, wss)
+        runColmap(name, wss,run_options)
             .then(() => {
-                runOpenMVS(name, wss)
+                runOpenMVS(name, wss,run_options)
                 const durationInMs = performance.now() - start;
                 const durationInMin = durationInMs / 60000;
                 console.log(`Reconstruction done. Time: ${durationInMin.toFixed(2)} minutes`)

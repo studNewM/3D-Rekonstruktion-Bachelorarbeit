@@ -1,4 +1,3 @@
-import WebSocket from 'ws';
 import { watchWorkspace } from './watchDirectory.js';
 import { spawn } from 'node:child_process';
 import { typeConfigs } from './commandConfigs.js';

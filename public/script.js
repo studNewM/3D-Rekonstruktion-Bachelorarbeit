@@ -75,30 +75,24 @@ function reloadCss() {
     imagePreview.innerHTML = '';
     imagePreview.style = '';
 
-    // Erstellen des Drop-Area-Divs
     const dropArea = document.createElement('div');
     dropArea.id = 'dropArea';
     dropArea.className = 'drop-area';
 
-    // Erstellen des Upload-Icons
     const uploadIcon = document.createElement('i');
     uploadIcon.className = 'fa fa-upload';
     uploadIcon.id = 'upload_icon';
 
-    // Erstellen des Paragraphs für den Text
     const textParagraph = document.createElement('p');
     textParagraph.innerHTML = 'Drag & Drop Ihre Dateien hier <br />';
 
-    // Erstellen des Labels
     const fileInputLabel = document.createElement('label');
     fileInputLabel.className = 'file-input-label';
     fileInputLabel.htmlFor = 'folderPicker';
     fileInputLabel.textContent = 'oder klicken Sie, um Dateien auszuwählen';
 
-    // Hinzufügen des Labels zum Paragraph
     textParagraph.appendChild(fileInputLabel);
 
-    // Erstellen des Dateiauswahl-Inputs
     const fileInput = document.createElement('input');
     fileInput.type = 'file';
     fileInput.id = 'folderPicker';
@@ -106,12 +100,10 @@ function reloadCss() {
     fileInput.multiple = true;
     fileInput.style.display = 'none';
 
-    // Hinzufügen der Elemente zum Drop-Area-Div
     dropArea.appendChild(uploadIcon);
     dropArea.appendChild(textParagraph);
     dropArea.appendChild(fileInput);
 
-    // Hinzufügen des Drop-Area-Divs zum Hauptdiv-Container
     imagePreview.appendChild(dropArea);
     setupDragAndDrop();
 }
@@ -227,7 +219,7 @@ function handleCheckboxChange() {
     for (let item of checkbox) {
         item.disabled = true;
     }
-    const selectedOption = { [checkbox[0].labels[0].innerHTML]: checkbox[0].checked, [checkbox[1].labels[0].innerHTML]: checkbox[1].checked };
+    const selectedOption = { [checkbox[0].labels[0].title]: checkbox[0].checked, [checkbox[1].labels[0].innerHTML]: checkbox[1].checked };
     return selectedOption;
 }
 
@@ -283,7 +275,7 @@ function setupDragAndDrop() {
 }
 
 function areValidFiles(files) {
-    return Array.from(files).every(file => /\.(jpg|png)$/i.test(file.name));
+    return Array.from(files).every(file => /\.(jpg|png|jpeg)$/i.test(file.name));
 }
 
 function startReconstructionProcess() {
