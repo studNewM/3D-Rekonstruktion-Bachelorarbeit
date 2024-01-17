@@ -1,163 +1,155 @@
 body,
 html {
-    background-color: #121212;
-    color: #e0e0e0;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    font-family: Arial, sans-serif;
+  background-color: #121212;
+  color: #e0e0e0;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Arial, sans-serif;
 }
 
 #gui {
-    position: relative;
+  position: relative;
 }
 
 h3 {
-    margin: 0;
-    padding: 0;
-    font-size: 1.4em;
-    padding-bottom: 10px;
-    width: 70%;
+  margin: 0;
+  padding: 0;
+  font-size: 1.4em;
+  padding-bottom: 10px;
+  width: 70%;
 }
 
 p {
-    margin: 0;
-    padding: 10px;
-    font-size: 1em;
+  margin: 0;
+  padding: 10px;
+  font-size: 1em;
 }
 
 :root {
-    color-scheme: dark;
+  color-scheme: dark;
 }
 
 .container {
-    position: relative;
-    height: 100%;
+  position: relative;
+  height: 100%;
 }
 
 #header {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 #restart {
-    width: 30%;
-    height: 23px;
-    padding: 0;
+  width: 30%;
+  height: 23px;
+  padding: 0;
 }
 
-
-
 #startProcess {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 70%;
-    height: 50px;
-    background-color: #4CAF50;
-    color: white;
-    font-size: 1em;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    transition: background-color 0.3s;
-    margin: 0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 70%;
+  height: 50px;
+  background-color: #4caf50;
+  color: white;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s;
+  margin: 0;
 }
 
 #startProcess:disabled {
-    background-color: #9e9e9e;
-    color: #cfcfcf;
-    cursor: not-allowed;
-    box-shadow: none;
+  background-color: #9e9e9e;
+  color: #cfcfcf;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
 #startProcess:hover {
-    background-color: #45a049;
+  background-color: #45a049;
 }
 
-
 #restartProcess {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    width: 30%;
-    height: 50px;
-    background-color: #d96e4a;
-    color: white;
-    font-size: 14px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    transition: background-color 0.3s;
-    margin: 0;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 30%;
+  height: 50px;
+  background-color: #d96e4a;
+  color: white;
+  font-size: 14px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s;
+  margin: 0;
 }
 
 #restartProcess:disabled {
-    background-color: #9e9e9e;
-    color: #cfcfcf;
-    cursor: not-allowed;
-    box-shadow: none;
+  background-color: #9e9e9e;
+  color: #cfcfcf;
+  cursor: not-allowed;
+  box-shadow: none;
 }
 
-
 .main {
-    flex-grow: 1;
-    background-color: #ddd;
-    box-sizing: border-box;
-    background-color: #1c1c1c;
-    width: 70%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-
-
+  flex-grow: 1;
+  background-color: #ddd;
+  box-sizing: border-box;
+  background-color: #1c1c1c;
+  width: 70%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 #threeJsContainer {
-    width: 100%;
-    height: 100%;
-    background-color: #1c1c1c;
-
+  width: 100%;
+  height: 100%;
+  background-color: #1c1c1c;
 }
 
 #progressContainer {
-    display: flex;
-    flex-wrap: wrap;
-    padding: 10px;
-    padding-top: revert;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 10px;
+  padding-top: revert;
 }
 
 .progressStep {
-    width: 190px;
-    padding: 5px;
-    min-height: 40px;
-    margin: 5px;
-    font-size: 0.9em;
-    border: 1px solid #ddd;
-    box-sizing: border-box;
-    text-align: center;
-    line-height: 20px;
-    position: relative;
-    background-color: #333333;
-    color: #e0e0e0;
-    display: inline-block;
+  width: 190px;
+  padding: 5px;
+  min-height: 40px;
+  margin: 5px;
+  font-size: 0.9em;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 20px;
+  position: relative;
+  background-color: #333333;
+  color: #e0e0e0;
+  display: inline-block;
 }
 
 .progressLine {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background-color: rgb(255, 255, 255);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: rgb(255, 255, 255);
 }
-
 
 /* .activateIcon {
     position: absolute;
@@ -168,180 +160,174 @@ p {
 } */
 
 .dropdown {
-    position: absolute;
-    top: 8px;
-    right: 5px;
+  position: absolute;
+  top: 8px;
+  right: 5px;
 }
 
 .dropbtn.icons {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    background: none;
-    border: none;
-    cursor: pointer;
-    height: 22px;
-    padding: 10px;
-    margin: -10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: none;
+  border: none;
+  cursor: pointer;
+  height: 22px;
+  padding: 10px;
+  margin: -10px;
 }
 
 .dropbtn.icons li {
-    background: #fff;
-    height: 3px;
-    width: 3px;
-    margin: 1px 0;
-    border-radius: 50%;
-    list-style-type: none;
+  background: #fff;
+  height: 3px;
+  width: 3px;
+  margin: 1px 0;
+  border-radius: 50%;
+  list-style-type: none;
 }
 
 .dropdown-content {
-    display: none;
-    position: absolute;
-    background-color: #000000;
-    min-width: 120px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-    z-index: 1;
-    right: 0;
-    top: 100%;
-    margin-top: 2px;
+  display: none;
+  position: absolute;
+  background-color: #000000;
+  min-width: 120px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  right: 0;
+  top: 100%;
+  margin-top: 2px;
 }
 
 .dropdown-content .dropdown-btn {
-    color: white;
-    padding: 8px 12px;
-    text-align: left;
-    border: none;
-    background-color: transparent;
-    width: 100%;
-    box-sizing: border-box;
-    cursor: pointer;
-    display: block;
-    margin: 0;
+  color: white;
+  padding: 8px 12px;
+  text-align: left;
+  border: none;
+  background-color: transparent;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  display: block;
+  margin: 0;
 }
 
 .dropdown-content .dropdown-btn.disabled {
-    color: rgb(255, 255, 255);
-    pointer-events: none;
-    opacity: 0.5;
+  color: rgb(255, 255, 255);
+  pointer-events: none;
+  opacity: 0.5;
 }
 
 .dropdown-content .dropdown-btn:hover {
-    background-color: #f1f1f1;
-    color: black;
+  background-color: #f1f1f1;
+  color: black;
 }
 
 .dropdown-btn:hover {
-    background-color: #f1f1f1;
-    color: black;
+  background-color: #f1f1f1;
+  color: black;
 }
 
 .show {
-    display: block;
+  display: block;
 }
 
-
-
-
-
 .sidebar {
-    width: 30%;
-    background-color: #f4f4f4;
-    padding: 20px;
-    box-sizing: border-box;
-    transition: width 0.3s;
-    background-color: #242424;
-    color: #e0e0e0;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 30%;
-    height: 100%;
-    z-index: 10;
-    transition: left 0.3s;
+  width: 30%;
+  background-color: #f4f4f4;
+  padding: 20px;
+  box-sizing: border-box;
+  transition: width 0.3s;
+  background-color: #242424;
+  color: #e0e0e0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 30%;
+  height: 100%;
+  z-index: 10;
+  transition: left 0.3s;
 }
 
 .sidebar button,
 .sidebar input,
 .sidebar select {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    box-sizing: border-box;
-    background-color: #373737;
-    color: #ffffff;
-    border: 1px solid #525252;
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+  background-color: #373737;
+  color: #ffffff;
+  border: 1px solid #525252;
 }
 
 #sidebarToggle {
-    left: 100%;
-    background: none;
-    border: none;
-    cursor: pointer;
-    position: absolute;
-    top: 50%;
-    font-size: 20px;
-    background-color: transparent;
-    width: 30px;
-    height: 30px;
-    text-align: center;
-    color: #383737;
-
-
+  left: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  font-size: 20px;
+  background-color: transparent;
+  width: 30px;
+  height: 30px;
+  text-align: center;
+  color: #383737;
 }
 
 .sidebar.collapsed {
-    margin-left: -30%;
+  margin-left: -30%;
 }
 
 .image-preview {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    border: 1px solid #525252;
-    background-color: #383838;
-    min-height: 160px;
-    padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  border: 1px solid #525252;
+  background-color: #383838;
+  min-height: 160px;
+  padding: 0;
 }
 
 .image-preview img {
-    height: 93%;
-    width: 100%;
-    object-fit: contain;
-    object-position: center;
+  height: 93%;
+  width: 100%;
+  object-fit: contain;
+  object-position: center;
 }
 
 #upload_icon {
-    font-size: 20px;
-    color: white;
+  font-size: 20px;
+  color: white;
 }
 
 .drop-area {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    min-height: 160px;
-    background-color: #383838;
-    border: 2px dashed #525252;
-    border-radius: 8px;
-    width: 100%;
-    text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  min-height: 160px;
+  background-color: #383838;
+  border: 2px dashed #525252;
+  border-radius: 8px;
+  width: 100%;
+  text-align: center;
 }
 
 .drop-area.drag-over {
-    border-color: #000;
-    background-color: #555;
+  border-color: #000;
+  background-color: #555;
 }
 
 .file-input-label {
-    color: #4a90e2;
-    text-decoration: underline;
-    cursor: pointer;
+  color: #4a90e2;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 /* .info-panel {
@@ -359,122 +345,117 @@ p {
 } */
 
 .info-panel {
-    display: flex;
-    background-color: #242424;
-    /* Äußeren Container grau färben */
-    color: #f0f0f0;
-    font-size: 12px;
-    padding: 10px 0;
-    justify-content: space-between;
-    /* Sorgt für gleichmäßige Verteilung der inneren Divs */
+  display: flex;
+  background-color: #242424;
+  /* Äußeren Container grau färben */
+  color: #f0f0f0;
+  font-size: 12px;
+  padding: 10px 0;
+  justify-content: space-between;
+  /* Sorgt für gleichmäßige Verteilung der inneren Divs */
 }
 
 .info-panel div {
-    background-color: #343434;
-    /* Farbe der inneren Divs */
-    padding: 8px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    flex-grow: 1;
-    /* Erlaubt den Divs, gleichmäßig zu wachsen */
-    flex-basis: calc(33.333% - 20px);
-    /* Berechnet die Breite jedes Divs */
-    margin: 0 10px;
-    /* Setzt Abstand zwischen den Divs */
+  background-color: #343434;
+  /* Farbe der inneren Divs */
+  padding: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  /* Erlaubt den Divs, gleichmäßig zu wachsen */
+  flex-basis: calc(33.333% - 20px);
+  /* Berechnet die Breite jedes Divs */
+  margin: 0 10px;
+  /* Setzt Abstand zwischen den Divs */
 }
 
 .info-panel div:first-child {
-    margin-left: 0;
+  margin-left: 0;
 }
 
 .info-panel div:last-child {
-    margin-right: 0;
+  margin-right: 0;
 }
 
 .info-panel div img {
-    margin-right: 5px;
-    height: 20px;
-    width: 20px;
+  margin-right: 5px;
+  height: 20px;
+  width: 20px;
 }
 
 img {
-    margin-right: 5px;
-    height: 20px;
-    width: 20px;
+  margin-right: 5px;
+  height: 20px;
+  width: 20px;
 }
 
-
 .tooltip {
-    position: relative;
-    display: inline-block;
-    border-bottom: 1px dotted black;
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
 }
 
 .tooltiptext {
-    /* visibility: hidden; */
-    width: 120px;
-    background-color: transparent;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px 0;
-    position: absolute;
-    z-index: 1;
-    bottom: 125%;
-    left: 50%;
-    margin-left: -60px;
-    opacity: 0;
-    transition: opacity 0.3s;
+  /* visibility: hidden; */
+  width: 120px;
+  background-color: transparent;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+  opacity: 0;
+  transition: opacity 0.3s;
 }
 
-
-
 .tooltiptext::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: #555 transparent transparent transparent;
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
 }
 
 .tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
+  visibility: visible;
+  opacity: 1;
 }
 
-
 .grid-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-gap: 10px;
-    padding-right: 10px;
-    padding-left: 10px;
-    padding-bottom: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 10px;
+  padding-right: 10px;
+  padding-left: 10px;
+  padding-bottom: 10px;
 }
 
 .checkbox-item {
-    display: grid;
-    grid-template-columns: 80% 20%;
-    align-items: center;
-    /* Zentriert den Inhalt vertikal */
-
+  display: grid;
+  grid-template-columns: 80% 20%;
+  align-items: center;
+  /* Zentriert den Inhalt vertikal */
 }
 
 .checkbox-item label {
-    text-align: left;
-    font-size: 13px;
+  text-align: left;
+  font-size: 13px;
 }
 
 .checkbox-item input {
-    justify-self: start;
+  justify-self: start;
 }
 
 .checkbox-item input[type="checkbox"] {
-    width: 14px;
-    height: 14px;
-    justify-self: end;
+  width: 14px;
+  height: 14px;
+  justify-self: end;
 }

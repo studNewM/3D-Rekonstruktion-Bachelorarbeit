@@ -1,20 +1,19 @@
-import { Router } from 'express'
-import { start_reconstruction } from '../controller/reconstruction.controller.js';
-import { upload_images } from '../controller/image.controller.js'
-import { getMetdata } from '../controller/image.controller.js'
-import { getModelPath } from '../controller/model.controller.js'
-import multer from 'multer';
-const upload = multer({ dest: 'Tempuploads/' });
-const router = Router()
-
+import { Router } from "express";
+import { start_reconstruction } from "../controller/reconstruction.controller.js";
+import { upload_images } from "../controller/image.controller.js";
+import { getMetdata } from "../controller/image.controller.js";
+import { getModelPath } from "../controller/model.controller.js";
+import multer from "multer";
+const upload = multer({ dest: "Tempuploads/" });
+const router = Router();
 
 /* POST  Reconstruction Process*/
-router.post('/reconstruction', start_reconstruction)
+router.post("/reconstruction", start_reconstruction);
 
 /* POST  Upload Images */
-router.post('/upload', upload.array('fileList'), upload_images);
+router.post("/upload", upload.array("fileList"), upload_images);
 
-router.get('/metadata', getMetdata)
+router.get("/metadata", getMetdata);
 
-router.get('/modelPath', getModelPath)
-export default router
+router.get("/modelPath", getModelPath);
+export default router;

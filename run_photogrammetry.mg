@@ -5,61 +5,21 @@
         "fileVersion": "1.1",
         "template": false,
         "nodesVersions": {
-            "DepthMapFilter": "4.0",
-            "DepthMap": "5.0",
-            "CameraInit": "9.0",
-            "FeatureMatching": "2.0",
-            "ConvertSfMFormat": "2.0",
             "Publish": "1.3",
-            "FeatureExtraction": "1.3",
-            "StructureFromMotion": "3.3",
-            "PrepareDenseScene": "3.1",
-            "Meshing": "7.0",
-            "Texturing": "6.0",
+            "CameraInit": "9.0",
+            "MeshFiltering": "3.0",
+            "FeatureMatching": "2.0",
             "ImageMatching": "2.0",
-            "MeshFiltering": "3.0"
+            "DepthMap": "5.0",
+            "StructureFromMotion": "3.3",
+            "Texturing": "6.0",
+            "PrepareDenseScene": "3.1",
+            "DepthMapFilter": "4.0",
+            "Meshing": "7.0",
+            "FeatureExtraction": "1.3"
         }
     },
     "graph": {
-        "ConvertSfMFormat_1": {
-            "nodeType": "ConvertSfMFormat",
-            "position": [
-                1003,
-                244
-            ],
-            "parallelization": {
-                "blockSize": 0,
-                "size": 0,
-                "split": 1
-            },
-            "uids": {
-                "0": "4aa89c4cf94d1ccdcfbfc7f73e2b735a5cdda68a"
-            },
-            "internalFolder": "{cache}/{nodeType}/{uid0}/",
-            "inputs": {
-                "input": "{StructureFromMotion_1.output}",
-                "fileExt": "ply",
-                "describerTypes": [
-                    "dspsift"
-                ],
-                "imageWhiteList": [],
-                "views": true,
-                "intrinsics": true,
-                "extrinsics": true,
-                "structure": true,
-                "observations": true,
-                "verboseLevel": "info"
-            },
-            "internalInputs": {
-                "invalidation": "",
-                "comment": "",
-                "label": "",
-                "color": ""
-            },
-            "outputs": {
-                "output": "{cache}/{nodeType}/{uid0}/sfm.{fileExtValue}"
-            }
-        },
         "CameraInit_1": {
             "nodeType": "CameraInit",
             "position": [
@@ -114,8 +74,8 @@
         "DepthMapFilter_1": {
             "nodeType": "DepthMapFilter",
             "position": [
-                1941,
-                -53
+                1563,
+                -114
             ],
             "parallelization": {
                 "blockSize": 24,
@@ -155,8 +115,8 @@
         "DepthMap_1": {
             "nodeType": "DepthMap",
             "position": [
-                1741,
-                -53
+                1363,
+                -114
             ],
             "parallelization": {
                 "blockSize": 12,
@@ -384,8 +344,8 @@
         "MeshFiltering_1": {
             "nodeType": "MeshFiltering",
             "position": [
-                2341,
-                -53
+                1963,
+                -114
             ],
             "parallelization": {
                 "blockSize": 0,
@@ -423,8 +383,8 @@
         "Meshing_1": {
             "nodeType": "Meshing",
             "position": [
-                2141,
-                -53
+                1763,
+                -114
             ],
             "parallelization": {
                 "blockSize": 0,
@@ -513,8 +473,8 @@
         "PrepareDenseScene_1": {
             "nodeType": "PrepareDenseScene",
             "position": [
-                1418,
-                48
+                1040,
+                -13
             ],
             "parallelization": {
                 "blockSize": 40,
@@ -550,8 +510,8 @@
         "Publish_1": {
             "nodeType": "Publish",
             "position": [
-                2741,
-                -53
+                2363,
+                -114
             ],
             "parallelization": {
                 "blockSize": 0,
@@ -559,7 +519,7 @@
                 "split": 1
             },
             "uids": {
-                "0": "f7b8f8ffdd5cae6a11d56a62b94f1450823ad92e"
+                "0": "5b3c9792710172147645a649f7f1d34ae64e1415"
             },
             "internalFolder": "{cache}/{nodeType}/{uid0}/",
             "inputs": {
@@ -568,7 +528,7 @@
                     "{Texturing_1.outputMesh}",
                     "{Texturing_1.outputMaterial}",
                     "{Texturing_1.outputTextures}",
-                    "{ConvertSfMFormat_1.output}"
+                    ""
                 ],
                 "output": "output",
                 "verboseLevel": "info"
@@ -632,7 +592,7 @@
                 "useAutoTransform": true,
                 "initialPairA": "",
                 "initialPairB": "",
-                "interFileExtension": ".abc",
+                "interFileExtension": ".ply",
                 "logIntermediateSteps": false,
                 "verboseLevel": "info"
             },
@@ -651,8 +611,8 @@
         "Texturing_1": {
             "nodeType": "Texturing",
             "position": [
-                2541,
-                -53
+                2163,
+                -114
             ],
             "parallelization": {
                 "blockSize": 0,
