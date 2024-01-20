@@ -1,7 +1,8 @@
 import path from "node:path";
 import fs from "node:fs";
-import spawn_Command from "../utils/spawn_command.js";
-
+import chalk from "chalk";
+import spawn_Command from "../utils/spawn.js";
+import { copyFiles } from "../utils/copyResults.js";
 function run_openMVS(name, run_options) {
   const cuda_device = run_options.cuda_device ? -2 : -1;
   const workspace = path.join(process.cwd(), name);
@@ -73,9 +74,9 @@ function run_openMVS(name, run_options) {
 
   async function executeAndLog(command, message) {
     await spawn_Command(command, "openMVS", message);
-    console.log(`${message} done`);
+    console.log(`${chalk.blue(message)} done`);
+    copyFiles(message, "openMVS");
   }
-  console.log(DensifyPointCloud_command);
   executeAndLog(InterfaceCOLMAP_command, "InterfaceCOLMAP")
     .then(() => executeAndLog(DensifyPointCloud_command, "DensifyPointCloud"))
     .then(() => executeAndLog(ReconstructMesh_command, "ReconstructMesh"))

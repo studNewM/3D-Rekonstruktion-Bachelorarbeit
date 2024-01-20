@@ -14,38 +14,7 @@ app.use(
 );
 app.use(
   "/assets/",
-  express.static(path.join(process.cwd(), "workspace", "output")),
-);
-app.use(
-  "/assets/",
-  express.static(path.join(process.cwd(), "workspace", "StructureFromMotion")),
-);
-app.use(
-  "/assets/",
-  express.static(path.join(process.cwd(), "workspace", "Meshing")),
-);
-app.use(
-  "/assets/",
-  express.static(path.join(process.cwd(), "workspace", "Texturing")),
-);
-
-app.use(
-  "/assets/",
-  express.static(
-    path.join(process.cwd(), "workspace", "StructureFromMotion", "sparse", "0"),
-  ),
-);
-app.use(
-  "/assets/",
-  express.static(
-    path.join(process.cwd(), "workspace", "OpenMVS", "ReconstructMesh"),
-  ),
-);
-app.use(
-  "/assets/",
-  express.static(
-    path.join(process.cwd(), "workspace", "OpenMVS", "TextureMesh"),
-  ),
+  express.static(path.join(process.cwd(), "public", "assets")),
 );
 
 app.use(express.static("public"));

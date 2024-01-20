@@ -4,56 +4,53 @@ import {
   setupWorkspace,
 } from "../utils/workspaceSetup.js";
 import { watchOutput } from "../utils/watchDirectory.js";
-import runColmap from "./colmap_pipeline.js";
-import runOpenMVS from "./openmvs_pipeline.js";
+import runColmap from "./colmap.js";
+import runOpenMVS from "./openMvs.js";
+import { copyFiles } from "../utils/copyResults.js";
+import { deleteAssetsFolder } from "../utils/cleaning.js";
 
-/**
- * Führt die Rekonstruktion mit Meshroom oder Colmap und OpenMVS durch.
- * - Meshroom sollte verwendet werden wenn eine normale GPU vorhanden ist.
- * - Colmap/OpenMVS wird nur empfohlen, wenn eine leistungsfähige Grafikkarte verfügbar ist.
- *
- * @param {string} name - Name des Arbeitsbereichs.
- * @param {string} type - Typ der Rekonstruktion, entweder "Meshroom" oder "Colmap/OpenMVS".
- * @param {WebSocket} wss - WebSocket-Serverinstanz.
- */
-
-export function runReconstruction(
-  name = "workspace",
-  type = "Colmap/OpenMVS",
-  wss,
-  run_options,
-) {
+function startMeshroom(name, run_options) {
   const start = performance.now();
+  runMeshroom(name, run_options)
+    .then(() => {
+      watchOutput(name);
+      const durationInMs = performance.now() - start;
+      const durationInMin = durationInMs / 60000;
+      console.log(
+        `Reconstruction done. Time: ${durationInMin.toFixed(2)} minutes`,
+      );
+    })
+    .catch((error) => console.error("Meshroom reconstruction failed:", error));
+}
 
+function startColmapOpenMVS(name, run_options) {
+  const start = performance.now();
+  moveImagesToWorkspace(name);
+  runColmap(name, run_options)
+    .then(() => {
+      copyFiles("model_converter", "colmap");
+      // runOpenMVS(name, run_options);
+      // const durationInMs = performance.now() - start;
+      // const durationInMin = durationInMs / 60000;
+      // console.log(
+      //   `Reconstruction done. Time: ${durationInMin.toFixed(2)} minutes`,
+      // );
+    })
+    .catch((error) =>
+      console.error("Colmap/OpenMVS reconstruction failed:", error),
+    );
+}
+
+export function runReconstruction(name, type = "Meshroom", run_options) {
   setupWorkspace(name);
+  deleteAssetsFolder();
   console.log("Start reconstruction");
-
-  if (type === "Meshroom") {
-    runMeshroom(name, run_options)
-      .then(() => {
-        watchOutput(name);
-        const durationInMs = performance.now() - start;
-        const durationInMin = durationInMs / 60000;
-        console.log(
-          `Reconstruction done. Time: ${durationInMin.toFixed(2)} minutes`,
-        );
-      })
-      .catch((error) =>
-        console.error("Meshroom reconstruction failed:", error),
-      );
-  } else {
-    moveImagesToWorkspace(name);
-    runColmap(name, run_options)
-      .then(() => {
-        runOpenMVS(name, run_options);
-        const durationInMs = performance.now() - start;
-        const durationInMin = durationInMs / 60000;
-        console.log(
-          `Reconstruction done. Time: ${durationInMin.toFixed(2)} minutes`,
-        );
-      })
-      .catch((error) =>
-        console.error("Colmap/OpenMVS reconstruction failed:", error),
-      );
+  switch (type) {
+    case "Meshroom":
+      startMeshroom(name, run_options);
+      break;
+    case "Colmap/OpenMVS":
+      startColmapOpenMVS(name, run_options);
+      break;
   }
 }

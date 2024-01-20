@@ -1,11 +1,6 @@
 import path from "node:path";
-import spawnCommand from "../utils/spawn_command.js";
+import spawnCommand from "../utils/spawn.js";
 
-/**
- * Führt Meshroom mit den gegebenen Parametern aus.
- * @param {string} workspace - Der Arbeitsbereichspfad, in dem die Ausführung stattfinden soll.
- * @param {WebSocket} wss - WebSocket-Serverinstanz.
- */
 async function runMeshroom(workspace) {
   const workspacePath = path.join(process.cwd(), workspace);
   const outputPath = path.join(workspacePath, "output");

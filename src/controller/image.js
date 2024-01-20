@@ -1,8 +1,8 @@
 import path from "path";
 import fs from "fs";
-import { processImages } from "../services/exifExtraction.js";
+import { processImages } from "../services/exif.js";
 
-const upload_images = (req, res) => {
+function uploadImages(req, res) {
   console.log("Lade Dateien hoch");
   const imagesDir = path.join(process.cwd(), "images");
 
@@ -17,9 +17,24 @@ const upload_images = (req, res) => {
     fs.renameSync(file.path, newPath);
   });
   res.send("Dateien hochgeladen");
-};
+}
 
-const getMetdata = async (req, res) => {
+function deleteImages(req, res) {
+  const images = req.body.images;
+  if (images.length !== 0) {
+    images.forEach((image) => {
+      const imagePath = path.join(process.cwd(), "images", image);
+      if (fs.existsSync(imagePath)) {
+        fs.rmSync(imagePath);
+      }
+    });
+    res.send("Dateien gelöscht");
+  } else {
+    res.send("Keine Dateien zum löschen ausgewählt");
+  }
+}
+
+async function getMetdata(req, res) {
   const cameraInfo = await processImages();
   const metadata = {
     totalCameras: Object.keys(cameraInfo).length,
@@ -42,6 +57,6 @@ const getMetdata = async (req, res) => {
     });
   });
   res.send(metadata);
-};
+}
 
-export { upload_images, getMetdata };
+export { uploadImages, getMetdata, deleteImages };

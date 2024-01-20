@@ -12,6 +12,7 @@ const gui = new dat.GUI();
 gui.close();
 gui.domElement.id = "gui";
 const objectsFolder = gui.addFolder("3dObjects");
+gui.add;
 objectsFolder.open();
 let model_converter = 0;
 
@@ -23,6 +24,22 @@ const camera = initCamera();
 const renderer = initRenderer();
 const controls = initControls(camera, renderer);
 const lights = initLights(scene);
+
+export function clearScene() {
+  var to_remove = [];
+
+  scene.traverse(function (child) {
+    if (child instanceof THREE.Group || child instanceof THREE.Points) {
+      to_remove.push(child);
+    }
+  });
+
+  for (var i = 0; i < to_remove.length; i++) {
+    scene.remove(to_remove[i]);
+    removeFromGUI("StructureFromMotion");
+  }
+}
+
 // const stats = initStats();
 initGridHelper(scene);
 addLightToGui(lights, scene, params);
@@ -145,7 +162,6 @@ function guiHelperBox(scene, mesh) {
 
 async function loadPly(scene, plyName) {
   const plyloader = new PLYLoader();
-  console.log("loadPly", plyName);
 
   return new Promise((resolve, reject) => {
     plyloader.load(
@@ -174,7 +190,6 @@ async function loadPly(scene, plyName) {
 }
 
 async function loadTexturedObject(scene, objName, mtlName) {
-  console.log("LOAD TEXTURED OBJECT", objName, mtlName);
   const mtlLoader = new MTLLoader();
   return new Promise((resolve, reject) => {
     mtlLoader.load(
@@ -360,44 +375,47 @@ export async function loadModel(stepName, runType, path = "") {
 
   try {
     let loadedObject;
-    if (model_converter === 0) {
-      switch (stepName) {
-        case "StructureFromMotion":
-          loadedObject = await loadPly(scene, runDict[stepName]);
-          guiHelperBox(scene, loadedObject);
-          break;
-        case "Meshing":
-          loadedObject = await loadMeshObject(scene, runDict[stepName]);
-          break;
-        case "Texturing":
-          loadedObject = await loadTexturedObject(
-            scene,
-            runDict[stepName],
-            runDict[stepName].replace(".obj", ".mtl"),
-          );
-          break;
-        case "model_converter":
+    switch (stepName) {
+      case "StructureFromMotion":
+        loadedObject = await loadPly(scene, runDict[stepName]);
+        // guiHelperBox(scene, loadedObject);
+        break;
+      case "Meshing":
+        loadedObject = await loadMeshObject(scene, runDict[stepName]);
+        break;
+      case "Texturing":
+        loadedObject = await loadTexturedObject(
+          scene,
+          runDict[stepName],
+          runDict[stepName].replace(".obj", ".mtl"),
+        );
+        break;
+      case "model_converter":
+        if (model_converter === 0) {
           loadedObject = await loadColmapPLY(scene, runDict[stepName]);
-          guiHelperBox(scene, loadedObject);
+          // guiHelperBox(scene, loadedObject);
           model_converter += 1;
-
-          break;
-        case "ReconstructMesh":
-          loadedObject = await loadColmapMesh(scene, runDict[stepName]);
-          break;
-        case "TextureMesh":
-          loadedObject = await loadColmapTextued(scene, runDict[stepName]);
-          break;
-        default:
-          return;
-      }
-      addToGUI(loadedObject, stepName);
+        }
+        break;
+      case "ReconstructMesh":
+        loadedObject = await loadColmapMesh(scene, runDict[stepName]);
+        break;
+      case "TextureMesh":
+        loadedObject = await loadColmapTextued(scene, runDict[stepName]);
+        break;
+      default:
+        return;
     }
+    addToGUI(loadedObject, stepName);
   } catch (error) {
     console.error("Fehler beim Laden des Modells:", error);
   }
 }
-
+function removeFromGUI(object) {
+  while (objectsFolder.__controllers.length > 0) {
+    objectsFolder.remove(objectsFolder.__controllers[0]);
+  }
+}
 function addToGUI(object, name) {
   objectsFolder
     .add(object, "visible")

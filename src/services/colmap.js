@@ -1,11 +1,12 @@
 import path from "node:path";
 import fs from "node:fs/promises";
-import spawnCommand from "../utils/spawn_command.js";
-import deleteBinFiles from "../utils/cleaning.js";
+import chalk from "chalk";
+import spawnCommand from "../utils/spawn.js";
+import { deleteBinFiles } from "../utils/cleaning.js";
 
 async function executeAndLog(command, message) {
   await spawnCommand(command, "colmap", message);
-  console.log(`${message} done`);
+  console.log(`${chalk.blue(message)} done`);
 }
 
 async function checkFolder(folder) {

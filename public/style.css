@@ -304,14 +304,34 @@ p {
   font-size: 20px;
   color: white;
 }
+#delete-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 0;
+  padding: 4px 14px 0 10px;
+  background-color: transparent;
+  border: none;
+  color: black;
+}
 
+.image-wrapper {
+  position: relative;
+}
+
+.image-wrapper img {
+  height: 93%;
+  width: 100%;
+  height: auto;
+  display: block;
+}
 .drop-area {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  min-height: 160px;
+  min-height: 200px;
   background-color: #383838;
   border: 2px dashed #525252;
   border-radius: 8px;
@@ -330,44 +350,24 @@ p {
   cursor: pointer;
 }
 
-/* .info-panel {
-    display: flex;
-    flex-wrap: wrap;
-    margin-top: 1px;
-    padding: 10px;
-    background-color: #242424;
-    font-size: 15px;
-}
-
-.info-panel div {
-    flex: 1 1 50%;
-    margin-bottom: 10px;
-} */
-
 .info-panel {
   display: flex;
   background-color: #242424;
-  /* Äußeren Container grau färben */
   color: #f0f0f0;
   font-size: 12px;
   padding: 10px 0;
   justify-content: space-between;
-  /* Sorgt für gleichmäßige Verteilung der inneren Divs */
 }
 
 .info-panel div {
   background-color: #343434;
-  /* Farbe der inneren Divs */
   padding: 8px;
   border-radius: 4px;
   display: flex;
   align-items: center;
   flex-grow: 1;
-  /* Erlaubt den Divs, gleichmäßig zu wachsen */
   flex-basis: calc(33.333% - 20px);
-  /* Berechnet die Breite jedes Divs */
   margin: 0 10px;
-  /* Setzt Abstand zwischen den Divs */
 }
 
 .info-panel div:first-child {
@@ -397,7 +397,6 @@ img {
 }
 
 .tooltiptext {
-  /* visibility: hidden; */
   width: 120px;
   background-color: transparent;
   color: #fff;
@@ -442,7 +441,6 @@ img {
   display: grid;
   grid-template-columns: 80% 20%;
   align-items: center;
-  /* Zentriert den Inhalt vertikal */
 }
 
 .checkbox-item label {

@@ -1,9 +1,11 @@
 import { glob } from "glob";
 import path from "path";
-import fs from "fs";
-export const getModelPath = async (req, res) => {
-  const modelRequest = req.query.modelRequest;
-  const workspace = path.join(process.cwd(), "workspace");
+
+async function findHashPath(modelRequest) {
+  const workspace = path.join(
+    process.cwd(),
+    process.env.workingDirName || "workspace",
+  );
   const sfmPath = path.join(workspace, "StructureFromMotion");
   const meshPath = path.join(workspace, "Meshing");
   const texturingPath = path.join(workspace, "Texturing");
@@ -13,11 +15,7 @@ export const getModelPath = async (req, res) => {
     Texturing: texturingPath + "/*/texturedMesh.obj",
   };
 
-  if (fs.existsSync(workspace)) {
-    const modelPath = await glob(fileList[modelRequest]);
+  return glob(fileList[modelRequest]);
+}
 
-    res.send(modelPath);
-  } else {
-    res.status(404).send("Workspace not found");
-  }
-};
+export { findHashPath };

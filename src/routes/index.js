@@ -1,17 +1,18 @@
 import { Router } from "express";
-import { start_reconstruction } from "../controller/reconstruction.controller.js";
-import { upload_images } from "../controller/image.controller.js";
-import { getMetdata } from "../controller/image.controller.js";
-import { getModelPath } from "../controller/model.controller.js";
+import { startReconstruction } from "../controller/reconstruction.js";
+import { uploadImages, deleteImages } from "../controller/image.js";
+import { getMetdata } from "../controller/image.js";
+import { getModelPath } from "../controller/model.js";
 import multer from "multer";
 const upload = multer({ dest: "Tempuploads/" });
 const router = Router();
 
 /* POST  Reconstruction Process*/
-router.post("/reconstruction", start_reconstruction);
+router.post("/reconstruction", startReconstruction);
 
 /* POST  Upload Images */
-router.post("/upload", upload.array("fileList"), upload_images);
+router.post("/upload", upload.array("fileList"), uploadImages);
+router.post("/delete", deleteImages);
 
 router.get("/metadata", getMetdata);
 

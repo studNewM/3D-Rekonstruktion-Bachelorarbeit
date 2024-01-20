@@ -30,6 +30,7 @@ const stepsByOption = {
 };
 let paths = {};
 let completedCount = 0;
+let imagesToDelete = [];
 
 function activateButton(process) {
   const buttons = ["Anzeigen", "Export"].map((action) =>
@@ -48,33 +49,20 @@ function handleExportClick(stepName) {
 
 function handleShowClick(stepName) {
   const selectedOption = document.getElementById("modelSelector").value;
-  if (["StructureFromMotion"].includes(stepName)) {
-    getModelPath(stepName).then((response) => {
-      const path = response.data[0].split("\\")[2];
-      Three.loadModel(stepName, selectedOption, path);
-    });
-  } else {
-    Three.loadModel(stepName, selectedOption);
-  }
+
+  Three.loadModel(stepName, selectedOption);
 }
 
 function handleAutomaticModelLoading(stepName) {
   const selectedOption = document.getElementById("modelSelector").value;
-
-  if (["StructureFromMotion", "Meshing", "Texturing"].includes(stepName)) {
-    getModelPath(stepName).then((response) => {
-      const path = response.data[0].split("\\")[2];
-      Three.loadModel(stepName, selectedOption, path);
-    });
-  } else if (
-    ["model_converter", "ReconstructMesh", "TextureMesh"].includes(stepName)
-  ) {
-    console.log("Automatic Model Loading");
-    Three.loadModel(stepName, selectedOption);
-  }
+  console.log("Automatic Model Loading");
+  Three.loadModel(stepName, selectedOption);
 }
 
 function reloadCss() {
+  Three.clearScene();
+  completedCount = 0;
+  imagesToDelete = [];
   const imageCount = document.getElementById("imageCount");
   imageCount.innerText = "";
 
@@ -182,32 +170,28 @@ function createProgressNodes() {
 
       const runType = {
         Meshroom: {
-          StructureFromMotion: "sfm.ply",
+          StructureFromMotion: "cloud_and_poses.ply",
           Meshing: "mesh.obj",
-          Texturing: "texturedMesh.obj",
+          Texturing: "texture.zip",
         },
-        Colmap: {
-          StructureFromMotion: "sparse/0/sfm.ply",
-          Meshing: "dense",
-          Texturing: "texturedMesh.obj",
+        "Colmap/OpenMVS": {
+          model_converter: "sfm.ply",
+          ReconstructMesh: "model_dense_mesh.ply",
+          TextureMesh: "texture.zip",
         },
       };
-
       ["Anzeigen", "Export"].forEach((text) => {
         let element;
 
         if (text === "Export") {
-          //TODO: Pfad anpassen
           element = document.createElement("a");
-          element.href = "/assets/";
-          // element.download = runType[selectedOption][stepName];
+          element.href = "/assets/" + runType[selectedOption][stepName];
         } else {
           element = document.createElement("button");
         }
         element.textContent = text;
         element.id = `button-${text}-${stepName}`;
-        console.log(stepName);
-        element.classList.add("dropdown-btn");
+        element.classList.add("dropdown-btn", "disabled");
         dropdownContent.appendChild(element);
       });
 
@@ -365,6 +349,8 @@ function startReconstructionProcess() {
 
   const selectedOption = document.getElementById("modelSelector").value;
   const pipelineOptions = handleCheckboxChange();
+  deleteImages();
+
   axios
     .post("/reconstruction", {
       model: selectedOption,
@@ -395,12 +381,13 @@ function handleWebSocketMessage(event) {
       break;
     case "completed":
       completedCount++;
-      processElement.style.backgroundColor = "green";
-      console.log(completedCount);
+      if (processElement.style.backgroundColor !== "red") {
+        processElement.style.backgroundColor = "green";
+      }
       handleStepCompletion(data.step);
       activateButton(data.step);
       if (pipelineOptions["Zwischenergebnisse laden"] === true) {
-        handleAutomaticModelLoading(data.step);
+        handleShowClick(data.step);
       }
       break;
     case "failed":
@@ -529,31 +516,57 @@ function updateTooltips(cameraInfo) {
 function changeCSS() {
   const imagePreviewContainer = document.getElementById("imagePreview");
   imagePreviewContainer.innerHTML = "";
+  imagePreviewContainer.style.overflow = "auto";
   imagePreviewContainer.style.display = "grid";
   imagePreviewContainer.style.gridTemplateColumns = "repeat(4, 1fr)";
   imagePreviewContainer.style.gridTemplateRows = "repeat(2, 1fr)";
-  imagePreviewContainer.style.flexDirection = "";
-  imagePreviewContainer.style.border = "2px dashed #525252";
-  imagePreviewContainer.style.gap = "0px";
-  imagePreviewContainer.style.maxHeight = "150px";
-  imagePreviewContainer.style.justifyItems = "center";
-  imagePreviewContainer.style.alignItems = "center";
-  imagePreviewContainer.style.border = "2px solid #525252";
+
+  imagePreviewContainer.style.maxHeight = "200px";
+
   return imagePreviewContainer;
 }
+
 function updateImagePreview(files) {
   const imagePreviewContainer = changeCSS();
   const maxImagesToShow = 8;
 
-  for (let i = 0; i < Math.min(files.length, maxImagesToShow); i++) {
+  for (let i = 0; i < files.length; i++) {
     const file = files[i];
+
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("image-wrapper");
+    wrapper.id = `wrapper-${i}`;
+
     const imgElement = document.createElement("img");
     imgElement.src = URL.createObjectURL(file);
     imgElement.onload = function () {
       URL.revokeObjectURL(this.src);
     };
-    imagePreviewContainer.appendChild(imgElement);
+    wrapper.appendChild(imgElement);
+    wrapper.setAttribute("data-filename", file.name); // Speichert den Dateinamen
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.innerText = "X";
+    deleteBtn.id = "delete-btn";
+    deleteBtn.onclick = function () {
+      imagePreviewContainer.removeChild(wrapper);
+      imagesToDelete.push(wrapper.getAttribute("data-filename"));
+    };
+    wrapper.appendChild(deleteBtn);
+
+    imagePreviewContainer.appendChild(wrapper);
   }
+}
+function deleteImages() {
+  axios
+    .post("/delete", { images: imagesToDelete })
+    .then((response) => {
+      console.log("Bilder gelöscht");
+      imagesToDelete = [];
+    })
+    .catch((error) => {
+      console.error("Fehler beim Löschen der Bilder", error);
+    });
 }
 
 function toggleSidebar() {
