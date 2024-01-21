@@ -29,14 +29,16 @@ export function clearScene() {
   var to_remove = [];
 
   scene.traverse(function (child) {
-    if (child instanceof THREE.Group || child instanceof THREE.Points) {
+    console.log(child);
+    if (child instanceof THREE.Group || child.type === "Mesh" || child.type === "Points") {
       to_remove.push(child);
     }
+    model_converter = 0;
   });
 
   for (var i = 0; i < to_remove.length; i++) {
     scene.remove(to_remove[i]);
-    removeFromGUI("StructureFromMotion");
+    removeFromGUI();
   }
 }
 
@@ -411,7 +413,7 @@ export async function loadModel(stepName, runType, path = "") {
     console.error("Fehler beim Laden des Modells:", error);
   }
 }
-function removeFromGUI(object) {
+function removeFromGUI() {
   while (objectsFolder.__controllers.length > 0) {
     objectsFolder.remove(objectsFolder.__controllers[0]);
   }

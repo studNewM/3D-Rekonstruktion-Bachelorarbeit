@@ -52,7 +52,7 @@ p {
   left: 0;
   right: 0;
   bottom: 0;
-  width: 70%;
+  width: 100%;
   height: 50px;
   background-color: #4caf50;
   color: white;
@@ -119,13 +119,6 @@ p {
   background-color: #1c1c1c;
 }
 
-#progressContainer {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 10px;
-  padding-top: revert;
-}
-
 .progressStep {
   width: 190px;
   padding: 5px;
@@ -150,7 +143,47 @@ p {
   height: 3px;
   background-color: rgb(255, 255, 255);
 }
-
+.progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background-color: rgb(255, 255, 255);
+  border-radius: 0;
+  overflow: hidden;
+}
+/* .progress-bar {
+  width: 100%;
+  height: 100%;
+  background-size: 40px 40px;
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 0, 0.65) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 0, 0.65) 50%,
+    rgba(255, 255, 0, 0.65) 75%,
+    transparent 75%,
+    transparent
+  );
+  animation: progress-bar-stripes 1s linear infinite;
+  background-color: #f0bc00;
+  transition: width 0.6s ease;
+} */
+.progress-bar {
+  width: 100%;
+  height: 100%;
+  background-color: white; /* Standardmäßig weiß */
+}
+@keyframes progress-bar-stripes {
+  from {
+    background-position: 40px 0;
+  }
+  to {
+    background-position: 0 0;
+  }
+}
 /* .activateIcon {
     position: absolute;
     top: 5px;
@@ -285,12 +318,19 @@ p {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
   width: 100%;
   border: 1px solid #525252;
   background-color: #383838;
   min-height: 160px;
   padding: 0;
+}
+.uploaded-images {
+  display: grid;
+  overflow: auto;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  max-height: 200px;
+  gap: 10px;
 }
 
 .image-preview img {
@@ -404,11 +444,9 @@ img {
   border-radius: 6px;
   padding: 5px 0;
   position: absolute;
-  z-index: 1;
   bottom: 125%;
   left: 50%;
   margin-left: -60px;
-  opacity: 0;
   transition: opacity 0.3s;
 }
 
@@ -422,10 +460,8 @@ img {
   border-style: solid;
   border-color: #555 transparent transparent transparent;
 }
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
+.tooltip .tooltiptext {
+  visibility: hidden;
 }
 
 .grid-container {

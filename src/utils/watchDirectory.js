@@ -2,7 +2,7 @@ import fs from "fs";
 import { copyFileSync } from "fs";
 import path from "path";
 import chalk from "chalk";
-import { watch } from "chokidar";
+import { watch, FSWatcher } from "chokidar";
 import sendToAllClients from "./websocketToClient.js";
 import { meshroomSteps } from "../types/meshroomTypes.js";
 import { copyFiles } from "./copyResults.js";
@@ -10,8 +10,10 @@ import { createTextureZip } from "./zip.js";
 const workspace = process.env.workingDir || "workspace";
 const workspaceDir = path.join(process.cwd(), workspace);
 
-const watchWorkspace = () => {
-  const watcher = watch(`${workspaceDir}/**`, {
+let watcher;
+
+function watchWorkspace() {
+  watcher = watch(`${workspaceDir}/**`, {
     ignored: /^\./,
     persistent: true,
     depth: 2,
@@ -29,28 +31,34 @@ const watchWorkspace = () => {
           console.log(
             chalk.white(`LOGGING: Step ${chalk.blue(currentStep)} completed`),
           );
+          copyFiles(currentStep, "meshroom");
           const duration = (Date.now() - currentStepStartTime) / 1000;
           sendToAllClients({
             step: currentStep,
             status: "completed",
             time: duration,
           });
-          copyFiles(currentStep, "meshroom");
         }
-        currentStep = foundStep;
-        console.log(
-          chalk.white(`LOGGING: Step ${chalk.blue(currentStep)} started`),
-        );
-        currentStepStartTime = Date.now();
-        sendToAllClients({ step: currentStep, status: "started" });
       }
+      currentStep = foundStep;
+      console.log(
+        chalk.white(`LOGGING: Step ${chalk.blue(currentStep)} started`),
+      );
+      currentStepStartTime = Date.now();
+      sendToAllClients({ step: currentStep, status: "started" });
     }
-  });
-
+  }
+  );
   watcher.on("error", (error) => console.error(`Watcher-Fehler: ${error}`));
 };
 
-const watchOutput = (name) => {
+function closeWatcher() {
+  if (watcher) {
+    watcher.close();
+  }
+
+};
+function watchOutput(name) {
   const outputDir = path.join(process.cwd(), name, "output");
   fs.readdir(outputDir, (err, files) => {
     if (err) {
@@ -64,6 +72,7 @@ const watchOutput = (name) => {
         ),
       );
       createTextureZip("meshroom");
+      closeWatcher();
     }
   });
 };

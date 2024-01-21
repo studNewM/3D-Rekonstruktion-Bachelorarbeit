@@ -18,9 +18,15 @@
         <button id="sidebarToggle"><i class="fa fa-chevron-left"></i></button>
         <div id="header">
           <h3>3D-Rekonstruktions-Tool</h3>
-          <button id="restart">Test</button>
+          <button id="restart">Zurücksetzen</button>
         </div>
         <div id="imagePreview" class="image-preview">
+          <div
+            style="display: none"
+            id="uploadedImages"
+            class="uploaded-images"
+          ></div>
+
           <div id="dropArea" class="drop-area">
             <i class="fa fa-upload" id="upload_icon"></i>
             <p>
@@ -80,11 +86,326 @@
           </div>
         </div>
         <br />
-        <div id="progressContainer"></div>
-        <button title="Bitte wählen sie ihre Bilder aus" id="startProcess">
+        <div id="progressContainer">
+          <div id="meshroomNodes">
+            <div class="progressStep" id="process-CameraInit">
+              CameraInit
+              <div class="progress">
+                <div class="progress-bar" id="progress-CameraInit-line"></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-FeatureExtraction">
+              FeatureExtraction
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-FeatureExtraction-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-ImageMatching">
+              ImageMatching
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-ImageMatching-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-FeatureMatching">
+              FeatureMatching
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-FeatureMatching-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-StructureFromMotion">
+              StructureFromMotion
+              <div class="dropdown">
+                <ul
+                  class="dropbtn icons btn-right showLeft"
+                  id="ul-StructureFromMotion"
+                >
+                  <li></li>
+                  <li></li>
+                  <li></li>
+                </ul>
+                <div class="dropdown-content" id="dropdown-StructureFromMotion">
+                  <button
+                    id="button-Anzeigen-StructureFromMotion"
+                    class="dropdown-btn disabled"
+                  >
+                    Anzeigen</button
+                  ><a
+                    href="/assets/cloud_and_poses.ply"
+                    id="button-Export-StructureFromMotion"
+                    class="dropdown-btn disabled"
+                    >Export</a
+                  >
+                </div>
+              </div>
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-StructureFromMotion-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-PrepareDenseScene">
+              PrepareDenseScene
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-PrepareDenseScene-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-DepthMap">
+              DepthMap
+              <div class="progress">
+                <div class="progress-bar" id="progress-DepthMap-line"></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-DepthMapFilter">
+              DepthMapFilter
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-DepthMapFilter-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-Meshing">
+              Meshing
+              <div class="dropdown">
+                <ul class="dropbtn icons btn-right showLeft" id="ul-Meshing">
+                  <li></li>
+                  <li></li>
+                  <li></li>
+                </ul>
+                <div class="dropdown-content" id="dropdown-Meshing">
+                  <button
+                    id="button-Anzeigen-Meshing"
+                    class="dropdown-btn disabled"
+                  >
+                    Anzeigen</button
+                  ><a
+                    href="/assets/mesh.obj"
+                    id="button-Export-Meshing"
+                    class="dropdown-btn disabled"
+                    >Export</a
+                  >
+                </div>
+              </div>
+              <div class="progress">
+                <div class="progress-bar" id="progress-Meshing-line"></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-MeshFiltering">
+              MeshFiltering
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-MeshFiltering-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-Texturing">
+              Texturing
+              <div class="dropdown">
+                <ul class="dropbtn icons btn-right showLeft" id="ul-Texturing">
+                  <li></li>
+                  <li></li>
+                  <li></li>
+                </ul>
+                <div class="dropdown-content" id="dropdown-Texturing">
+                  <button
+                    id="button-Anzeigen-Texturing"
+                    class="dropdown-btn disabled"
+                  >
+                    Anzeigen</button
+                  ><a
+                    href="/assets/texture.zip"
+                    id="button-Export-Texturing"
+                    class="dropdown-btn disabled"
+                    >Export</a
+                  >
+                </div>
+              </div>
+              <div class="progress">
+                <div class="progress-bar" id="progress-Texturing-line"></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-Publish">
+              Publish
+              <div class="progress">
+                <div class="progress-bar" id="progress-Publish-line"></div>
+              </div>
+            </div>
+          </div>
+          <div style="display: none" id="colmapOpenMVSNodes">
+            <div class="progressStep" id="process-feature_extractor">
+              feature_extractor
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-feature_extractor-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-exhaustive_matcher">
+              exhaustive_matcher
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-exhaustive_matcher-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-mapper">
+              mapper
+              <div class="progress">
+                <div class="progress-bar" id="progress-mapper-line"></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-image_undistorter">
+              image_undistorter
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-image_undistorter-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-model_converter">
+              model_converter
+              <div class="dropdown">
+                <ul
+                  class="dropbtn icons btn-right showLeft"
+                  id="ul-model_converter"
+                >
+                  <li></li>
+                  <li></li>
+                  <li></li>
+                </ul>
+                <div class="dropdown-content" id="dropdown-model_converter">
+                  <button
+                    id="button-Anzeigen-model_converter"
+                    class="dropdown-btn disabled"
+                  >
+                    Anzeigen</button
+                  ><a
+                    href="/assets/sfm.ply"
+                    id="button-Export-model_converter"
+                    class="dropdown-btn disabled"
+                    >Export</a
+                  >
+                </div>
+              </div>
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-model_converter-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-InterfaceCOLMAP">
+              InterfaceCOLMAP
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-InterfaceCOLMAP-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-DensifyPointCloud">
+              DensifyPointCloud
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-DensifyPointCloud-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-ReconstructMesh">
+              ReconstructMesh
+              <div class="dropdown">
+                <ul
+                  class="dropbtn icons btn-right showLeft"
+                  id="ul-ReconstructMesh"
+                >
+                  <li></li>
+                  <li></li>
+                  <li></li>
+                </ul>
+                <div class="dropdown-content" id="dropdown-ReconstructMesh">
+                  <button
+                    id="button-Anzeigen-ReconstructMesh"
+                    class="dropdown-btn disabled"
+                  >
+                    Anzeigen</button
+                  ><a
+                    href="/assets/model_dense_mesh.ply"
+                    id="button-Export-ReconstructMesh"
+                    class="dropdown-btn disabled"
+                    >Export</a
+                  >
+                </div>
+              </div>
+              <div class="progress">
+                <div
+                  class="progress-bar"
+                  id="progress-ReconstructMesh-line"
+                ></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-RefineMesh">
+              RefineMesh
+              <div class="progress">
+                <div class="progress-bar" id="progress-RefineMesh-line"></div>
+              </div>
+            </div>
+            <div class="progressStep" id="process-TextureMesh">
+              TextureMesh
+              <div class="dropdown">
+                <ul
+                  class="dropbtn icons btn-right showLeft"
+                  id="ul-TextureMesh"
+                >
+                  <li></li>
+                  <li></li>
+                  <li></li>
+                </ul>
+                <div class="dropdown-content" id="dropdown-TextureMesh">
+                  <button
+                    id="button-Anzeigen-TextureMesh"
+                    class="dropdown-btn disabled"
+                  >
+                    Anzeigen</button
+                  ><a
+                    href="/assets/texture.zip"
+                    id="button-Export-TextureMesh"
+                    class="dropdown-btn disabled"
+                    >Export</a
+                  >
+                </div>
+              </div>
+              <div class="progress">
+                <div class="progress-bar" id="progress-TextureMesh-line"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button
+          title="Bitte wählen sie ihre Bilder aus"
+          disabled
+          id="startProcess"
+        >
           3D-Rekonstruktion starten
         </button>
-        <button id="restartProcess">3D-Rekonstruktion neustarten</button>
+        <!-- <button id="restartProcess">3D-Rekonstruktion neustarten</button> -->
       </div>
       <div class="main">
         <div id="threeJsContainer"></div>

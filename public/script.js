@@ -31,6 +31,7 @@ const stepsByOption = {
 let paths = {};
 let completedCount = 0;
 let imagesToDelete = [];
+let imageAmount = 0;
 
 function activateButton(process) {
   const buttons = ["Anzeigen", "Export"].map((action) =>
@@ -49,51 +50,27 @@ function handleExportClick(stepName) {
 
 function handleShowClick(stepName) {
   const selectedOption = document.getElementById("modelSelector").value;
-
-  Three.loadModel(stepName, selectedOption);
+  setTimeout(() => {
+    Three.loadModel(stepName, selectedOption);
+  }, 2000);
 }
 
-function handleAutomaticModelLoading(stepName) {
-  const selectedOption = document.getElementById("modelSelector").value;
-  console.log("Automatic Model Loading");
-  Three.loadModel(stepName, selectedOption);
-}
-
-function reloadCss() {
-  Three.clearScene();
-  completedCount = 0;
-  imagesToDelete = [];
-  const imageCount = document.getElementById("imageCount");
-  imageCount.innerText = "";
-
-  const cameraDetails = document.getElementById("cameraDetails");
-  cameraDetails.innerText = "";
-
-  const focalLengths = document.getElementById("focalLength");
-  focalLengths.innerText = "";
-
-  const imagecount = document.getElementById("imageCountTooltip");
-  imagecount.innerHTML = "";
-  imagecount.style.backgroundColor = "";
-
-  const cameraTypes = document.getElementById("cameraTypesTooltip");
-  cameraTypes.innerHTML = "";
-  cameraTypes.style.backgroundColor = "";
-
-  const otherInfo = document.getElementById("otherInfoTooltip");
-  otherInfo.innerHTML = "";
-  otherInfo.style.backgroundColor = "";
+function resetUIElements() {
+  const elementsToClear = ["imageCount", "cameraDetails", "focalLength", "imageCountTooltip", "cameraTypesTooltip", "otherInfoTooltip"];
+  elementsToClear.forEach(id => {
+    const element = document.getElementById(id);
+    if (element) {
+      element.innerText = "";
+      element.style.backgroundColor = "";
+    }
+  });
 
   const processElements = document.getElementsByClassName("progressLine");
+  Array.from(processElements).forEach(elem => elem.style.backgroundColor = "white");
+}
 
-  for (let i = 0; i < processElements.length; i++) {
-    processElements[i].style.backgroundColor = "white";
-  }
 
-  const imagePreview = document.getElementById("imagePreview");
-  imagePreview.innerHTML = "";
-  imagePreview.style = "";
-
+function createDropArea() {
   const dropArea = document.createElement("div");
   dropArea.id = "dropArea";
   dropArea.className = "drop-area";
@@ -124,132 +101,29 @@ function reloadCss() {
   dropArea.appendChild(fileInput);
 
   imagePreview.appendChild(dropArea);
-  setupDragAndDrop();
+  return dropArea;
 }
 
-document.getElementById("restart").addEventListener("click", () => reloadCss());
+document.getElementById("restart").addEventListener("click", () => resetUI());
 
-function createProgressNodes() {
+
+function changeProgessNodes() {
+
   const selectedOption = document.getElementById("modelSelector").value;
-  const steps = stepsByOption[selectedOption] || [];
+  console.log(selectedOption);
+  const meshroomNodes = document.getElementById("meshroomNodes");
+  const colmapOpenMVSNodes = document.getElementById("colmapOpenMVSNodes");
 
-  const progressContainer = document.getElementById("progressContainer");
-  progressContainer.innerHTML = "";
-
-  steps.forEach((stepName) => {
-    const step = document.createElement("div");
-    step.classList.add("progressStep");
-    step.textContent = stepName;
-    step.id = `process-${stepName}`;
-
-    if (
-      [
-        "StructureFromMotion",
-        "Meshing",
-        "Texturing",
-        "model_converter",
-        "ReconstructMesh",
-        "TextureMesh",
-      ].includes(stepName)
-    ) {
-      const dropdown = document.createElement("div");
-      dropdown.classList.add("dropdown");
-      const dropbtn = document.createElement("ul");
-      dropbtn.classList.add("dropbtn", "icons", "btn-right", "showLeft");
-      dropbtn.onclick = () => showDropdown(`dropdown-${stepName}`);
-
-      for (let i = 0; i < 3; i++) {
-        dropbtn.appendChild(document.createElement("li"));
-      }
-
-      dropdown.appendChild(dropbtn);
-
-      const dropdownContent = document.createElement("div");
-      dropdownContent.classList.add("dropdown-content");
-      dropdownContent.id = `dropdown-${stepName}`;
-
-      const runType = {
-        Meshroom: {
-          StructureFromMotion: "cloud_and_poses.ply",
-          Meshing: "mesh.obj",
-          Texturing: "texture.zip",
-        },
-        "Colmap/OpenMVS": {
-          model_converter: "sfm.ply",
-          ReconstructMesh: "model_dense_mesh.ply",
-          TextureMesh: "texture.zip",
-        },
-      };
-      ["Anzeigen", "Export"].forEach((text) => {
-        let element;
-
-        if (text === "Export") {
-          element = document.createElement("a");
-          element.href = "/assets/" + runType[selectedOption][stepName];
-        } else {
-          element = document.createElement("button");
-        }
-        element.textContent = text;
-        element.id = `button-${text}-${stepName}`;
-        element.classList.add("dropdown-btn", "disabled");
-        dropdownContent.appendChild(element);
-      });
-
-      dropdown.appendChild(dropdownContent);
-      step.appendChild(dropdown);
-    }
-
-    const progressLine = document.createElement("div");
-    progressLine.classList.add("progressLine");
-    progressLine.id = `progress-${stepName}-line`;
-    step.appendChild(progressLine);
-
-    progressContainer.appendChild(step);
-  });
-  if (selectedOption === "Meshroom") {
-    document
-      .getElementById("button-Export-StructureFromMotion")
-      .addEventListener("click", () =>
-        handleExportClick("StructureFromMotion"),
-      );
-    document
-      .getElementById("button-Export-Meshing")
-      .addEventListener("click", () => handleExportClick("Meshing"));
-    document
-      .getElementById("button-Export-Texturing")
-      .addEventListener("click", () => handleExportClick("Texturing"));
-
-    document
-      .getElementById("button-Anzeigen-StructureFromMotion")
-      .addEventListener("click", () => handleShowClick("StructureFromMotion"));
-    document
-      .getElementById("button-Anzeigen-Meshing")
-      .addEventListener("click", () => handleShowClick("Meshing"));
-    document
-      .getElementById("button-Anzeigen-Texturing")
-      .addEventListener("click", () => handleShowClick("Texturing"));
-  } else {
-    document
-      .getElementById("button-Anzeigen-model_converter")
-      .addEventListener("click", () => handleShowClick("model_converter"));
-    document
-      .getElementById("button-Anzeigen-ReconstructMesh")
-      .addEventListener("click", () => handleShowClick("ReconstructMesh"));
-    document
-      .getElementById("button-Anzeigen-TextureMesh")
-      .addEventListener("click", () => handleShowClick("TextureMesh"));
-
-    document
-      .getElementById("button-Export-model_converter")
-      .addEventListener("click", () => handleExportClick("model_converter"));
-    document
-      .getElementById("button-Export-ReconstructMesh")
-      .addEventListener("click", () => handleExportClick("ReconstructMesh"));
-    document
-      .getElementById("button-Export-TextureMesh")
-      .addEventListener("click", () => handleExportClick("TextureMesh"));
+  if (selectedOption !== "Meshroom") {
+    meshroomNodes.style.display = "none";
+    colmapOpenMVSNodes.style.display = "";
+  } else if (selectedOption !== "Colmap/OpenMVS") {
+    meshroomNodes.style.display = "";
+    colmapOpenMVSNodes.style.display = "none";
   }
+
 }
+
 function showDropdown(id) {
   document.getElementById(id).classList.toggle("show");
 }
@@ -278,13 +152,41 @@ function handleCheckboxChange() {
   };
   return selectedOption;
 }
+function initializeNodes() {
+  const items = [
+    "StructureFromMotion",
+    "Meshing",
+    "Texturing",
+    "model_converter",
+    "ReconstructMesh",
+    "TextureMesh",
+  ]
+  for (const item of items) {
+    document
+      .getElementById(`button-Anzeigen-${item}`)
+      .addEventListener("click", () =>
+        handleShowClick(`${item}`),
+      );
+    document
+      .getElementById(`button-Export-${item}`)
+      .addEventListener("click", () =>
+        handleExportClick(`${item}`),
+      );
+
+    const utlButtons = document.getElementById(`ul-${item}`)
+    utlButtons.onclick = () => showDropdown(`dropdown-${item}`);
+
+  }
+}
+
+
 
 window.addEventListener("beforeunload", function (e) {
   e.preventDefault();
   e.returnValue = "";
 });
 document.addEventListener("DOMContentLoaded", () => {
-  createProgressNodes();
+  initializeNodes();
   setupEventListeners();
   initializeWebSocket();
 });
@@ -301,7 +203,7 @@ function setupEventListeners() {
     .addEventListener("click", toggleSidebar);
   document
     .getElementById("modelSelector")
-    .addEventListener("change", createProgressNodes);
+    .addEventListener("change", changeProgessNodes);
   setupDragAndDrop();
 }
 
@@ -324,18 +226,7 @@ function handleWebSocketError(error) {
 function handleWebSocketClose() {
   console.log("WebSocket-Verbindung geschlossen");
 }
-function setupDragAndDrop() {
-  const dropArea = document.getElementById("dropArea");
-  dropArea.addEventListener("dragover", (event) => event.preventDefault());
-  dropArea.addEventListener("dragleave", () =>
-    dropArea.classList.remove("drag-over"),
-  );
-  dropArea.addEventListener("drop", (event) => {
-    event.preventDefault();
-    dropArea.classList.remove("drag-over");
-    handleFileSelection(event);
-  });
-}
+
 
 function areValidFiles(files) {
   return Array.from(files).every((file) =>
@@ -363,13 +254,13 @@ function startReconstructionProcess() {
       console.log(error);
     });
 }
-async function getModelPath(step) {
-  const modelPath = await axios.get("/modelPath", {
-    params: { modelRequest: step },
-  });
-  return modelPath;
+function activateProgressBar(step) {
+  var progressBar = document.getElementById(`progress-${step}-line`);
+  progressBar.style.backgroundImage = 'linear-gradient(45deg, rgba(255, 255, 0, 0.65) 25%, transparent 25%, transparent 50%, rgba(255, 255, 0, 0.65) 50%, rgba(255, 255, 0, 0.65) 75%, transparent 75%, transparent)';
+  progressBar.style.backgroundColor = '#f0bc00';
+  progressBar.style.backgroundSize = '40px 40px';
+  progressBar.style.animation = 'progress-bar-stripes 1s linear infinite';
 }
-
 function handleWebSocketMessage(event) {
   const data = JSON.parse(event.data);
   const processElement = document.getElementById(`progress-${data.step}-line`);
@@ -377,12 +268,15 @@ function handleWebSocketMessage(event) {
 
   switch (data.status) {
     case "started":
-      processElement.style.backgroundColor = "yellow";
+      activateProgressBar(data.step);
       break;
     case "completed":
       completedCount++;
       if (processElement.style.backgroundColor !== "red") {
+        processElement.style = ""
         processElement.style.backgroundColor = "green";
+        processElement.style.height = "100%";
+        processElement.style.width = "100%";
       }
       handleStepCompletion(data.step);
       activateButton(data.step);
@@ -513,23 +407,76 @@ function updateTooltips(cameraInfo) {
   otherInfo.style.backgroundColor = "#525252";
 }
 
-function changeCSS() {
-  const imagePreviewContainer = document.getElementById("imagePreview");
-  imagePreviewContainer.innerHTML = "";
-  imagePreviewContainer.style.overflow = "auto";
-  imagePreviewContainer.style.display = "grid";
-  imagePreviewContainer.style.gridTemplateColumns = "repeat(4, 1fr)";
-  imagePreviewContainer.style.gridTemplateRows = "repeat(2, 1fr)";
-
-  imagePreviewContainer.style.maxHeight = "200px";
-
-  return imagePreviewContainer;
+function setupDragAndDrop() {
+  const dropArea = document.getElementById("dropArea");
+  dropArea.addEventListener("dragover", (event) => event.preventDefault());
+  dropArea.addEventListener("dragleave", () =>
+    dropArea.classList.remove("drag-over"),
+  );
+  dropArea.addEventListener("drop", (event) => {
+    event.preventDefault();
+    dropArea.classList.remove("drag-over");
+    handleFileSelection(event);
+  });
 }
 
-function updateImagePreview(files) {
-  const imagePreviewContainer = changeCSS();
-  const maxImagesToShow = 8;
 
+function initializeDragAndDrop() {
+  let dropArea = document.getElementById('dropArea');
+  const uploadedImages = document.getElementById('uploadedImages');
+  const dropAreaStyle = getComputedStyle(dropArea).display;
+  const uploadedImagesStyle = getComputedStyle(uploadedImages).display;
+
+  if (dropAreaStyle === "flex" && uploadedImagesStyle === "grid") {
+    dropArea.style.display = "none";
+  } else if (dropAreaStyle === "flex" && uploadedImagesStyle === "none") {
+    dropArea.style.display = "";
+  } else if (dropAreaStyle === "none" && uploadedImagesStyle === "grid") {
+    dropArea.style.display = "";
+    uploadedImages.style.display = "none";
+  } else {
+    const imagePreview = document.getElementById('imagePreview');
+    imagePreview.removeChild(dropArea);
+    createDropArea();
+    setupDragAndDrop();
+  }
+
+}
+
+function resetUI() {
+  Three.clearScene();
+  completedCount = 0;
+  imagesToDelete = [];
+  const uploadedImagesContainer = document.getElementById("uploadedImages");
+  uploadedImagesContainer.innerHTML = ''
+  uploadedImagesContainer.style.display = 'none';
+  const checkbox = document.getElementsByClassName("runOption");
+  for (let item of checkbox) {
+    item.disabled = false;
+    item.checked = false;
+  }
+  const startButton = document.getElementById("startProcess");
+  startButton.disabled = true;
+  resetUIElements();
+  initializeDragAndDrop();
+}
+document.querySelectorAll('.tooltip').forEach(function (tooltip) {
+  tooltip.addEventListener('mouseover', function (event) {
+    if (!event.target.classList.contains('tooltiptext')) {
+      this.querySelector('.tooltiptext').style.visibility = 'visible';
+    }
+  });
+
+  tooltip.addEventListener('mouseout', function () {
+    this.querySelector('.tooltiptext').style.visibility = 'hidden';
+  });
+});
+
+function updateImagePreview(files) {
+  const imagePreviewContainer = document.getElementById("uploadedImages");
+  imagePreviewContainer.style.display = "grid"
+  initializeDragAndDrop();
+  imageAmount = files.length;
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
 
@@ -543,14 +490,18 @@ function updateImagePreview(files) {
       URL.revokeObjectURL(this.src);
     };
     wrapper.appendChild(imgElement);
-    wrapper.setAttribute("data-filename", file.name); // Speichert den Dateinamen
+    wrapper.setAttribute("data-filename", file.name);
 
     const deleteBtn = document.createElement("button");
     deleteBtn.innerText = "X";
     deleteBtn.id = "delete-btn";
     deleteBtn.onclick = function () {
+      imageAmount--;
       imagePreviewContainer.removeChild(wrapper);
       imagesToDelete.push(wrapper.getAttribute("data-filename"));
+      if (imageAmount === 0) {
+        resetUI();
+      }
     };
     wrapper.appendChild(deleteBtn);
 

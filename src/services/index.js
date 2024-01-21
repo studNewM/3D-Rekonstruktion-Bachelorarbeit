@@ -29,12 +29,12 @@ function startColmapOpenMVS(name, run_options) {
   runColmap(name, run_options)
     .then(() => {
       copyFiles("model_converter", "colmap");
-      // runOpenMVS(name, run_options);
-      // const durationInMs = performance.now() - start;
-      // const durationInMin = durationInMs / 60000;
-      // console.log(
-      //   `Reconstruction done. Time: ${durationInMin.toFixed(2)} minutes`,
-      // );
+      runOpenMVS(name, run_options);
+      const durationInMs = performance.now() - start;
+      const durationInMin = durationInMs / 60000;
+      console.log(
+        `Reconstruction done. Time: ${durationInMin.toFixed(2)} minutes`,
+      );
     })
     .catch((error) =>
       console.error("Colmap/OpenMVS reconstruction failed:", error),
