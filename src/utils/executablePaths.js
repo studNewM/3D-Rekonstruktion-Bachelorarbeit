@@ -1,6 +1,6 @@
 import path from "path";
 
-export const typeConfigs = {
+export const callPaths = {
   colmap: {
     command: "cmd.exe",
     args: (args) => ["/c", "COLMAP.bat"].concat(args),

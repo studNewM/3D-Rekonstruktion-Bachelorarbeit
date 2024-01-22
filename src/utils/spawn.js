@@ -1,21 +1,22 @@
-import { watchWorkspace } from "./watchDirectory.js";
+import { closeWatcher, watchWorkspace } from "./watchDirectory.js";
 import { spawn } from "node:child_process";
-import { typeConfigs } from "./commandConfigs.js";
+import { callPaths } from "./executablePaths.js";
 import sendToAllClients from "./websocketToClient.js";
 
 export default function spawnCommand(commandText, type = "", stepName) {
-  if (!typeConfigs[type]) {
+  if (!callPaths[type]) {
     console.error(`Unknown type: ${type}`);
     throw new Error(`Unknown type: ${type}`);
   }
   if (type === "meshroom") {
+    console.log("Starte Meshroom");
     watchWorkspace();
   }
   return new Promise((resolve, reject) => {
     let stderrOutput = "";
 
     const args = commandText.split(" ");
-    const config = typeConfigs[type];
+    const config = callPaths[type];
 
     const command =
       typeof config.command === "function"
@@ -87,6 +88,8 @@ export default function spawnCommand(commandText, type = "", stepName) {
             message: fatalMessage,
           });
         }
+        closeWatcher();
+        reject(new Error("Prozess mit Fehler beendet"));
       } else {
         console.log("Prozess erfolgreich beendet");
         resolve();

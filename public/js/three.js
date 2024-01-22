@@ -30,7 +30,11 @@ export function clearScene() {
 
   scene.traverse(function (child) {
     console.log(child);
-    if (child instanceof THREE.Group || child.type === "Mesh" || child.type === "Points") {
+    if (
+      child instanceof THREE.Group ||
+      child.type === "Mesh" ||
+      child.type === "Points"
+    ) {
       to_remove.push(child);
     }
     model_converter = 0;

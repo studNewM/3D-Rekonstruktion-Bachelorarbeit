@@ -2,7 +2,7 @@ import fs from "fs";
 import { copyFileSync } from "fs";
 import path from "path";
 import chalk from "chalk";
-import { watch, FSWatcher } from "chokidar";
+import { watch } from "chokidar";
 import sendToAllClients from "./websocketToClient.js";
 import { meshroomSteps } from "../types/meshroomTypes.js";
 import { copyFiles } from "./copyResults.js";
@@ -13,6 +13,7 @@ const workspaceDir = path.join(process.cwd(), workspace);
 let watcher;
 
 function watchWorkspace() {
+  console.log("Starte Watcher");
   watcher = watch(`${workspaceDir}/**`, {
     ignored: /^\./,
     persistent: true,
@@ -25,6 +26,7 @@ function watchWorkspace() {
     const foundStep = Object.values(meshroomSteps).find((step) =>
       filePath.includes(step),
     );
+    console.log(filePath);
     if (filePath.includes("log") && foundStep) {
       if (foundStep !== currentStep) {
         if (currentStep) {
@@ -33,6 +35,7 @@ function watchWorkspace() {
           );
           copyFiles(currentStep, "meshroom");
           const duration = (Date.now() - currentStepStartTime) / 1000;
+          console.log(currentStep, "completed in", duration, "seconds");
           sendToAllClients({
             step: currentStep,
             status: "completed",
@@ -45,19 +48,18 @@ function watchWorkspace() {
         chalk.white(`LOGGING: Step ${chalk.blue(currentStep)} started`),
       );
       currentStepStartTime = Date.now();
+      console.log(currentStep, "started");
       sendToAllClients({ step: currentStep, status: "started" });
     }
-  }
-  );
+  });
   watcher.on("error", (error) => console.error(`Watcher-Fehler: ${error}`));
-};
+}
 
-function closeWatcher() {
+export function closeWatcher() {
   if (watcher) {
     watcher.close();
   }
-
-};
+}
 function watchOutput(name) {
   const outputDir = path.join(process.cwd(), name, "output");
   fs.readdir(outputDir, (err, files) => {
@@ -75,6 +77,6 @@ function watchOutput(name) {
       closeWatcher();
     }
   });
-};
+}
 
 export { watchWorkspace, watchOutput };

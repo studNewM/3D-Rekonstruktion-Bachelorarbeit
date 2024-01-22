@@ -7,7 +7,7 @@ import dotenv from "dotenv";
 import inquirer from "inquirer";
 import chalk from "chalk";
 import { spawn } from "child_process";
-import { typeConfigs } from "./src/utils/commandConfigs.js";
+import { callPaths } from "./src/utils/executablePaths.js";
 import { unpack } from "7zip-min";
 import { mkdir, unlink } from "fs/promises";
 
@@ -74,7 +74,7 @@ function checkFileExistence(type) {
 async function checkIntegrity(item) {
   let output = "";
   const command =
-    item === "meshroom" ? typeConfigs[item].command : toolExe[item][0];
+    item === "meshroom" ? callPaths[item].command : toolExe[item][0];
   const args = item !== "meshroom" ? ["--help"] : [];
   const child = spawn(command, args, { cwd: process.env[item] });
 

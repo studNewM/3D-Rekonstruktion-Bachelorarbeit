@@ -11,7 +11,7 @@ async function runMeshroom(workspace) {
   try {
     await spawnCommand(meshroomOptions, "meshroom", "");
   } catch (error) {
-    console.error("Meshroom execution failed:", error);
+    console.log(error);
   }
 }
 
