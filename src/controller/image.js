@@ -3,14 +3,14 @@ import fs from "fs";
 import { processImages } from "../services/exif.js";
 
 function uploadImages(req, res) {
+  const imageDir = path.join(process.cwd(), "images");
   console.log("Lade Dateien hoch");
-  const imagesDir = path.join(process.cwd(), "images");
 
-  if (fs.existsSync(imagesDir)) {
-    fs.rmSync(imagesDir, { recursive: true });
+  if (fs.existsSync(imageDir)) {
+    fs.rmSync(imageDir, { recursive: true });
   }
 
-  fs.mkdirSync(imagesDir);
+  fs.mkdirSync(imageDir);
 
   req.files.forEach((file) => {
     const newPath = path.join("images", file.originalname);

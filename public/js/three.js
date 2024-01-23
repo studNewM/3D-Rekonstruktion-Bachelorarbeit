@@ -26,7 +26,7 @@ const controls = initControls(camera, renderer);
 const lights = initLights(scene);
 
 export function clearScene() {
-  var to_remove = [];
+  const toRemove = [];
 
   scene.traverse(function (child) {
     console.log(child);
@@ -35,13 +35,13 @@ export function clearScene() {
       child.type === "Mesh" ||
       child.type === "Points"
     ) {
-      to_remove.push(child);
+      toRemove.push(child);
     }
     model_converter = 0;
   });
 
-  for (var i = 0; i < to_remove.length; i++) {
-    scene.remove(to_remove[i]);
+  for (var i = 0; i < toRemove.length; i++) {
+    scene.remove(toRemove[i]);
     removeFromGUI();
   }
 }

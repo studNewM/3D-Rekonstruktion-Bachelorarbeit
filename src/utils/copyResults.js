@@ -1,12 +1,12 @@
 import { copyFileSync, readdir } from "fs";
 import path from "path";
+import { createTextureZip } from "./zip.js";
 import { findHashPath } from "./findMeshroomHashFolder.js";
 import { meshroomResults } from "../types/meshroomTypes.js";
 import {
   colmapOpenMvsResultPaths,
   colmapOpenMvsResult,
 } from "../types/colmapOpenMvsTypes.js";
-import { createTextureZip } from "./zip.js";
 
 function copyFolder() {
   const outputDir = path.join(

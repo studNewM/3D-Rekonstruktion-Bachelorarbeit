@@ -3,8 +3,8 @@ import fs from "node:fs";
 import chalk from "chalk";
 import spawn_Command from "../utils/spawn.js";
 import { copyFiles } from "../utils/copyResults.js";
-function run_openMVS(name, run_options) {
-  const cuda_device = run_options.cuda_device ? -2 : -1;
+function run_openMVS(name, options) {
+  const cuda_device = options.cuda_device ? -2 : -1;
   const workspace = path.join(process.cwd(), name);
   const sfm_path = path.join(workspace, "StructureFromMotion");
 

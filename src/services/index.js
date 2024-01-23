@@ -1,18 +1,18 @@
-import runMeshroom from "./meshroom.js";
+import callMeshroom from "./meshroom.js";
 import {
   moveImagesToWorkspace,
   setupWorkspace,
 } from "../utils/workspaceSetup.js";
 import { watchOutput } from "../utils/watchDirectory.js";
-import runColmap from "./colmap.js";
-import runOpenMVS from "./openMvs.js";
+import callColmap from "./colmap.js";
+import callOpenMVS from "./openMvs.js";
 import { copyFiles } from "../utils/copyResults.js";
 import { deleteAssetsFolder } from "../utils/cleaning.js";
 
-async function startMeshroom(name, run_options) {
+async function meshroom(name, options) {
   const start = performance.now();
   try {
-    await runMeshroom(name, run_options);
+    await callMeshroom(name, options);
     watchOutput(name);
     const durationInMs = performance.now() - start;
     const durationInMin = durationInMs / 60000;
@@ -24,13 +24,13 @@ async function startMeshroom(name, run_options) {
   }
 }
 
-function startColmapOpenMVS(name, run_options) {
+function colmapOpenMVS(name, options) {
   const start = performance.now();
   moveImagesToWorkspace(name);
-  runColmap(name, run_options)
+  callColmap(name, options)
     .then(() => {
       copyFiles("model_converter", "colmap");
-      runOpenMVS(name, run_options);
+      callOpenMVS(name, options);
       const durationInMs = performance.now() - start;
       const durationInMin = durationInMs / 60000;
       console.log(
@@ -42,17 +42,17 @@ function startColmapOpenMVS(name, run_options) {
     );
 }
 
-export async function runReconstruction(name, type = "Meshroom", run_options) {
+export async function reconstruction(name, type = "Meshroom", options) {
   setupWorkspace(name);
   deleteAssetsFolder();
   console.log("Start reconstruction");
   try {
     switch (type) {
       case "Meshroom":
-        await startMeshroom(name, run_options);
+        await meshroom(name, options);
         break;
       case "Colmap/OpenMVS":
-        await startColmapOpenMVS(name, run_options);
+        await colmapOpenMVS(name, options);
         break;
       default:
         throw new Error(`Unbekannter Rekonstruktionstyp: ${type}`);

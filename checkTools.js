@@ -7,9 +7,8 @@ import dotenv from "dotenv";
 import inquirer from "inquirer";
 import chalk from "chalk";
 import { spawn } from "child_process";
-import { callPaths } from "./src/utils/executablePaths.js";
 import { unpack } from "7zip-min";
-import { mkdir, unlink } from "fs/promises";
+import { callPaths } from "./src/utils/executablePaths.js";
 
 dotenv.config({ path: "./src/.env" });
 
@@ -140,7 +139,7 @@ async function softwareSelect() {
       type: "list",
       name: "variant",
       message: "Welche Variante möchten Sie installieren?",
-      choices: ["Colmap", "OpenMVS", "Colmap/OpenMVS"],
+      choices: ["Meshroom", "Colmap", "OpenMVS", "Colmap/OpenMVS"],
     },
   ];
   return inquirer.prompt(questions);
@@ -155,13 +154,19 @@ async function run() {
   try {
     switch (select) {
       case "Meshroom":
-        await downloadAndExtract(
-          downloadPaths["meshroom"][1],
-          downloadPaths["meshroom"][0],
-        );
-        spinner.succeed(
-          `${downloadPaths["meshroom"][1]} heruntergeladen and extrahiert`,
-        );
+        console.log(`
+          ${chalk.red("Aktuell kann Meshroom nicht automatisch heruntergeladen werden")}
+          ${chalk.white("Folgen Sie bitte den Anweisungen der Webseite http://alicevision.org/meshroom")}
+
+          `)
+        // await downloadAndExtract(
+        //   downloadPaths["meshroom"][1],
+        //   downloadPaths["meshroom"][0],
+        // );
+        // spinner.succeed(
+        //   `${downloadPaths["meshroom"][1]} heruntergeladen and extrahiert`,
+        // );
+        spinner.stop()
         break;
 
       case "Colmap":
@@ -211,7 +216,7 @@ async function run() {
   } catch (error) {
     spinner.fail(
       "Es ist ein Fehler beim herunterladen der Software aufgetreten: " +
-        error.message,
+      error.message,
     );
   }
 }
@@ -232,7 +237,7 @@ async function downloadFile(url, filename) {
   });
 }
 
-async function extractFile(filename) {
+async function extractZip(filename) {
   const toolPath = path.join(process.cwd(), "tools");
   await decompress(filename, toolPath);
   unlinkSync(filename);
@@ -257,6 +262,6 @@ async function downloadAndExtract(url, filename) {
     await extract7Zip(filename);
   }
   {
-    await extractFile(filename);
+    await extractZip(filename);
   }
 }

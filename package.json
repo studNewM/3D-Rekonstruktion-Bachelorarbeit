@@ -5,8 +5,7 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "prebuild": "node ./checkTools.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "node ./checkTools.js",
     "dev": "nodemon ./src/server.js",
     "start": "node ./src/server.js",
     "prettier": "npx prettier . --check",

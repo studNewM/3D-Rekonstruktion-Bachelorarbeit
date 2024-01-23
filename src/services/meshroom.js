@@ -1,7 +1,7 @@
 import path from "node:path";
 import spawnCommand from "../utils/spawn.js";
 
-async function runMeshroom(workspace) {
+async function callMeshroom(workspace) {
   const workspacePath = path.join(process.cwd(), workspace);
   const outputPath = path.join(workspacePath, "output");
   const imagesPath = path.join(process.cwd(), "images");
@@ -15,4 +15,4 @@ async function runMeshroom(workspace) {
   }
 }
 
-export default runMeshroom;
+export default callMeshroom;

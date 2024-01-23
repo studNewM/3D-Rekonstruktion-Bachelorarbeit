@@ -1,14 +1,13 @@
-import { runReconstruction } from "../services/index.js";
+import { reconstruction } from "../services/index.js";
 import { webSocket } from "../services/webSocket.js";
 
-export const startReconstruction = async (req, res) => {
-  const model_option = req.body.model;
-  const run_options = req.body.options;
+export const triggerReconstruction = async (req, res) => {
+  const model = req.body.model;
+  const options = req.body.options;
   const workspace = process.env.workingDir || "workspace";
 
   try {
-    runReconstruction(workspace, model_option, webSocket.ws, run_options);
-    console.log("test");
+    reconstruction(workspace, model, webSocket.ws, options);
     res.sendStatus(200);
   } catch (e) {
     console.error(e.message);

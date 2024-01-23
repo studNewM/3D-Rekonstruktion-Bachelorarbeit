@@ -13,7 +13,6 @@ function handleCheckboxChange() {
 }
 function changeProgessNodes() {
   const selectedModel = document.getElementById("modelSelector").value;
-  console.log(selectedModel);
   const meshroomNodesElement = document.getElementById("meshroomNodes");
   const colmapOpenMVSNodesElement =
     document.getElementById("colmapOpenMVSNodes");
