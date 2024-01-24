@@ -2,7 +2,7 @@ import { setupDragAndDrop } from "./dragAndDrop.js";
 import { setupWebSocketConnection } from "./webSocket.js";
 import {
   initializeReconstructionNodes,
-  changeProgessNodes,
+  changeProgessNodes
 } from "./reconstruction.js";
 import { resetUI } from "./ui.js";
 import { initiateReconstructionProcess } from "./axios.js";
@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeReconstructionNodes();
   setupEventListeners();
   setupWebSocketConnection();
+
 });
 
 function setupEventListeners() {

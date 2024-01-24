@@ -9,7 +9,8 @@
     "dev": "nodemon ./src/server.js",
     "start": "node ./src/server.js",
     "prettier": "npx prettier . --check",
-    "format": "npx prettier --write ."
+    "format": "npx prettier --write .",
+    "prestart": "node ./checkTools.js"
   },
   "keywords": [],
   "author": "",

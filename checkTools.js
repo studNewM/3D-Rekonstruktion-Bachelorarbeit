@@ -9,43 +9,10 @@ import chalk from "chalk";
 import { spawn } from "child_process";
 import { unpack } from "7zip-min";
 import { callPaths } from "./src/utils/executablePaths.js";
+import { glob } from "glob";
+
 
 dotenv.config({ path: "./src/.env" });
-
-const sleep = (ms = 2000) => new Promise((r) => setTimeout(r, ms));
-const meshroomPath = process.env.meshroom || "";
-const colmapPath = process.env.colmap || "";
-const openMVSPath = process.env.openMVS || "";
-
-async function checkIfToolEnvExist() {
-  const spinner = ora("Überprüfung der Umgebungsvariablen...").start();
-  let pathsSet = [];
-
-  await sleep();
-  spinner.stop();
-  console.log("Überprüfung der Umgebungsvariablen...", chalk.green("OK"));
-  try {
-    if (meshroomPath !== "" || colmapPath !== "" || openMVSPath !== "") {
-      if (meshroomPath !== "") {
-        pathsSet.push("meshroom");
-      }
-      if (colmapPath !== "") {
-        pathsSet.push("colmap");
-      }
-      if (openMVSPath !== "") {
-        pathsSet.push("openMVS");
-      }
-      console.log("Gefundene Tools: ", pathsSet);
-    } else {
-      console.log(chalk.red("Kein Pfad ist gesetzt."));
-      console.log("\t");
-    }
-    return pathsSet;
-  } catch (err) {
-    console.error(err);
-  }
-}
-
 const toolExe = {
   meshroom: ["meshroom_batch.exe"],
   colmap: ["COLMAP.bat"],
@@ -59,18 +26,106 @@ const toolExe = {
   ],
 };
 
-function checkFileExistence(type) {
+async function checkCUDA() {
+  const spinner = ora("Überprüfung von NVIDA CUDA...").start();
+  await sleep();
+  const command = "nvcc -V"
+  const child = spawn(command, {
+    stdio: 'inherit',
+    shell: true
+  });
+
+
+  child.on("close", (code) => {
+    if (code === 0) {
+      console.log(`Überprüfung von NVIDA CUDA...`, chalk.green("OK"));
+    } else {
+      console.log(`Überprüfung von NVIDA CUDA...`, chalk.red("Error"));
+    }
+    spinner.stop();
+  });
+
+}
+
+
+
+
+const sleep = (ms = 2000) => new Promise((r) => setTimeout(r, ms));
+const pathMeshroom = process.env.meshroom || "";
+const pathColmap = process.env.colmap || "";
+const pathOpenMVS = process.env.openMVS || "";
+
+async function checkEnvForToolPaths() {
+  const spinner = ora("Überprüfung der Umgebungsvariablen...").start();
+  await sleep();
+  spinner.stop();
+
+  console.log("Überprüfung der Umgebungsvariablen...", chalk.green("OK"));
+
   try {
-    const result = toolExe[type].every((exe) =>
-      existsSync(path.join(process.env[type], exe)),
-    );
-    return result;
+    let pathsSet = [];
+    if (pathMeshroom) pathsSet.push("meshroom");
+    if (pathColmap) pathsSet.push("colmap");
+    if (pathOpenMVS) pathsSet.push("openMVS");
+
+    if (pathsSet.length === 0) {
+      console.log(chalk.red("Kein Pfad ist gesetzt."));
+    } else {
+      console.log("Gefundene Tools: ", pathsSet);
+    }
+
+    return pathsSet;
   } catch (err) {
     console.error(err);
   }
 }
+async function verifyToolsInDirectory() {
+  const toolPath = path.join(process.cwd(), "src", "tools");
+  const spinner = ora("Überprüfung des Ordners...").start();
+  await sleep();
+  spinner.stop();
 
-async function checkIntegrity(item) {
+  if (!existsSync(toolPath)) {
+    console.log(chalk.red("Kein Tools wurden gefunden."));
+    return [];
+  }
+
+  const folderNames = await glob(`${toolPath}/*`);
+  if (folderNames.length === 0) {
+    console.log(chalk.red("Kein Tools wurden gefunden."));
+    return [];
+  }
+
+  const downloadedTools = {};
+  for (const item of folderNames) {
+    const toolName = path.basename(item);
+    if (toolName.includes("OpenMVS")) {
+      downloadedTools["openMVS"] = toolName;
+    } else if (toolName.includes("COLMAP")) {
+      downloadedTools["colmap"] = toolName;
+    } else if (toolName.includes("Meshroom")) {
+      downloadedTools["meshroom"] = toolName;
+    }
+  }
+
+  console.log("Gefundene Tools: ", Object.keys(downloadedTools));
+  for (const [tool, toolName] of Object.entries(downloadedTools)) {
+    process.env[tool] = path.join(toolPath, toolName);
+  }
+
+  return Object.keys(downloadedTools);
+}
+function verifyFilePresence(type) {
+  try {
+    return toolExe[type].every((exe) => existsSync(path.join(process.env[type], exe)));
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+}
+
+async function verifyToolIntegrity(item) {
+
   let output = "";
   const command =
     item === "meshroom" ? callPaths[item].command : toolExe[item][0];
@@ -97,26 +152,34 @@ async function checkIntegrity(item) {
   });
 }
 
-async function testTool() {
-  const paths = await checkIfToolEnvExist();
-  if (paths.length !== 0) {
-    for (const item of paths) {
-      if (checkFileExistence(item) && item === "openMVS") {
-        console.log(`Überprüfung von ${item}...`, chalk.green("OK"));
-      } else if (checkFileExistence(item)) {
-        checkIntegrity(item);
-      } else {
-        console.log(`Überprüfung von ${item}...`, chalk.red("Error"));
-      }
+function validateInstalledTools(items) {
+  for (const item of items) {
+    if (verifyFilePresence(item) && item === "openMVS") {
+      console.log(`Überprüfung von ${item}...`, chalk.green("OK"));
+    } else if (verifyFilePresence(item)) {
+      verifyToolIntegrity(item);
+    } else {
+
+      console.log(`Überprüfung von ${item}...`, chalk.red("Error"));
     }
-  } else {
-    run();
+
   }
 }
 
-(async () => {
-  await testTool();
-})();
+export async function executeToolCheck() {
+  await checkCUDA();
+  const paths = await checkEnvForToolPaths();
+  if (paths.length !== 0) {
+    validateInstalledTools(paths);
+  } else {
+    const tools = await verifyToolsInDirectory();
+    if (tools.length !== 0) {
+      validateInstalledTools(tools);
+    } else {
+      run();
+    }
+  }
+}
 
 const downloadPaths = {
   meshroom: [
@@ -133,7 +196,7 @@ const downloadPaths = {
   ],
 };
 
-async function softwareSelect() {
+async function promptSoftwareSelection() {
   const questions = [
     {
       type: "list",
@@ -146,7 +209,7 @@ async function softwareSelect() {
 }
 
 async function run() {
-  const options = await softwareSelect();
+  const options = await promptSoftwareSelection();
   const select = options.variant;
 
   const spinner = ora(`Downloading and extracting ${select}...`).start();
@@ -170,25 +233,25 @@ async function run() {
         break;
 
       case "Colmap":
-        await downloadAndExtract(
+        await downloadAndUnpackTool(
           downloadPaths["colmap"][1],
           downloadPaths["colmap"][0],
         );
         spinner.succeed(`Colmap/OpenMVS heruntergeladen and extrahiert`);
         break;
       case "OpenMVS":
-        await downloadAndExtract(
+        await downloadAndUnpackTool(
           downloadPaths["openMVS"][1],
           downloadPaths["openMVS"][0],
         );
         spinner.succeed(`Colmap/OpenMVS heruntergeladen and extrahiert`);
         break;
       case "Colmap/OpenMVS":
-        await downloadAndExtract(
+        await downloadAndUnpackTool(
           downloadPaths["colmap"][1],
           downloadPaths["colmap"][0],
         );
-        await downloadAndExtract(
+        await downloadAndUnpackTool(
           downloadPaths["openMVS"][1],
           downloadPaths["openMVS"][0],
         );
@@ -196,15 +259,15 @@ async function run() {
         break;
       case "Beide":
         console.log(chalk.green("Beide Varianten werden installiert!"));
-        await downloadAndExtract(
+        await downloadAndUnpackTool(
           downloadPaths["meshroom"][1],
           downloadPaths["meshroom"][0],
         );
-        await downloadAndExtract(
+        await downloadAndUnpackTool(
           downloadPaths["colmap"][1],
           downloadPaths["colmap"][0],
         );
-        await downloadAndExtract(
+        await downloadAndUnpackTool(
           downloadPaths["openMVS"][1],
           downloadPaths["openMVS"][0],
         );
@@ -221,7 +284,7 @@ async function run() {
   }
 }
 
-async function downloadFile(url, filename) {
+async function fetchFileFromUrl(url, filename) {
   const writer = createWriteStream(filename);
 
   const response = await axios({
@@ -237,31 +300,43 @@ async function downloadFile(url, filename) {
   });
 }
 
-async function extractZip(filename) {
-  const toolPath = path.join(process.cwd(), "tools");
+async function unpackZipFile(filename) {
+  const toolPath = path.join(process.cwd(), "src", "tools");
   await decompress(filename, toolPath);
   unlinkSync(filename);
 }
 
-async function extract7Zip(filename) {
+async function unpack7ZipFile(filename) {
   const openMVSPath = path.join(
     process.cwd(),
+    "src",
     "tools",
     filename.replace(".7z", ""),
   );
-  if (!existsSync(openMVSPath)) {
-    mkdirSync(openMVSPath);
-  }
-  unpack(filename, openMVSPath);
-  unlinkSync(filename);
+  await zip7(filename, openMVSPath)
 }
-
-async function downloadAndExtract(url, filename) {
-  await downloadFile(url, filename);
+function zip7(filename, openMVSPath) {
+  return new Promise(function (resolved, rejected) {
+    unpack(filename, openMVSPath, function (err) {
+      if (err) {
+        rejected(err);
+      } else {
+        resolved();
+      }
+    });
+  });
+}
+async function downloadAndUnpackTool(url, filename) {
+  await fetchFileFromUrl(url, filename);
   if (filename.endsWith(".7z")) {
-    await extract7Zip(filename);
+    await unpack7ZipFile(filename);
   }
   {
-    await extractZip(filename);
+    await unpackZipFile(filename);
   }
 }
+
+
+(async () => {
+  await executeToolCheck();
+})();
