@@ -10,7 +10,7 @@ import { spawn } from "child_process";
 import { unpack } from "7zip-min";
 import { callPaths } from "./src/utils/executablePaths.js";
 import { glob } from "glob";
-
+import fs from 'fs';
 
 dotenv.config({ path: "./src/.env" });
 const toolExe = {
@@ -79,23 +79,13 @@ async function checkEnvForToolPaths() {
     console.error(err);
   }
 }
-async function verifyToolsInDirectory() {
+async function getToolPath() {
   const toolPath = path.join(process.cwd(), "src", "tools");
-  const spinner = ora("Überprüfung des Ordners...").start();
-  await sleep();
-  spinner.stop();
-
-  if (!existsSync(toolPath)) {
-    console.log(chalk.red("Kein Tools wurden gefunden."));
-    return [];
-  }
-
   const folderNames = await glob(`${toolPath}/*`);
   if (folderNames.length === 0) {
     console.log(chalk.red("Kein Tools wurden gefunden."));
     return [];
   }
-
   const downloadedTools = {};
   for (const item of folderNames) {
     const toolName = path.basename(item);
@@ -107,7 +97,37 @@ async function verifyToolsInDirectory() {
       downloadedTools["meshroom"] = toolName;
     }
   }
+  if (downloadedTools.length !== 0) {
+    let lines = fs.readFileSync('./src/.env', 'utf-8').split('\n');
 
+    for (const item of Object.keys(downloadedTools)) {
+      let index = lines.findIndex(line => line.startsWith(item));
+      if (index !== -1) {
+        lines[index] = `"${item} = ${path.join(process.cwd(), "src", "tools", downloadedTools[item])}"`;
+      }
+
+      fs.writeFileSync('./src/.env', lines.join('\n'));
+
+    }
+  }
+  return downloadedTools;
+}
+
+
+
+
+async function verifyToolsInDirectory() {
+  const toolPath = path.join(process.cwd(), "src", "tools");
+  const spinner = ora("Überprüfung des Ordners...").start();
+  await sleep();
+  spinner.stop();
+
+  if (!existsSync(toolPath)) {
+    console.log(chalk.red("Kein Tools wurden gefunden."));
+    return [];
+  }
+
+  const downloadedTools = await getToolPath();
   console.log("Gefundene Tools: ", Object.keys(downloadedTools));
   for (const [tool, toolName] of Object.entries(downloadedTools)) {
     process.env[tool] = path.join(toolPath, toolName);

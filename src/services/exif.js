@@ -14,7 +14,7 @@ export async function processImages() {
         const make = exifData.Make || "Unbekannt";
         const lensModel = exifData.LensModel || "";
         const model = exifData.Model || "Modell";
-        const cameraModel = `${make}${lensModel ? ` - ${lensModel}` : ` - ${model}`}`;
+        const cameraModel = `${make}${lensModel ? ` - ${lensModel}` : ` - ${model}`}` || "Unbekannt";
         const focalLength = exifData.FocalLength
           ? exifData.FocalLength + "mm"
           : "Unbekannt";
@@ -39,6 +39,10 @@ export async function processImages() {
           cameraInfo[cameraModel].imageCountsByFocalLength[focalLength] = 0;
         }
         cameraInfo[cameraModel].imageCountsByFocalLength[focalLength]++;
+      } else {
+        cameraInfo['Unbekannt'] = {
+          imagecount: files.length,
+        };
       }
     }
     return cameraInfo;

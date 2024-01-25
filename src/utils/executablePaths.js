@@ -1,23 +1,22 @@
 import path from "path";
+import dotenv from "dotenv";
+dotenv.config({ path: "./src/.env" });
+
 
 export const callPaths = {
   colmap: {
     command: "cmd.exe",
     args: (args) => ["/c", "COLMAP.bat"].concat(args),
-    cwd: path.normalize(
-      path.join(process.cwd(), "tools", "COLMAP-3.8-windows-cuda"),
-    ),
+    cwd: process.env["colmap"]
   },
   openMVS: {
     command: (args) => args[0],
     args: (args) => args.slice(1),
-    cwd: path.normalize(
-      path.join(process.cwd(), "tools", "OpenMVS_Windows_x64"),
-    ),
+    cwd: process.env["openMVS"]
   },
   meshroom: {
     command: "meshroom_batch.exe",
     args: (args) => args,
-    cwd: path.normalize(path.join(process.cwd(), "tools", "Meshroom")),
+    cwd: process.env["meshroom"]
   },
 };

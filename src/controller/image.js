@@ -36,27 +36,37 @@ function deleteImages(req, res) {
 
 async function getMetdata(req, res) {
   const cameraInfo = await processImages();
-  const metadata = {
-    totalCameras: Object.keys(cameraInfo).length,
-    cameras: [],
-    totalImages: Object.values(cameraInfo).reduce(
-      (total, info) => total + info.count,
-      0,
-    ),
-  };
+  if (!cameraInfo['Unbekannt']) {
+    const metadata = {
+      totalCameras: Object.keys(cameraInfo).length,
+      cameras: [],
+      totalImages: Object.values(cameraInfo).reduce(
+        (total, info) => total + info.count,
+        0,
+      ),
+    };
 
-  Object.entries(cameraInfo).forEach(([cameraModel, info]) => {
-    metadata.cameras.push({
-      combine: cameraModel,
-      maker: info.maker,
-      model: info.model,
-      imageCount: info.count,
-      focalLengths: Array.from(info.focalLengths),
-      isoValues: Array.from(info.isoValues),
-      imageCountsByFocalLength: info.imageCountsByFocalLength,
+    Object.entries(cameraInfo).forEach(([cameraModel, info]) => {
+      metadata.cameras.push({
+        combine: cameraModel,
+        maker: info.maker,
+        model: info.model,
+        imageCount: info.count,
+        focalLengths: Array.from(info.focalLengths),
+        isoValues: Array.from(info.isoValues),
+        imageCountsByFocalLength: info.imageCountsByFocalLength,
+      });
     });
-  });
-  res.send(metadata);
+    res.send(metadata);
+
+  } else {
+    const metadata = {
+      totalCameras: 'Unbekannt',
+      cameras: ['Unbekannt'],
+      totalImages: cameraInfo['Unbekannt'].imagecount,
+    };
+    res.send(metadata);
+  }
 }
 
 export { uploadImages, getMetdata, deleteImages };

@@ -1,5 +1,4 @@
 import fs from "fs";
-import { copyFileSync } from "fs";
 import path from "path";
 import chalk from "chalk";
 import { watch } from "chokidar";
@@ -12,71 +11,90 @@ const workspaceDir = path.join(process.cwd(), workspace);
 
 let watcher;
 
+function startStepLogging(foundStep) {
+  console.log(chalk.white(`LOGGING: Step ${chalk.blue(foundStep)} started`));
+  sendToAllClients({ step: foundStep, status: "started" });
+  return { currentStep: foundStep, currentStepStartTime: Date.now() };
+}
+
+function completeStepLogging(currentStep, currentStepStartTime) {
+  console.log(chalk.white(`LOGGING: Step ${chalk.blue(currentStep)} completed`));
+  const duration = (Date.now() - currentStepStartTime) / 1000;
+  console.log(currentStep, "completed in", duration, "seconds");
+  sendToAllClients({ step: currentStep, status: "completed", time: duration });
+  copyFiles(currentStep, "meshroom");
+}
+
 function watchWorkspace() {
-  console.log("Starte Watcher");
-  watcher = watch(`${workspaceDir}/**`, {
-    ignored: /^\./,
-    persistent: true,
-    depth: 2,
-  });
-  let currentStep = null;
-  let currentStepStartTime = null;
+  watcher = watch(`${workspaceDir}/**`, { ignored: /^\./, persistent: true, depth: 2 });
+  let currentStep, currentStepStartTime;
 
   watcher.on("add", (filePath) => {
-    const foundStep = Object.values(meshroomSteps).find((step) =>
-      filePath.includes(step),
-    );
-    console.log(filePath);
+    const foundStep = Object.values(meshroomSteps).find((step) => filePath.includes(step));
     if (filePath.includes("log") && foundStep) {
       if (foundStep !== currentStep) {
-        if (currentStep) {
-          console.log(
-            chalk.white(`LOGGING: Step ${chalk.blue(currentStep)} completed`),
-          );
-          copyFiles(currentStep, "meshroom");
-          const duration = (Date.now() - currentStepStartTime) / 1000;
-          console.log(currentStep, "completed in", duration, "seconds");
-          sendToAllClients({
-            step: currentStep,
-            status: "completed",
-            time: duration,
-          });
-        }
+        if (currentStep) completeStepLogging(currentStep, currentStepStartTime);
       }
-      currentStep = foundStep;
-      console.log(
-        chalk.white(`LOGGING: Step ${chalk.blue(currentStep)} started`),
-      );
-      currentStepStartTime = Date.now();
-      console.log(currentStep, "started");
-      sendToAllClients({ step: currentStep, status: "started" });
+      ({ currentStep, currentStepStartTime } = startStepLogging(foundStep));
     }
   });
   watcher.on("error", (error) => console.error(`Watcher-Fehler: ${error}`));
 }
 
-export function closeWatcher() {
+function closeWatcher() {
   if (watcher) {
     watcher.close();
+    watcher = null;
+    console.log("Watcher wurde geschlossen.");
   }
+}
+function sortFiles(a, b) {
+  const extA = path.extname(a);
+  const extB = path.extname(b);
+  if (extA === '.png' && extB !== '.png') return -1;
+  if (extB === '.png' && extA !== '.png') return 1;
+  if (extA === '.mtl' && extB !== '.mtl') return -1;
+  if (extB === '.mtl' && extA !== '.mtl') return 1;
+  return 0;
 }
 function watchOutput(name) {
   const outputDir = path.join(process.cwd(), name, "output");
   fs.readdir(outputDir, (err, files) => {
     if (err) {
       console.error(`Fehler beim Lesen des Verzeichnisses: ${err}`);
-    } else if (files.length >= 3) {
+      return;
+    }
+    if (files.length >= 3) {
       sendToAllClients({ step: "Publish", status: "completed" });
-      files.forEach((file) =>
-        copyFileSync(
-          path.join(outputDir, file),
-          path.join(process.cwd(), "public", "assets", file),
-        ),
-      );
+      const uniqueFilename = '_' + Date.now();
+      const pngFiles = {};
+      let pngBase;
+      let newBase;
+      files.sort(sortFiles).forEach((file) => {
+        const ext = path.extname(file);
+        if (ext === '.png') {
+          pngBase = path.basename(file, ext);
+          newBase = pngBase + uniqueFilename
+          pngFiles[pngBase] = newBase
+          fs.copyFileSync(path.join(outputDir, file), path.join(process.cwd(), "public", "assets", newBase + ext));
+        } else if (ext === '.mtl') {
+          let content = fs.readFileSync(path.join(outputDir, file), 'utf8');
+          for (const pngFile of Object.keys(pngFiles)) {
+            content = content.replace(new RegExp(pngFile, 'g'), pngFiles[pngFile]);
+          }
+          fs.writeFileSync(path.join(process.cwd(), "public", "assets", file), content);
+        } else {
+          fs.copyFileSync(path.join(outputDir, file), path.join(process.cwd(), "public", "assets", file));
+        }
+      });
       createTextureZip("meshroom");
       closeWatcher();
     }
   });
 }
 
-export { watchWorkspace, watchOutput };
+
+
+
+
+export { watchWorkspace, watchOutput, closeWatcher };

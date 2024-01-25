@@ -14,7 +14,6 @@ function displayMetadata(metadata) {
     .join("|");
   const focalLengths = document.getElementById("focalLength");
   focalLengths.innerText = focalLengthsInfo;
-
   updateTooltips(metadata);
 }
 
@@ -22,18 +21,24 @@ function updateTooltips(cameraInfo) {
   let imageCountContent = "";
   let cameraTypesContent = "";
   let otherInfoContent = "";
-
-  for (const camera of cameraInfo.cameras) {
-    imageCountContent += `${camera.maker}:<br>`;
-    for (const [focalLength, count] of Object.entries(
-      camera.imageCountsByFocalLength,
-    )) {
-      imageCountContent += `&nbsp;&nbsp;${focalLength}: ${count} Bild(er)<br>`;
+  if (cameraInfo.totalCameras !== "Unbekannt") {
+    for (const camera of cameraInfo.cameras) {
+      imageCountContent += `${camera.maker}:<br>`;
+      for (const [focalLength, count] of Object.entries(
+        camera.imageCountsByFocalLength,
+      )) {
+        imageCountContent += `&nbsp;&nbsp;${focalLength}: ${count} Bild(er)<br>`;
+      }
+      imageCountContent += "<br>";
+      cameraTypesContent += `${camera.combine}<br>`;
+      otherInfoContent += `Kamera: ${camera.combine}, ISO: ${camera.isoValues.join(", ")}, Brennweiten: ${camera.focalLengths.join(", ")}<br>`;
     }
-    imageCountContent += "<br>";
-    cameraTypesContent += `${camera.combine}<br>`;
-    otherInfoContent += `Kamera: ${camera.combine}, ISO: ${camera.isoValues.join(", ")}, Brennweiten: ${camera.focalLengths.join(", ")}<br>`;
-  }
+  } else[
+    imageCountContent += `Unbekannt:<br>${cameraInfo.totalImages} Bild(er)<br><br>`,
+    cameraTypesContent += `Unbekannt<br>`,
+    otherInfoContent += `Kamera: Unbekannt, ISO: Unbekannt, Brennweiten: Unbekannt<br>`
+  ]
+
 
   const imagecount = document.getElementById("imageCountTooltip");
   imagecount.innerHTML = imageCountContent;
