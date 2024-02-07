@@ -5,12 +5,11 @@
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "postinstall": "node ./checkTools.js",
+    "postinstall": "node --env-file=./src/.env ./checkTools.js",
     "dev": "nodemon ./src/server.js",
-    "start": "node ./src/server.js",
+    "start": "node --env-file=./src/.env ./src/server.js",
     "prettier": "npx prettier . --check",
-    "format": "npx prettier --write .",
-    "prestart": "node ./checkTools.js"
+    "format": "npx prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -24,7 +23,7 @@
     "cors": "^2.8.5",
     "dat.gui": "^0.7.9",
     "decompress": "^4.2.1",
-    "dotenv": "^16.3.1",
+    "detect-gpu": "^5.0.37",
     "exifr": "^7.1.3",
     "express": "^4.18.2",
     "file-saver": "^2.0.5",

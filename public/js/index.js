@@ -6,9 +6,8 @@ import {
 } from "./reconstruction.js";
 import { resetUI } from "./ui.js";
 import { initiateReconstructionProcess } from "./axios.js";
-import { handleselectedFileselection } from "./images.js";
+import { handleSelectedFiles } from "./images.js";
 import { toggleSidebar } from "./ui.js";
-
 window.addEventListener("beforeunload", function (e) {
   e.preventDefault();
   e.returnValue = "";
@@ -31,7 +30,7 @@ function setupEventListeners() {
     .addEventListener("click", initiateReconstructionProcess);
   document
     .getElementById("folderPicker")
-    .addEventListener("change", handleselectedFileselection);
+    .addEventListener("change", handleSelectedFiles);
   document
     .getElementById("sidebarToggle")
     .addEventListener("click", toggleSidebar);
@@ -72,3 +71,15 @@ function setupDropdownListeners() {
     }
   };
 }
+window.addEventListener("load", function () {
+  setTimeout(
+    function open(event) {
+      document.querySelector(".popup").style.display = "block";
+    },
+    1000
+  )
+});
+document.querySelector("#close").addEventListener("click", function () {
+  document.querySelector(".popup").style.display = "none";
+  toggleSidebar();
+});

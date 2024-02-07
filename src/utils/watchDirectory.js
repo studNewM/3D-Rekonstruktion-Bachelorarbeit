@@ -1,15 +1,20 @@
-import fs from "fs";
+import fs, { stat } from "fs";
 import path from "path";
 import chalk from "chalk";
 import { watch } from "chokidar";
 import sendToAllClients from "./websocketToClient.js";
 import { meshroomSteps } from "../types/meshroomTypes.js";
-import { copyFiles } from "./copyResults.js";
+import { copyFiles, checkFileWriteStatus } from "./copyResults.js";
 import { createTextureZip } from "./zip.js";
+import { meshroomResults } from "../types/meshroomTypes.js";
+import { findHashPath } from "./findMeshroomHashFolder.js";
+import * as fsStat from 'node:fs/promises';
+
 const workspace = process.env.workingDir || "workspace";
 const workspaceDir = path.join(process.cwd(), workspace);
 
 let watcher;
+
 
 function startStepLogging(foundStep) {
   console.log(chalk.white(`LOGGING: Step ${chalk.blue(foundStep)} started`));
@@ -22,18 +27,26 @@ function completeStepLogging(currentStep, currentStepStartTime) {
   const duration = (Date.now() - currentStepStartTime) / 1000;
   console.log(currentStep, "completed in", duration, "seconds");
   sendToAllClients({ step: currentStep, status: "completed", time: duration });
-  copyFiles(currentStep, "meshroom");
+
 }
 
 function watchWorkspace() {
   watcher = watch(`${workspaceDir}/**`, { ignored: /^\./, persistent: true, depth: 2 });
-  let currentStep, currentStepStartTime;
+  let currentStep, currentStepStartTime, missingStep;
 
   watcher.on("add", (filePath) => {
     const foundStep = Object.values(meshroomSteps).find((step) => filePath.includes(step));
-    if (filePath.includes("log") && foundStep) {
+    if (filePath.includes("log") && !filePath.includes('sfm_log') && foundStep) {
       if (foundStep !== currentStep) {
-        if (currentStep) completeStepLogging(currentStep, currentStepStartTime);
+        if (currentStep) {
+          if (meshroomResults[currentStep]) {
+            missingStep = currentStep
+            checkStepIsFinished(currentStep)
+              .then(() => copyFiles(missingStep, "meshroom"))
+              .then(() => completeStepLogging(missingStep, currentStepStartTime))
+          }
+          else { completeStepLogging(currentStep, currentStepStartTime) }
+        }
       }
       ({ currentStep, currentStepStartTime } = startStepLogging(foundStep));
     }
@@ -65,7 +78,7 @@ function watchOutput(name) {
       return;
     }
     if (files.length >= 3) {
-      sendToAllClients({ step: "Publish", status: "completed" });
+
       const uniqueFilename = '_' + Date.now();
       const pngFiles = {};
       let pngBase;
@@ -87,6 +100,7 @@ function watchOutput(name) {
           fs.copyFileSync(path.join(outputDir, file), path.join(process.cwd(), "public", "assets", file));
         }
       });
+      sendToAllClients({ step: "Publish", status: "completed" });
       createTextureZip("meshroom");
       closeWatcher();
     }
@@ -95,6 +109,40 @@ function watchOutput(name) {
 
 
 
+
+async function checkStepIsFinished(step) {
+  const sourceDir = await findHashPath(step);
+  const fileName = meshroomResults[step][0]
+  const filePath = path.join(process.cwd(), path.join(path.dirname(sourceDir[0])), fileName)
+  return checkFileStability(filePath)
+}
+
+
+async function checkFileStability(filePath, checkDuration = 1000) {
+  let lastSize = -1;
+  let lastCheckTime = Date.now();
+
+  const checkSizeChange = async () => {
+    try {
+      const stats = await fsStat.stat(filePath);
+      console.log(stats);
+      const currentTime = Date.now();
+      if (stats.size === lastSize && (currentTime - lastCheckTime >= checkDuration)) {
+        console.log("Fertig");
+        return true;
+      } else {
+        lastSize = stats.size;
+        lastCheckTime = currentTime;
+        await new Promise(resolve => setTimeout(resolve, checkDuration));
+        return checkSizeChange();
+      }
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  return checkSizeChange();
+}
 
 
 export { watchWorkspace, watchOutput, closeWatcher };

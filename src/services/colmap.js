@@ -17,7 +17,7 @@ async function checkFolder(folder) {
   }
 }
 
-async function runColmap(name) {
+async function callColmap(name) {
   const workspace = path.join(process.cwd(), name);
   const sfmPath = path.join(workspace, "StructureFromMotion");
   const sparsePath = path.join(sfmPath, "sparse");
@@ -34,7 +34,7 @@ async function runColmap(name) {
       `exhaustive_matcher --database_path ${databasePath}`,
       `mapper --database_path ${databasePath} --image_path ${imagesPath} --output_path ${sparsePath}`,
       `model_converter --input_path ${path.join(sparsePath, "0")} --output_path ${path.join(sparsePath, "0", "sfm.ply")} --output_type ply`,
-      `image_undistorter --image_path ${imagesPath} --input_path ${path.join(sparsePath, "0")} --output_path ${densePath} --output_type COLMAP`,
+      `image_undistorter --image_path ${imagesPath} --input_path ${path.join(sparsePath, "0")} --output_path ${densePath}`,
       `model_converter --input_path ${denseSparsePath} --output_path ${denseSparsePath} --output_type TXT`,
     ];
 
@@ -50,4 +50,4 @@ async function runColmap(name) {
   }
 }
 
-export default runColmap;
+export default callColmap;

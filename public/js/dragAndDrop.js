@@ -1,4 +1,4 @@
-import { handleselectedFileselection } from "./images.js";
+import { handleSelectedFiles } from "./images.js";
 
 function createDropArea() {
   const dropArea = document.createElement("div");
@@ -42,7 +42,7 @@ function setupDragAndDrop() {
   dropArea.addEventListener("drop", (event) => {
     event.preventDefault();
     dropArea.classList.remove("drag-over");
-    handleselectedFileselection(event);
+    handleSelectedFiles(event);
   });
 }
 function initializeDragAndDrop() {

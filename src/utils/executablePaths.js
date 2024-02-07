@@ -1,7 +1,3 @@
-import path from "path";
-import dotenv from "dotenv";
-dotenv.config({ path: "./src/.env" });
-
 
 export const callPaths = {
   colmap: {

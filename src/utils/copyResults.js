@@ -1,4 +1,5 @@
 import { copyFileSync, readdir } from "fs";
+import chokidar from "chokidar";
 import path from "path";
 import { createTextureZip } from "./zip.js";
 import { findHashPath } from "./findMeshroomHashFolder.js";
@@ -37,12 +38,11 @@ async function copyFiles(type, model) {
   }
   if (arrayValues.includes(type)) {
     const destinationDir = path.join(process.cwd(), "public", "assets");
-    let sourceDir = "";
+    let sourceDir = [];
     if (model === "meshroom") {
       sourceDir = await findHashPath(type);
     } else if (type !== "TextureMesh") {
       const sourcePath = path.join(
-        process.cwd(),
         "workspace",
         colmapOpenMvsResultPaths[type],
       );
@@ -55,8 +55,10 @@ async function copyFiles(type, model) {
         copyFolder();
         await createTextureZip("openMVS");
       } else {
-        copyFileSync(sourceDir[0], destinationPath);
-        console.log(`Die Datei "${fileName}" wurde erfolgreich kopiert.`);
+        const filePath = path.join(process.cwd(), path.join(path.dirname(sourceDir[0])), fileName)
+        console.log("SOURCE", sourceDir[0]);
+        copyFileSync(filePath, destinationPath);
+        console.log(`Die Datei "${filePath}" wurde erfolgreich kopiert.`);
       }
     } catch (err) {
       console.error(
@@ -66,4 +68,30 @@ async function copyFiles(type, model) {
   }
 }
 
-export { copyFiles };
+function checkFileWriteStatus(filePath) {
+  return new Promise((resolve, reject) => {
+    const file = path.dirname(filePath);
+    const watcher = chokidar.watch(file, {
+      ignored: /(^|[\/\\])\../,
+      awaitWriteFinish: {
+        stabilityThreshold: 2000,
+        pollInterval: 100
+      }
+    });
+
+    watcher.on('change', (path, stats) => {
+      if (stats) {
+        console.log(`File ${path} changed size to ${stats.size}`);
+      }
+      watcher.close();
+      resolve(true);
+    });
+
+    watcher.on('error', error => {
+      console.error(`Watcher error: ${error}`);
+      watcher.close();
+      reject(error);
+    });
+  });
+}
+export { copyFiles, checkFileWriteStatus };

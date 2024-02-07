@@ -14,7 +14,9 @@ app.use(
 );
 app.use(
   "/assets/",
-  express.static(path.join(process.cwd(), "public", "assets")),
+  express.static(path.join(process.cwd(), "public", "assets"), {
+    etag: false
+  }),
 );
 
 app.use(express.static("public"));

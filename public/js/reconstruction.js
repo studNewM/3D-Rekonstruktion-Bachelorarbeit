@@ -21,9 +21,15 @@ function changeProgessNodes() {
   if (selectedModel !== "Meshroom") {
     meshroomNodesElement.style.display = "none";
     colmapOpenMVSNodesElement.style.display = "";
+    const checkbox = document.getElementsByClassName("runOption");
+    checkbox[0].disabled = false;
+
   } else if (selectedModel !== "Colmap/OpenMVS") {
     meshroomNodesElement.style.display = "";
     colmapOpenMVSNodesElement.style.display = "none";
+    const checkbox = document.getElementsByClassName("runOption");
+    checkbox[0].checked = false
+    checkbox[0].disabled = true;
   }
 }
 
@@ -66,7 +72,7 @@ function triggerDisplayAction(stepName) {
   const selectedModel = document.getElementById("modelSelector").value;
   setTimeout(() => {
     Three.loadModel(stepName, selectedModel);
-  }, 2000);
+  }, 100);
 }
 function triggerExportAction(stepName) {
   console.log(`Export für Schritt ${stepName} ausgelöst.`);

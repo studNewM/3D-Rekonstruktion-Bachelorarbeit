@@ -12,13 +12,12 @@ async function initiateReconstructionProcess() {
   await deleteImages();
 
   try {
-    const response = await axios.post("/reconstruction", {
+    await axios.post("/reconstruction", {
       model: selectedModel,
       options: pipelineOptions,
     });
-    console.log(response);
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 async function deleteImages() {

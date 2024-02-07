@@ -3,7 +3,9 @@ import fs from "node:fs";
 import chalk from "chalk";
 import spawn_Command from "../utils/spawn.js";
 import { copyFiles } from "../utils/copyResults.js";
-function run_openMVS(name, options) {
+
+
+function callOpenMVS(name, options) {
   const cuda_device = options.cuda_device ? -2 : -1;
   const workspace = path.join(process.cwd(), name);
   const sfm_path = path.join(workspace, "StructureFromMotion");
@@ -39,7 +41,7 @@ function run_openMVS(name, options) {
     " --output-file " +
     path.join(openMVS_path, "model.mvs");
   const DensifyPointCloud_command =
-    "DensifyPointCloud.exe --resolution-level 1" +
+    "DensifyPointCloud.exe --resolution-level 2" +
     " --working-folder " +
     openMVS_path +
     " --input-file " +
@@ -83,4 +85,4 @@ function run_openMVS(name, options) {
     .then(() => executeAndLog(RefineMesh_command, "RefineMesh"))
     .then(() => executeAndLog(TextureMesh_command, "TextureMesh"));
 }
-export default run_openMVS;
+export default callOpenMVS;

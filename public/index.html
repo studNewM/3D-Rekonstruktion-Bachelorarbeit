@@ -13,9 +13,19 @@
   </head>
 
   <body>
+    <div class="popup">
+      <h3 id="welcome">Willkommen</h3>
+      <p>
+        Für eine optimale Performance beim Anschauen der 3D-Modellen empfehlen
+        wir, die Hardwarebeschleunigung in Ihrem Browser zu aktivieren. Weitere
+        Informationen zur Aktivierung finden Sie auf der Support-Seite Ihres
+        Browsers.
+      </p>
+      <button id="close">Alles klar</button>
+    </div>
     <div class="container">
-      <div class="sidebar">
-        <button id="sidebarToggle"><i class="fa fa-chevron-left"></i></button>
+      <div class="sidebar collapsed">
+        <button id="sidebarToggle"><i class="fa fa-chevron-right"></i></button>
         <div id="header">
           <h3>3D-Rekonstruktions-Tool</h3>
           <button id="restart">Zurücksetzen</button>
@@ -51,16 +61,12 @@
             <span id="imageCount"></span>
           </div>
           <div id="cameraDetailsDiv" class="tooltip">
-            <img src="./img/icons8-camera-20.png" class="tooltip" alt="" />
+            <img src="./img/icons8-camera-20.png" alt="" />
             <span id="cameraDetails"></span>
             <span class="tooltiptext" id="cameraTypesTooltip"></span>
           </div>
           <div id="focalLengthDiv" class="tooltip">
-            <img
-              src="./img/icons8-aperture-20 (1).png"
-              class="tooltip"
-              alt=""
-            />
+            <img src="./img/icons8-aperture-20 (1).png" />
             <span id="focalLength"></span>
             <span class="tooltiptext" id="otherInfoTooltip"></span>
           </div>
@@ -74,18 +80,17 @@
         <br />
         <div class="grid-container">
           <div
-            title="Die CPU wird in Rechenintensiven Tätigkeiten bevorzugt"
+            title="CPU wird nur bei Colmap/OpenMVS unterstützt"
             class="checkbox-item"
           >
             <label title="cuda_device" for="checkbox3">CPU bevorzugen</label>
-            <input class="runOption" type="checkbox" id="checkbox3" />
+            <input class="runOption" type="checkbox" id="checkbox3" disabled />
           </div>
           <div title="Automatisches Laden der Ergebnisse" class="checkbox-item">
             <label for="checkbox4">Zwischenergebnisse laden</label>
             <input class="runOption" type="checkbox" id="checkbox4" />
           </div>
         </div>
-        <br />
         <div id="progressContainer">
           <div id="meshroomNodes">
             <div class="progressStep" id="process-CameraInit">
@@ -135,7 +140,7 @@
                 <div class="dropdown-content" id="dropdown-StructureFromMotion">
                   <button
                     id="button-Anzeigen-StructureFromMotion"
-                    class="dropdown-btn disabled"
+                    class="dropdown-btn"
                   >
                     Anzeigen</button
                   ><a
@@ -186,10 +191,7 @@
                   <li></li>
                 </ul>
                 <div class="dropdown-content" id="dropdown-Meshing">
-                  <button
-                    id="button-Anzeigen-Meshing"
-                    class="dropdown-btn disabled"
-                  >
+                  <button id="button-Anzeigen-Meshing" class="dropdown-btn">
                     Anzeigen</button
                   ><a
                     href="/assets/mesh.obj"
@@ -221,10 +223,7 @@
                   <li></li>
                 </ul>
                 <div class="dropdown-content" id="dropdown-Texturing">
-                  <button
-                    id="button-Anzeigen-Texturing"
-                    class="dropdown-btn disabled"
-                  >
+                  <button id="button-Anzeigen-Texturing" class="dropdown-btn">
                     Anzeigen</button
                   ><a
                     href="/assets/texture.zip"
@@ -293,7 +292,7 @@
                 <div class="dropdown-content" id="dropdown-model_converter">
                   <button
                     id="button-Anzeigen-model_converter"
-                    class="dropdown-btn disabled"
+                    class="dropdown-btn"
                   >
                     Anzeigen</button
                   ><a
@@ -343,7 +342,7 @@
                 <div class="dropdown-content" id="dropdown-ReconstructMesh">
                   <button
                     id="button-Anzeigen-ReconstructMesh"
-                    class="dropdown-btn disabled"
+                    class="dropdown-btn"
                   >
                     Anzeigen</button
                   ><a
@@ -379,10 +378,7 @@
                   <li></li>
                 </ul>
                 <div class="dropdown-content" id="dropdown-TextureMesh">
-                  <button
-                    id="button-Anzeigen-TextureMesh"
-                    class="dropdown-btn disabled"
-                  >
+                  <button id="button-Anzeigen-TextureMesh" class="dropdown-btn">
                     Anzeigen</button
                   ><a
                     href="/assets/texture.zip"
@@ -405,7 +401,6 @@
         >
           3D-Rekonstruktion starten
         </button>
-        <!-- <button id="restartProcess">3D-Rekonstruktion neustarten</button> -->
       </div>
       <div class="main">
         <div id="threeJsContainer"></div>
