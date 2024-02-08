@@ -27,6 +27,37 @@ const toolExe = {
   ],
 };
 
+
+
+
+function returnCudaLink() {
+  const otherValues = ['aix', 'darwin', 'freebsd', 'linux', 'openbsd', 'sunos', 'win32'];
+  const os = process.platform;
+  if (os === "win32") {
+    console.log("Bitte installieren Sie NVIDIA CUDA Toolkit => https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html");
+  } else if (otherValues.includes(os)) {
+    console.log("Bitte installieren Sie NVIDIA CUDA Toolkit => https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html");
+  }
+}
+
+async function shouldContinueWithoutCuda() {
+  const questions = [
+    {
+      type: "confirm",
+      name: "continue",
+      message: "Möchten Sie ohne CUDA fortfahren?",
+      default: false,
+    }
+  ];
+  const answers = await inquirer.prompt(questions);
+  if (answers.continue) {
+    return true;
+  } else {
+    returnCudaLink();
+    process.exit(1);
+  }
+}
+
 function writeGpuToValue(value) {
   let lines = fs.readFileSync('./src/.env', 'utf-8').split('\n');
 
@@ -53,16 +84,25 @@ async function checkCUDA() {
     child.stdout.on('data', (data) => {
       output += data.toString();
     });
+    child.on('error', (error) => {
+      console.error(`error: ${error.message}`);
+    });
     spinner.stop();
     child.on("close", (code) => {
       if (code === 0 && output.includes("nvcc: NVIDIA (R) Cuda compiler driver")) {
         console.log(`Überprüfung von NVIDA CUDA...`, chalk.green("OK"));
         writeGpuToValue('true')
         resolve();
+      } else if (code === -2) {
+        console.log(`Überprüfung von NVIDA CUDA...`, chalk.red("Error"));
+        console.log("NVIDIA CUDA nicht gefunden.");
+        shouldContinueWithoutCuda().then(() => {
+          writeGpuToValue('false')
+          resolve();
+        });
       } else {
         console.error(`Überprüfung von NVIDA CUDA...`, chalk.red("Error"));
-        writeGpuToValue('false')
-        reject(new Error("CUDA-Überprüfung fehlgeschlagen"));
+        reject();
       }
     });
   });
@@ -215,6 +255,7 @@ function validateInstalledTools(items) {
   }
 }
 async function executeToolCheck() {
+
   await checkCUDA();
   const paths = await checkEnvForToolPaths();
   if (paths === -1) {
