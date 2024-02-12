@@ -128,7 +128,6 @@ async function checkFileStability(filePath, checkDuration = 1000) {
       console.log(stats);
       const currentTime = Date.now();
       if (stats.size === lastSize && (currentTime - lastCheckTime >= checkDuration)) {
-        console.log("Fertig");
         return true;
       } else {
         lastSize = stats.size;

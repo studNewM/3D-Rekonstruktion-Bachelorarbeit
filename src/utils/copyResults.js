@@ -41,6 +41,7 @@ async function copyFiles(type, model) {
     let sourceDir = [];
     if (model === "meshroom") {
       sourceDir = await findHashPath(type);
+      console.log("SOURCE", sourceDir[0]);
     } else if (type !== "TextureMesh") {
       const sourcePath = path.join(
         "workspace",

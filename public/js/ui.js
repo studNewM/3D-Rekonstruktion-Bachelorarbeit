@@ -11,7 +11,7 @@ function toggleSidebar() {
     toggleIcon.className = "fa fa-chevron-left";
   }
 }
-function clearMetadataDisplay() {
+function clearMetaDataDisplay() {
   const elementsToClear = [
     "imageCount",
     "cameraDetails",
@@ -30,24 +30,28 @@ function clearMetadataDisplay() {
 
   const processElements = document.getElementsByClassName("progress-bar");
   Array.from(processElements).forEach(
-    (elem) => (elem.style.backgroundColor = "white"),
+    (element) => (element.style.backgroundColor = "white"),
   );
 }
-function resetUI() {
-  Three.clearScene();
+function clearHtmlElements() {
   window.completedImageCount = 0;
   window.imagesMarkedForDeletion = [];
   const uploadedImagesContainer = document.getElementById("uploadedImages");
   uploadedImagesContainer.innerHTML = "";
   uploadedImagesContainer.style.display = "none";
+  const startButton = document.getElementById("startProcess");
+  startButton.disabled = true;
   const checkbox = document.getElementsByClassName("runOption");
   for (let item of checkbox) {
     item.disabled = false;
     item.checked = false;
   }
-  const startButton = document.getElementById("startProcess");
-  startButton.disabled = true;
-  clearMetadataDisplay();
+}
+
+function resetUI() {
+  Three.clearScene();
+  clearHtmlElements();
+  clearMetaDataDisplay();
   initializeDragAndDrop();
 }
 

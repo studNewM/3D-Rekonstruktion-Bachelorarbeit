@@ -7,11 +7,13 @@ import { PLYLoader } from "https://cdn.skypack.dev/three@0.128.0/examples/jsm/lo
 import Stats from "https://cdn.skypack.dev/three@0.128.0/examples/jsm/libs/stats.module";
 import * as dat from "/build/dat.gui.module.js";
 
+let model_converter = 0;
+let INTERSECTED;
+let objects = [];
 const params = { color: "#ffffff" };
 const gui = new dat.GUI();
 gui.close();
 gui.domElement.id = "gui";
-gui.add;
 
 const pointCloudFolder = gui.addFolder("PointCloud");
 const meshFolder = gui.addFolder("Mesh");
@@ -19,8 +21,9 @@ const texturedMeshFolder = gui.addFolder("TexturedMesh");
 pointCloudFolder.open();
 meshFolder.open();
 texturedMeshFolder.open();
-let model_converter = 0;
 
+const pointer = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
 const threejsContainer = document.getElementById("threeJsContainer");
 const innerHeight = window.innerHeight / 1;
 const innerWidth = window.innerWidth / 1;
@@ -30,72 +33,79 @@ const renderer = initRenderer();
 const controls = initControls(camera, renderer);
 const lights = initLights(scene);
 
-const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
-function onMouseClick(event) {
-  event.preventDefault();
 
-  mouse.x = (event.clientX / renderer.domElement.clientWidth) * 2 - 1;
-  mouse.y = - (event.clientY / renderer.domElement.clientHeight) * 2 + 1;
 
-  raycaster.setFromCamera(mouse, camera);
+const transformControls = initTransformControls();
+function initTransformControls() {
+  const transformControls = new TransformControls(camera, renderer.domElement)
+  transformControls.setMode('rotate')
+  transformControls.visibility = false;
+  scene.add(transformControls)
+  return transformControls
+}
+transformControls.addEventListener('dragging-changed', function (event) {
+  controls.enabled = !event.value
+})
+let transformControlsValue = true;
 
-  const intersects = raycaster.intersectObjects(scene.children, true);
+window.addEventListener('keydown', function (event) {
+  switch (event.key) {
+    case 'g':
+      transformControls.setMode('translate')
+      break
+    case 'r':
+      transformControls.setMode('rotate')
+      break
+    case 's':
+      transformControls.setMode('scale')
+      break
+    case 'c':
+      transformControlsValue = !transformControlsValue;
+      transformControls.visible = transformControlsValue;
+      transformControls.enabled = transformControlsValue;
+      break;
+  }
+})
 
+
+function addObject(object) {
+  objects.push(object);
+}
+
+
+
+document.addEventListener('click', onPointerDown);
+
+function onPointerDown(event) {
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+  raycaster.setFromCamera(pointer, camera);
+  const intersects = raycaster.intersectObjects(objects, true);
   if (intersects.length > 0) {
-    attachTransformControls(intersects[0].object);
+    const firstIntersected = intersects[0].object;
+    console.log(firstIntersected);
+    if (firstIntersected.type === "Mesh" || firstIntersected.type === "Points") {
+      if (INTERSECTED) transformControls.detach(INTERSECTED);
+
+      INTERSECTED = firstIntersected;
+      transformControls.attach(INTERSECTED);
+    }
+    console.log(transformControls);
+    if (transformControls.enabled === false) {
+      transformControls.visible = false;
+    }
   } else {
-    detachTransformControls();
+    if (INTERSECTED) {
+      transformControls.detach(INTERSECTED);
+      INTERSECTED = null;
+    }
   }
 }
-window.addEventListener('click', onMouseClick, false);
 
-let selectedObject = null;
-const transformControls = new TransformControls(camera, renderer.domElement);
 
-function attachTransformControls(object) {
-  if (selectedObject !== object) {
-    transformControls.attach(object);
-    scene.add(transformControls);
-    selectedObject = object;
-  }
-  transformControls.addEventListener('dragging-changed', function (event) {
-    controls.enabled = !event.value
-  })
-}
-
-function detachTransformControls() {
-  if (selectedObject) {
-    transformControls.detach();
-    selectedObject = null;
-  }
-}
-// const transformControls = initTransformControls();
-// function initTransformControls() {
-//   const transformControls = new TransformControls(camera, renderer.domElement)
-//   transformControls.setMode('rotate')
-//   scene.add(transformControls)
-//   return transformControls
-// }
-// transformControls.addEventListener('dragging-changed', function (event) {
-//   controls.enabled = !event.value
-// })
-// window.addEventListener('keydown', function (event) {
-//   switch (event.key) {
-//     case 'g':
-//       transformControls.setMode('translate')
-//       break
-//     case 'r':
-//       transformControls.setMode('rotate')
-//       break
-//     case 's':
-//       transformControls.setMode('scale')
-//       break
-//   }
-// })
 function clearMeshMemory(child) {
-  debugger
-  if (child.type === "Mesh" && child.geometry !== undefined || child.type === "Points") {
+  if ((child.type === "Mesh" && child.geometry !== undefined || child.type === "Points") && child.parent.type !== "Object3D") {
     child.geometry.dispose();
     child.geometry = undefined;
     if (child.type !== "Points" && child.parent.type !== "Group") {
@@ -109,27 +119,18 @@ function clearGroupMemory(child) {
     child.children.forEach((element) => clearMeshMemory(element));
   }
 }
-
-function clearBoxHelperMemory(child) {
-  debugger
-  if (child instanceof THREE.BoxHelper) {
-    child.geometry.dispose();
-    child.geometry = undefined;
-    child.material.dispose();
-    child.material = undefined;
-  }
-}
-
-
 export function clearScene() {
+
+  transformControls.detach();
+
   removeFromGUI();
   const toRemove = [];
   scene.traverse(function (child) {
-    // clearBoxHelperMemory(child);
     if (
-      child instanceof THREE.Group ||
-      child.type === "Mesh" ||
-      child.type === "Points"
+      (child instanceof THREE.Group ||
+        child.type === "Mesh" ||
+        child.type === "Points") &&
+      child.parent.type !== "Object3D"
     ) {
       clearMeshMemory(child);
       clearGroupMemory(child);
@@ -137,16 +138,15 @@ export function clearScene() {
     }
     model_converter = 0;
   });
-
-  for (var i = 0; i < toRemove.length; i++) {
-
-    scene.remove(toRemove[i]);
+  for (const child of toRemove) {
+    scene.remove(child);
   }
+  objects = [];
+
   camera.position.z = 1.5;
   camera.position.y = 1;
   camera.position.x = 0;
   controls.target.set(0, 0, 0);
-
 
 }
 
@@ -154,7 +154,6 @@ initGridHelper(scene);
 addLightToGui(lights, scene, params);
 const helper = directionalLightHelper(scene, lights.directionalLight);
 animate(camera, scene, renderer, controls);
-
 function initScene() {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(params.color);
@@ -184,12 +183,9 @@ function initRenderer() {
 
 function initLights(scene) {
   const ambientLight = new THREE.AmbientLight(0xffffff, 2);
-
   const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
   directionalLight.position.set(5, 5, 5);
   directionalLight.target.position.set(0, 0, 0);
-
-
   scene.add(ambientLight, directionalLight);
   return { ambientLight, directionalLight };
 }
@@ -248,17 +244,6 @@ function addLightToGui(lights, scene, params) {
 
   return gui;
 }
-function guiHelperBox(folder, mesh) {
-  const helperBox = new THREE.BoxHelper(mesh, 0xffffff);
-  scene.add(helperBox);
-  folder
-    .add(helperBox, "visible")
-    .name("HelperBox")
-    .onChange((value) => {
-      helperBox.visible = value;
-    });
-  folder.open();
-}
 
 function directionalLightHelper(scene, light) {
   const helper = new THREE.DirectionalLightHelper(light, 1);
@@ -286,17 +271,20 @@ async function loadPly(scene, plyName) {
           size: 0.01,
           vertexColors: THREE.VertexColors,
         });
-        const mesh = new THREE.Points(geometry, material);
-        mesh.rotateX(Math.PI);
-        scene.add(mesh);
+        const points = new THREE.Points(geometry, material);
+        points.rotateX(Math.PI);
+        scene.add(points);
 
-        const box = new THREE.Box3().setFromObject(mesh);
+        const box = new THREE.Box3().setFromObject(points);
         const center = box.getCenter(new THREE.Vector3());
 
+        points.geometry.computeBoundingBox();
+        points.geometry.boundingBox.getCenter(center);
+        points.localToWorld(center);
         controls.target.copy(center);
-        camera.position.set(center.x + 2, center.y + 5, 5);
 
-        resolve(mesh);
+        camera.position.set(geometry.boundingBox.max.x + 5, geometry.boundingBox.max.y + 2, center.z);
+        resolve(points);
       },
       undefined,
       reject,
@@ -345,13 +333,12 @@ async function loadMeshObject(scene, objName) {
         object.position.set(0, 0, 0);
         object.material = material
         scene.add(object);
-        resolve(object);
         const box = new THREE.Box3().setFromObject(object);
         const center = box.getCenter(new THREE.Vector3());
-        console.log(center);
 
         controls.target.copy(center);
         camera.position.set(center.x, 2, center.z + 2);
+        resolve(object);
       },
       undefined,
       reject,
@@ -372,7 +359,6 @@ async function loadColmapTextured(scene, objName) {
           (object) => {
             object.traverse((child) => {
               if (child instanceof THREE.Mesh) {
-                debugger
                 child.geometry.computeVertexNormals();
                 child.geometry.center();
 
@@ -387,6 +373,7 @@ async function loadColmapTextured(scene, objName) {
 
                 child.material.map = texture;
                 child.material.needsUpdate = true;
+
               }
             });
             object.position.y = 2
@@ -476,34 +463,22 @@ async function loadColmapPLY(scene, plyName) {
   });
 }
 
-export async function loadModel(stepName, runType, path = "") {
+export async function loadModel(stepName, runType) {
   console.log(stepName);
   let runDict;
-  let meshroomnameTypes;
   let colmapOpenMVSTypes;
-  if (!path) {
-    meshroomnameTypes = {
-      StructureFromMotion: "cloud_and_poses.ply",
-      Meshing: "mesh.obj",
-      Publish: "texturedMesh.obj",
-    };
-    colmapOpenMVSTypes = {
-      model_converter: "sfm.ply",
-      ReconstructMesh: "model_dense_mesh.ply",
-      TextureMesh: "model.obj",
-    };
-  } else {
-    meshroomnameTypes = {
-      StructureFromMotion: path + "/cloud_and_poses.ply",
-      Meshing: path + "/mesh.obj",
-      Publish: path + "/texturedMesh.obj",
-    };
-    colmapOpenMVSTypes = {
-      model_converter: "sfm.ply",
-      ReconstructMesh: "model_dense_mesh.ply",
-      TextureMesh: "model.obj",
-    };
-  }
+
+  const meshroomnameTypes = {
+    StructureFromMotion: "cloud_and_poses.ply",
+    Meshing: "mesh.obj",
+    Publish: "texturedMesh.obj",
+    Texturing: "texturedMesh.obj",
+  };
+  colmapOpenMVSTypes = {
+    model_converter: "sfm.ply",
+    ReconstructMesh: "model_dense_mesh.ply",
+    TextureMesh: "model.obj",
+  };
   if (!stepName) {
     return;
   }
@@ -512,7 +487,6 @@ export async function loadModel(stepName, runType, path = "") {
   } else if (runType === "Colmap/OpenMVS") {
     runDict = colmapOpenMVSTypes;
   }
-
   try {
     let loadedObject;
     switch (stepName) {
@@ -524,6 +498,13 @@ export async function loadModel(stepName, runType, path = "") {
 
         break;
       case "Publish":
+        loadedObject = await loadTexturedObject(
+          scene,
+          runDict[stepName],
+          runDict[stepName].replace(".obj", ".mtl"),
+        );
+        break;
+      case "Texturing":
         loadedObject = await loadTexturedObject(
           scene,
           runDict[stepName],
@@ -548,13 +529,12 @@ export async function loadModel(stepName, runType, path = "") {
         return;
     }
     addToGUI(loadedObject);
-    transformControls.attach(loadedObject)
+    addObject(loadedObject);
   } catch (error) {
     console.error("Fehler beim Laden des Modells:", error);
   }
 }
 function removeFromGUI() {
-  debugger
   for (const folder of Object.keys(gui.__folders)) {
     if (folder === "PointCloud" || folder === "Mesh" || folder === "TexturedMesh") {
       const item = gui.__folders[folder];
@@ -563,7 +543,6 @@ function removeFromGUI() {
       }
     }
   }
-  debugger
 }
 function addToGUI(object) {
   if (object.type === "Points") {
@@ -584,15 +563,12 @@ function addToGUI(object) {
       .name("Enabled")
       .onChange((value) => object.visibility = value);
   }
-
-
-
 }
 
 function animate(camera, scene, renderer, controls) {
+  controls.update();
   requestAnimationFrame(() => animate(camera, scene, renderer, controls));
   helper.update()
-  controls.update();
   renderer.render(scene, camera);
 
 }

@@ -15,16 +15,28 @@ function handleSelectedFiles(event) {
   }
 
   if (!checkFileFormat(selectedFiles)) {
-    alert("Bitte wählen Sie ein unterstütztes Dateienformat aus.");
+    alert("Dieses Dateiformat wird nicht unterstützt.\nBitte nutzen Sie eines der folgenden jpg, jpeg, png, tif, tiff, exr.");
     return;
   }
-
+  blockForImageType(selectedFiles);
   const formData = new FormData();
   for (let i = 0; i < selectedFiles.length; i++) {
     formData.append("fileList", selectedFiles[i]);
   }
   uploadImagesAndDisplayPreview(formData, selectedFiles);
 }
+function blockForImageType(selectedFiles) {
+  const value = Array.from(selectedFiles).every((file) =>
+    /\.(jpg|png|jpeg)$/i.test(file.name),
+  );
+  if (!value) {
+    const optionSelector = document.getElementById("modelSelector");
+    const option = optionSelector.options[1]
+    optionSelector.selectedIndex = 0
+    option.disabled = true;
+  }
+}
+
 
 function displaySelectedImages(selectedFiles) {
   const imagePreviewContainer = document.getElementById("uploadedImages");
@@ -47,8 +59,8 @@ function displaySelectedImages(selectedFiles) {
     wrapper.setAttribute("data-filename", file.name);
 
     const deleteBtn = document.createElement("button");
-    const closeIcon = document.createElement("i")
-    closeIcon.className = "fa fa-xmark"
+    const closeIcon = document.createElement("img")
+    closeIcon.src = "./img/trash-solid.svg"
     deleteBtn.appendChild(closeIcon)
     deleteBtn.id = "delete-btn";
     deleteBtn.onclick = function () {
@@ -68,7 +80,7 @@ function displaySelectedImages(selectedFiles) {
 }
 function checkFileFormat(selectedFiles) {
   return Array.from(selectedFiles).every((file) =>
-    /\.(jpg|png|jpeg)$/i.test(file.name),
+    /\.(jpg|png|jpeg|tif|tiff|exr)$/i.test(file.name),
   );
 }
 

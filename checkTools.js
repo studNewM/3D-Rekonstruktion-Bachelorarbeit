@@ -255,7 +255,10 @@ function validateInstalledTools(items) {
   }
 }
 async function executeToolCheck() {
-
+  if (process.platform !== "win32") {
+    console.log(chalk.red("Dieses Tool ist nur für Windows verfügbar."));
+    process.exit(1);
+  }
   await checkCUDA();
   const paths = await checkEnvForToolPaths();
   if (paths === -1) {

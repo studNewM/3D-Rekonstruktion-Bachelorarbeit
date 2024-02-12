@@ -6,16 +6,9 @@ async function findHashPath(modelRequest) {
     process.cwd(),
     process.env.workingDirName || "workspace",
   );
-  const sfmPath = path.join(workspace, "StructureFromMotion");
-  const meshPath = path.join(workspace, "Meshing");
-  const texturingPath = path.join(workspace, "Texturing");
-  const fileList = {
-    StructureFromMotion: sfmPath + '/**/log',
-    Meshing: meshPath + '/**/log',
-    Texturing: texturingPath + '/**/log',
-  };
+  const fileList = `${path.join(workspace, modelRequest)}` + '/**/log';
   try {
-    return await glob(fileList[modelRequest]);
+    return await glob(fileList);
   } catch (error) {
     console.error('Error with glob:', error);
   }

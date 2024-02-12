@@ -370,7 +370,15 @@ p {
   border: none;
   color: black;
 }
-
+#delete-btn img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 10px;
+  background-color: transparent;
+  border: none;
+  color: black;
+}
 .image-wrapper {
   position: relative;
 }
@@ -379,8 +387,8 @@ p {
   height: 93%;
   width: 100%;
   height: auto;
-  display: block;
 }
+
 .drop-area {
   display: flex;
   flex-direction: column;
@@ -491,8 +499,6 @@ img {
 
 .checkbox-item {
   display: grid;
-  /* grid-template-columns: 80% 20%;
-  align-items: center; */
   justify-content: center;
 }
 
