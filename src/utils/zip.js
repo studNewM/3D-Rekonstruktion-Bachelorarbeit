@@ -25,7 +25,7 @@ export async function createTextureZip(model) {
   for (const file of jpgFiles) {
     filesNames.push(file.split("assets\\")[1]);
   }
-  var zip = new JSZip();
+  const zip = new JSZip();
 
   for (const file of filesNames) {
     zip.file(file, fs.readFileSync(path.join(assetsPath, file)));

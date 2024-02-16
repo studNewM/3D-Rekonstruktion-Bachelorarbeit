@@ -1,6 +1,8 @@
 import * as Three from "./three.js";
 
-
+/*
+* Deaktiviert die Optionen und gibt die ausgewählten Werte zurück
+*/
 function handleCheckboxChange() {
   const checkbox = document.getElementsByClassName("runOption");
   for (let item of checkbox) {
@@ -12,6 +14,10 @@ function handleCheckboxChange() {
   };
   return selectedModel;
 }
+
+/*
+* Ändert die HTML-Elemente abhängig vom ausgewählten Modell
+*/
 function changeProgessNodes() {
   const selectedModel = document.getElementById("modelSelector").value;
   const meshroomNodesElement = document.getElementById("meshroomNodes");
@@ -58,6 +64,7 @@ function initializeReconstructionNodes() {
 function toggleDropdownDisplay(id) {
   document.getElementById(id).classList.toggle("show");
 }
+
 function enableReconstructionButtons(process) {
   const buttons = ["Anzeigen", "Export"].map((action) =>
     document.getElementById(`button-${action}-${process}`),
@@ -68,6 +75,10 @@ function enableReconstructionButtons(process) {
     }
   });
 }
+
+/*
+* Ladet das 3D-Modell in die Szene
+*/
 function triggerDisplayAction(stepName) {
   const selectedModel = document.getElementById("modelSelector").value;
   setTimeout(() => {

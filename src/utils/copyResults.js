@@ -9,6 +9,8 @@ import {
   colmapOpenMvsResult,
 } from "../types/colmapOpenMvsTypes.js";
 
+
+
 function copyFolder() {
   const outputDir = path.join(
     process.cwd(),
@@ -41,7 +43,6 @@ async function copyFiles(type, model) {
     let sourceDir = [];
     if (model === "meshroom") {
       sourceDir = await findHashPath(type);
-      console.log("SOURCE", sourceDir[0]);
     } else if (type !== "TextureMesh") {
       const sourcePath = path.join(
         "workspace",
@@ -57,7 +58,6 @@ async function copyFiles(type, model) {
         await createTextureZip("openMVS");
       } else {
         const filePath = path.join(process.cwd(), path.join(path.dirname(sourceDir[0])), fileName)
-        console.log("SOURCE", sourceDir[0]);
         copyFileSync(filePath, destinationPath);
         console.log(`Die Datei "${filePath}" wurde erfolgreich kopiert.`);
       }

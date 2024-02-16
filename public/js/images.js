@@ -2,6 +2,8 @@ import { uploadImagesAndDisplayPreview } from "./axios.js";
 import { initializeDragAndDrop } from "./dragAndDrop.js";
 import { resetUI } from "./ui.js";
 
+
+
 function handleSelectedFiles(event) {
   let selectedFiles;
   if (event.type === "drop") {
@@ -25,6 +27,12 @@ function handleSelectedFiles(event) {
   }
   uploadImagesAndDisplayPreview(formData, selectedFiles);
 }
+
+/*
+* Überprüft, ob die ausgewählten Dateien nur Bilder vom Typ jpg, jpeg oder png sind. 
+* Wenn nicht, wird die Option für die Modellauswahl deaktiviert.
+* Ist notwendig, da nur diese Dateiformate von der Rekonstruktionspipeline Colmap/OpenMVS unterstützt werden.
+*/
 function blockForImageType(selectedFiles) {
   const value = Array.from(selectedFiles).every((file) =>
     /\.(jpg|png|jpeg)$/i.test(file.name),
@@ -37,7 +45,11 @@ function blockForImageType(selectedFiles) {
   }
 }
 
-
+/*
+* Zeigt die ausgewählten Bilder in der Vorschau an
+* Fügt jedem Bild ein Lösch-Icon hinzu, um es aus der Vorschau zu entfernen
+* Speichert die Anzahl der ausgewählten Bilder in der globalen Variable window.totalImageCount
+*/
 function displaySelectedImages(selectedFiles) {
   const imagePreviewContainer = document.getElementById("uploadedImages");
   imagePreviewContainer.style.display = "grid";
@@ -78,6 +90,10 @@ function displaySelectedImages(selectedFiles) {
     imagePreviewContainer.appendChild(wrapper);
   }
 }
+
+/*
+* Überprüft, ob die ausgewählten Dateien nur Bilder vom Typ jpg, jpeg, png, tif, tiff oder exr sind
+*/
 function checkFileFormat(selectedFiles) {
   return Array.from(selectedFiles).every((file) =>
     /\.(jpg|png|jpeg|tif|tiff|exr)$/i.test(file.name),

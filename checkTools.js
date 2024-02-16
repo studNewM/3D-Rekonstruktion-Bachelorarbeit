@@ -28,8 +28,6 @@ const toolExe = {
 };
 
 
-
-
 function returnCudaLink() {
   const otherValues = ['aix', 'darwin', 'freebsd', 'linux', 'openbsd', 'sunos', 'win32'];
   const os = process.platform;

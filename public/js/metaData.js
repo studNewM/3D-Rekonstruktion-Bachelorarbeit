@@ -17,6 +17,10 @@ function displayMetadata(metadata) {
   updateTooltips(metadata);
 }
 
+
+/*
+* Aktualisiert die Tooltips für die Kamera Informationen
+*/
 function updateTooltips(cameraInfo) {
   let imageCountContent = "";
   let cameraTypesContent = "";

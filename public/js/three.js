@@ -4,49 +4,22 @@ import { TransformControls } from "https://cdn.skypack.dev/three@0.128.0/example
 import { OBJLoader } from "https://cdn.skypack.dev/three@0.128.0/examples/jsm/loaders/OBJLoader.js";
 import { MTLLoader } from "https://cdn.skypack.dev/three@0.128.0/examples/jsm/loaders/MTLLoader.js";
 import { PLYLoader } from "https://cdn.skypack.dev/three@0.128.0/examples/jsm/loaders/PLYLoader.js";
-import Stats from "https://cdn.skypack.dev/three@0.128.0/examples/jsm/libs/stats.module";
 import * as dat from "/build/dat.gui.module.js";
 
+let transformControlsValue = true;
 let model_converter = 0;
 let INTERSECTED;
 let objects = [];
 const params = { color: "#ffffff" };
-const gui = new dat.GUI();
-gui.close();
-gui.domElement.id = "gui";
-
-const pointCloudFolder = gui.addFolder("PointCloud");
-const meshFolder = gui.addFolder("Mesh");
-const texturedMeshFolder = gui.addFolder("TexturedMesh");
-pointCloudFolder.open();
-meshFolder.open();
-texturedMeshFolder.open();
-
-const pointer = new THREE.Vector2();
-const raycaster = new THREE.Raycaster();
-const threejsContainer = document.getElementById("threeJsContainer");
-const innerHeight = window.innerHeight / 1;
-const innerWidth = window.innerWidth / 1;
-const scene = initScene();
-const camera = initCamera();
-const renderer = initRenderer();
-const controls = initControls(camera, renderer);
-const lights = initLights(scene);
 
 
 
-const transformControls = initTransformControls();
-function initTransformControls() {
-  const transformControls = new TransformControls(camera, renderer.domElement)
-  transformControls.setMode('rotate')
-  transformControls.visibility = false;
-  scene.add(transformControls)
-  return transformControls
-}
+
+
+
 transformControls.addEventListener('dragging-changed', function (event) {
   controls.enabled = !event.value
 })
-let transformControlsValue = true;
 
 window.addEventListener('keydown', function (event) {
   switch (event.key) {
@@ -66,16 +39,22 @@ window.addEventListener('keydown', function (event) {
       break;
   }
 })
+document.addEventListener('click', onPointerDown);
 
 
+
+/*
+* Fügt die geladenen Objekte zu einem Array hinzu
+* Ermöglicht es, die Objekte in der Szene einzuschränken
+*/
 function addObject(object) {
   objects.push(object);
 }
 
 
-
-document.addEventListener('click', onPointerDown);
-
+/*
+* Ermöglicht das Auswählen und Transformieren von Objekten 
+*/
 function onPointerDown(event) {
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
@@ -84,14 +63,12 @@ function onPointerDown(event) {
   const intersects = raycaster.intersectObjects(objects, true);
   if (intersects.length > 0) {
     const firstIntersected = intersects[0].object;
-    console.log(firstIntersected);
     if (firstIntersected.type === "Mesh" || firstIntersected.type === "Points") {
       if (INTERSECTED) transformControls.detach(INTERSECTED);
 
       INTERSECTED = firstIntersected;
       transformControls.attach(INTERSECTED);
     }
-    console.log(transformControls);
     if (transformControls.enabled === false) {
       transformControls.visible = false;
     }
@@ -103,7 +80,9 @@ function onPointerDown(event) {
   }
 }
 
-
+/*
+* Löscht alle Mesh Objekte aus der Szene und gibt den Speicher frei
+*/
 function clearMeshMemory(child) {
   if ((child.type === "Mesh" && child.geometry !== undefined || child.type === "Points") && child.parent.type !== "Object3D") {
     child.geometry.dispose();
@@ -119,6 +98,10 @@ function clearGroupMemory(child) {
     child.children.forEach((element) => clearMeshMemory(element));
   }
 }
+
+/*
+* Löscht alle Elemente aus der Szene
+*/
 export function clearScene() {
 
   transformControls.detach();
@@ -150,10 +133,9 @@ export function clearScene() {
 
 }
 
-initGridHelper(scene);
-addLightToGui(lights, scene, params);
-const helper = directionalLightHelper(scene, lights.directionalLight);
-animate(camera, scene, renderer, controls);
+
+
+
 function initScene() {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(params.color);
@@ -193,7 +175,13 @@ function initLights(scene) {
 function initControls(camera, renderer) {
   return new OrbitControls(camera, renderer.domElement);
 }
-
+function initTransformControls() {
+  const transformControls = new TransformControls(camera, renderer.domElement)
+  transformControls.setMode('rotate')
+  transformControls.visibility = false;
+  scene.add(transformControls)
+  return transformControls
+}
 function initGridHelper(scene) {
   const size = 10;
   const divisions = 10;
@@ -201,11 +189,6 @@ function initGridHelper(scene) {
   scene.add(gridHelper);
 }
 
-function initStats() {
-  const stats = new Stats();
-  document.body.appendChild(stats.dom);
-  return stats;
-}
 
 function updateLightVisibility(light, visibility) {
   light.visible = visibility;
@@ -291,7 +274,28 @@ async function loadPly(scene, plyName) {
     );
   });
 }
+async function loadMeshObject(scene, objName) {
+  const material = new THREE.MeshStandardMaterial();
+  const objLoader = new OBJLoader();
+  return new Promise((resolve, reject) => {
+    objLoader.load(
+      `/assets/${objName}`,
+      (object) => {
+        object.position.set(0, 0, 0);
+        object.material = material
+        scene.add(object);
+        const box = new THREE.Box3().setFromObject(object);
+        const center = box.getCenter(new THREE.Vector3());
 
+        controls.target.copy(center);
+        camera.position.set(center.x, 2, center.z + 2);
+        resolve(object);
+      },
+      undefined,
+      reject,
+    );
+  });
+}
 async function loadTexturedObject(scene, objName, mtlName) {
   const mtlLoader = new MTLLoader();
   return new Promise((resolve, reject) => {
@@ -323,29 +327,75 @@ async function loadTexturedObject(scene, objName, mtlName) {
   });
 }
 
-async function loadMeshObject(scene, objName) {
-  const material = new THREE.MeshStandardMaterial();
-  const objLoader = new OBJLoader();
-  return new Promise((resolve, reject) => {
-    objLoader.load(
-      `/assets/${objName}`,
-      (object) => {
-        object.position.set(0, 0, 0);
-        object.material = material
-        scene.add(object);
-        const box = new THREE.Box3().setFromObject(object);
-        const center = box.getCenter(new THREE.Vector3());
 
+async function loadColmapPLY(scene, plyName) {
+  const plyloader = new PLYLoader();
+
+  return new Promise((resolve, reject) => {
+    plyloader.load(
+      `/assets/${plyName}`,
+      (geometry) => {
+        const material = new THREE.PointsMaterial({
+          size: 0.01,
+          vertexColors: THREE.VertexColors,
+        });
+        const points = new THREE.Points(geometry, material);
+
+        points.geometry.computeVertexNormals();
+        points.geometry.center();
+
+        points.position.y = 2
+        points.rotation.set((50 * Math.PI) / 180, 0, Math.PI);
+        scene.add(points);
+
+        const box = new THREE.Box3().setFromObject(points);
+        const center = box.getCenter(new THREE.Vector3());
+        points.geometry.computeBoundingBox();
+        points.geometry.boundingBox.getCenter(center);
+        points.localToWorld(center);
         controls.target.copy(center);
-        camera.position.set(center.x, 2, center.z + 2);
-        resolve(object);
+
+        camera.position.set(geometry.boundingBox.max.x + 5, geometry.boundingBox.max.y + 2, center.z);
+        resolve(points);
       },
       undefined,
       reject,
     );
   });
 }
+async function loadColmapMesh(scene, plyName) {
+  const plyLoader = new PLYLoader();
 
+  return new Promise((resolve, reject) => {
+    plyLoader.load(
+      `/assets/${plyName}`,
+      (geometry) => {
+        const material = new THREE.MeshStandardMaterial();
+
+        const mesh = new THREE.Mesh(geometry, material);
+        geometry.computeVertexNormals();
+        geometry.center();
+
+        mesh.position.y = 2
+        mesh.rotation.set((50 * Math.PI) / 180, 0, Math.PI);
+        scene.add(mesh);
+
+        const box = new THREE.Box3().setFromObject(mesh);
+        const center = box.getCenter(new THREE.Vector3());
+        geometry.computeBoundingBox();
+        geometry.boundingBox.getCenter(center);
+        mesh.localToWorld(center);
+        controls.target.copy(center);
+
+        camera.position.set(geometry.boundingBox.max.x + 5, geometry.boundingBox.max.y + 2, center.z);
+
+        resolve(mesh);
+      },
+      undefined,
+      reject,
+    );
+  });
+}
 async function loadColmapTextured(scene, objName) {
   const textureLoader = new THREE.TextureLoader();
 
@@ -391,78 +441,11 @@ async function loadColmapTextured(scene, objName) {
     );
   });
 }
-async function loadColmapMesh(scene, plyName) {
-  const plyLoader = new PLYLoader();
-
-  return new Promise((resolve, reject) => {
-    plyLoader.load(
-      `/assets/${plyName}`,
-      (geometry) => {
-        const material = new THREE.MeshStandardMaterial();
-
-        const mesh = new THREE.Mesh(geometry, material);
-        geometry.computeVertexNormals();
-        geometry.center();
-
-        mesh.position.y = 2
-        mesh.rotation.set((50 * Math.PI) / 180, 0, Math.PI);
-        scene.add(mesh);
-
-        const box = new THREE.Box3().setFromObject(mesh);
-        const center = box.getCenter(new THREE.Vector3());
-        geometry.computeBoundingBox();
-        geometry.boundingBox.getCenter(center);
-        mesh.localToWorld(center);
-        controls.target.copy(center);
-
-        camera.position.set(geometry.boundingBox.max.x + 5, geometry.boundingBox.max.y + 2, center.z);
-
-        resolve(mesh);
-      },
-      undefined,
-      reject,
-    );
-  });
-}
-
-async function loadColmapPLY(scene, plyName) {
-  const plyloader = new PLYLoader();
-
-  return new Promise((resolve, reject) => {
-    plyloader.load(
-      `/assets/${plyName}`,
-      (geometry) => {
-        const material = new THREE.PointsMaterial({
-          size: 0.01,
-          vertexColors: THREE.VertexColors,
-        });
-        const points = new THREE.Points(geometry, material);
-
-        points.geometry.computeVertexNormals();
-        points.geometry.center();
-
-        points.position.y = 2
-        points.rotation.set((50 * Math.PI) / 180, 0, Math.PI);
-        scene.add(points);
-
-        const box = new THREE.Box3().setFromObject(points);
-        const center = box.getCenter(new THREE.Vector3());
-        points.geometry.computeBoundingBox();
-        points.geometry.boundingBox.getCenter(center);
-        points.localToWorld(center);
-        controls.target.copy(center);
-
-        camera.position.set(geometry.boundingBox.max.x + 5, geometry.boundingBox.max.y + 2, center.z);
 
 
-        resolve(points);
-      },
-      undefined,
-      reject,
-    );
-  });
-}
-
+/*
+* Lädt das Modell abhängig von dem ausgewählten Rekonstruktionsprozess
+*/
 export async function loadModel(stepName, runType) {
   console.log(stepName);
   let runDict;
@@ -534,6 +517,11 @@ export async function loadModel(stepName, runType) {
     console.error("Fehler beim Laden des Modells:", error);
   }
 }
+
+/*
+* Entfernt alle Elemente aus den Ordnern in der GUI
+* Wird aufgerufen, wenn die GUI neu geladen wird
+*/
 function removeFromGUI() {
   for (const folder of Object.keys(gui.__folders)) {
     if (folder === "PointCloud" || folder === "Mesh" || folder === "TexturedMesh") {
@@ -544,6 +532,11 @@ function removeFromGUI() {
     }
   }
 }
+
+/*
+* Fügt ein Objekt abhängig von seinem Typ zur einem Ordner in der GUI hinzu
+*/
+
 function addToGUI(object) {
   if (object.type === "Points") {
     pointCloudFolder
@@ -572,3 +565,34 @@ function animate(camera, scene, renderer, controls) {
   renderer.render(scene, camera);
 
 }
+
+
+
+const gui = new dat.GUI();
+const pointCloudFolder = gui.addFolder("PointCloud");
+const meshFolder = gui.addFolder("Mesh");
+const texturedMeshFolder = gui.addFolder("TexturedMesh");
+gui.close();
+gui.domElement.id = "gui";
+pointCloudFolder.open();
+meshFolder.open();
+texturedMeshFolder.open();
+
+
+const pointer = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
+const threejsContainer = document.getElementById("threeJsContainer");
+const innerHeight = window.innerHeight / 1;
+const innerWidth = window.innerWidth / 1;
+const scene = initScene();
+const camera = initCamera();
+const renderer = initRenderer();
+const controls = initControls(camera, renderer);
+const transformControls = initTransformControls();
+const lights = initLights(scene);
+
+
+initGridHelper(scene);
+addLightToGui(lights, scene, params);
+const helper = directionalLightHelper(scene, lights.directionalLight);
+animate(camera, scene, renderer, controls);

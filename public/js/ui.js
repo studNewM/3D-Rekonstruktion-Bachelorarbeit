@@ -11,6 +11,10 @@ function toggleSidebar() {
     toggleIcon.className = "fa fa-chevron-left";
   }
 }
+
+/*
+* Löschung der Metadatenanzeige
+*/
 function clearMetaDataDisplay() {
   const elementsToClear = [
     "imageCount",
@@ -33,6 +37,10 @@ function clearMetaDataDisplay() {
     (element) => (element.style.backgroundColor = "white"),
   );
 }
+
+/*
+* Löschung der HTML-Elemente
+*/
 function clearHtmlElements() {
   window.completedImageCount = 0;
   window.imagesMarkedForDeletion = [];
@@ -48,6 +56,9 @@ function clearHtmlElements() {
   }
 }
 
+/*
+* Setzt die UI zurück, löscht die Szene
+*/
 function resetUI() {
   Three.clearScene();
   clearHtmlElements();
