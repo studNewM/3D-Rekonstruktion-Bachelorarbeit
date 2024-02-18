@@ -49,9 +49,12 @@ function clearHtmlElements() {
   uploadedImagesContainer.style.display = "none";
   const startButton = document.getElementById("startProcess");
   startButton.disabled = true;
+  const optionSelector = document.getElementById("modelSelector");
+  optionSelector.selectedIndex = 0;
   const checkbox = document.getElementsByClassName("runOption");
+  checkbox[0].disabled = true;
+  checkbox[1].disabled = false;
   for (let item of checkbox) {
-    item.disabled = false;
     item.checked = false;
   }
 }
