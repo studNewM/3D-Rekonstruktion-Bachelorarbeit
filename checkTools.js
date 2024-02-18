@@ -16,7 +16,9 @@ import {
   readdirSync,
 } from "fs";
 import { callPaths } from "./src/utils/executablePaths.js";
+import { unlink } from "fs/promises";
 
+let cuda = true;
 const pathMeshroom = process.env.meshroom || "";
 const pathColmap = process.env.colmap || "";
 const pathOpenMVS = process.env.openMVS || "";
@@ -69,7 +71,7 @@ async function shouldContinueWithoutCuda() {
     return true;
   } else {
     returnCudaLink();
-    process.exit(1);
+    process.exit();
   }
 }
 
@@ -91,30 +93,42 @@ const sleep = (ms = 2000) => new Promise((r) => setTimeout(r, ms));
 async function checkCUDA() {
   const spinner = ora("Überprüfung von NVIDA CUDA...").start();
   await sleep();
-  const command = "nvcc";
+  const command = "nvidia-smi";
   return new Promise((resolve, reject) => {
-    const child = spawn(command, ["-V"]);
+    const child = spawn(command, ["-L"]);
     let output = "";
     child.stdout.on("data", (data) => {
       output += data.toString();
     });
     child.on("error", (error) => {
-      reject(error);
+      if (error.code === "ENOENT") {
+        console.log(`Überprüfung von NVIDA CUDA...`, chalk.red("Error"));
+        console.log("NVIDIA CUDA nicht gefunden.");
+        shouldContinueWithoutCuda().then(() => {
+          writeGpuToValue("false");
+          cuda = false;
+          resolve();
+        });
+      } else {
+        reject(error);
+      }
     });
     spinner.stop();
     child.on("close", (code) => {
       if (
         code === 0 &&
-        output.includes("nvcc: NVIDIA (R) Cuda compiler driver")
+        output.includes("GPU 0:")
       ) {
         console.log(`Überprüfung von NVIDA CUDA...`, chalk.green("OK"));
         writeGpuToValue("true");
+        cuda = true;
         resolve();
       } else if (code === -2) {
         console.log(`Überprüfung von NVIDA CUDA...`, chalk.red("Error"));
         console.log("NVIDIA CUDA nicht gefunden.");
         shouldContinueWithoutCuda().then(() => {
           writeGpuToValue("false");
+          cuda = false;
           resolve();
         });
       }
@@ -136,7 +150,7 @@ async function checkEnvForToolPaths() {
     if (pathColmap) pathsSet.push("colmap");
     if (pathOpenMVS) pathsSet.push("openMVS");
     if (pathsSet.length === 0) {
-      console.log(chalk.red("Kein Pfad ist gesetzt."));
+      console.log(chalk.red("Keine Umgebungsvariablen wurden gesetzt."));
     } else {
       console.log("Gefundene Tools: ", pathsSet);
     }
@@ -291,7 +305,7 @@ function validateInstalledTools(items) {
 async function executeToolCheck() {
   if (process.platform !== "win32") {
     console.log(chalk.red("Dieses Tool ist nur für Windows verfügbar."));
-    process.exit(1);
+    process.exit();
   }
   try {
     await checkCUDA();
@@ -314,14 +328,15 @@ async function executeToolCheck() {
     }
   }
 }
+const cuda_check = cuda
 const downloadPaths = {
   meshroom: [
     "Meshroom-2023.3.0",
     "https://www.fosshub.com/Meshroom.html?dwl=Meshroom-2023.3.0-win64.zip",
   ],
   colmap: [
-    "COLMAP-3.8-windows-cuda.zip",
-    "https://github.com/colmap/colmap/releases/download/3.8/COLMAP-3.8-windows-cuda.zip",
+    `COLMAP-3.8-windows-${cuda_check}.zip`,
+    `https://github.com/colmap/colmap/releases/download/3.8/COLMAP-3.8-windows-${cuda_check}.zip`,
   ],
   openMVS: [
     "OpenMVS_Windows_x64.7z",
@@ -382,6 +397,7 @@ async function run() {
           downloadPaths["openMVS"][1],
           downloadPaths["openMVS"][0],
         );
+        await unlink(path.join(process.cwd(), downloadPaths["openMVS"][0]))
         spinner.succeed(`Colmap/OpenMVS heruntergeladen and extrahiert`);
         break;
       case "Beide":
@@ -403,6 +419,7 @@ async function run() {
       default:
         break;
     }
+    getToolPath();
   } catch (error) {
     spinner.fail(
       "Es ist ein Fehler beim herunterladen der Software aufgetreten: " +

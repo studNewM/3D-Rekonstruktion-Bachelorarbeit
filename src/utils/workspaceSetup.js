@@ -1,8 +1,8 @@
 import path from "path";
 import fs from "fs";
 
-const setupWorkspace = (name) => {
-  const workspace = path.normalize(path.join(process.cwd(), name));
+function setupWorkspace(name) {
+  const workspace = path.join(process.cwd(), name);
   if (fs.existsSync(workspace)) {
     console.log(`${workspace} already exists`);
     fs.rmSync(workspace, { recursive: true }, (err) => {
@@ -13,9 +13,19 @@ const setupWorkspace = (name) => {
   }
   fs.mkdirSync(workspace);
   console.log(`${workspace} created`);
+  setupAssets();
 };
 
-const moveImagesToWorkspace = (workspace_path) => {
+function setupAssets() {
+  const assets = path.join(process.cwd(), "assets");
+  if (!fs.existsSync(assets)) {
+    fs.mkdirSync(assets);
+    console.log(`${assets} created`);
+  }
+}
+
+
+function moveImagesToWorkspace(workspace_path) {
   const oldPath = path.normalize(path.join(process.cwd(), "images"));
   const newPath = path.normalize(
     path.join(workspace_path, "StructureFromMotion", "images"),
