@@ -3,9 +3,9 @@ import fs from "fs";
 import { processImages } from "../services/exif.js";
 
 /*
-* Löscht alle Bilder im Ordner images
-* Speichert die hochgeladenen Bilder im Ordner images
-*/
+ * Löscht alle Bilder im Ordner images
+ * Speichert die hochgeladenen Bilder im Ordner images
+ */
 function uploadImages(req, res) {
   const imageDir = path.join(process.cwd(), "images");
   if (fs.existsSync(imageDir)) {
@@ -21,8 +21,8 @@ function uploadImages(req, res) {
 }
 
 /*
-* Löscht die Bilder, die in req.body.images aufgelistet sind
-*/
+ * Löscht die Bilder, die in req.body.images aufgelistet sind
+ */
 function deleteImages(req, res) {
   const images = req.body.images;
   if (images.length !== 0) {
@@ -39,11 +39,11 @@ function deleteImages(req, res) {
 }
 
 /*
-* Gibt Metadaten zu den hochgeladenen Bildern zurück
-*/
+ * Gibt Metadaten zu den hochgeladenen Bildern zurück
+ */
 async function getMetdata(req, res) {
   const cameraInfo = await processImages();
-  if (!cameraInfo['Unbekannt']) {
+  if (!cameraInfo["Unbekannt"]) {
     const metadata = {
       totalCameras: Object.keys(cameraInfo).length,
       cameras: [],
@@ -65,12 +65,11 @@ async function getMetdata(req, res) {
       });
     });
     res.send(metadata);
-
   } else {
     const metadata = {
-      totalCameras: 'Unbekannt',
-      cameras: ['Unbekannt'],
-      totalImages: cameraInfo['Unbekannt'].imagecount,
+      totalCameras: "Unbekannt",
+      cameras: ["Unbekannt"],
+      totalImages: cameraInfo["Unbekannt"].imagecount,
     };
     res.send(metadata);
   }

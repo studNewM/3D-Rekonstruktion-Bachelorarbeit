@@ -1,9 +1,8 @@
 import { handleSelectedFiles } from "./images.js";
 
-
 /*
-* Erstellt die HTML-Elemente für den Drag & Drop-Bereich
-*/
+ * Erstellt die HTML-Elemente für den Drag & Drop-Bereich
+ */
 function createDropArea() {
   const dropArea = document.createElement("div");
   dropArea.id = "dropArea";
@@ -39,8 +38,8 @@ function createDropArea() {
 }
 
 /*
-* Konfiguriert Drag-and-Drop für das "dropArea" Element
-*/
+ * Konfiguriert Drag-and-Drop für das "dropArea" Element
+ */
 function setupDragAndDrop() {
   const dropArea = document.getElementById("dropArea");
   dropArea.addEventListener("dragover", (event) => event.preventDefault());
@@ -55,8 +54,8 @@ function setupDragAndDrop() {
 }
 
 /*
-* Initialisiert den Drag & Drop-Bereich und passt ihn an, wenn sich die Bildvorschau ändert
-*/
+ * Initialisiert den Drag & Drop-Bereich und passt ihn an, wenn sich die Bildvorschau ändert
+ */
 function initializeDragAndDrop() {
   let dropArea = document.getElementById("dropArea");
   const uploadedImages = document.getElementById("uploadedImages");

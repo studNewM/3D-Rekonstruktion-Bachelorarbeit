@@ -7,7 +7,14 @@ import chalk from "chalk";
 import { spawn } from "child_process";
 import { unpack } from "7zip-min";
 import { glob } from "glob";
-import { createWriteStream, unlinkSync, existsSync, readFileSync, writeFileSync, readdirSync } from "fs";
+import {
+  createWriteStream,
+  unlinkSync,
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  readdirSync,
+} from "fs";
 import { callPaths } from "./src/utils/executablePaths.js";
 
 const pathMeshroom = process.env.meshroom || "";
@@ -26,14 +33,25 @@ const toolExe = {
   ],
 };
 
-
 function returnCudaLink() {
-  const otherValues = ['aix', 'darwin', 'freebsd', 'linux', 'openbsd', 'sunos', 'win32'];
+  const otherValues = [
+    "aix",
+    "darwin",
+    "freebsd",
+    "linux",
+    "openbsd",
+    "sunos",
+    "win32",
+  ];
   const os = process.platform;
   if (os === "win32") {
-    console.log("Bitte installieren Sie NVIDIA CUDA Toolkit => https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html");
+    console.log(
+      "Bitte installieren Sie NVIDIA CUDA Toolkit => https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html",
+    );
   } else if (otherValues.includes(os)) {
-    console.log("Bitte installieren Sie NVIDIA CUDA Toolkit => https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html");
+    console.log(
+      "Bitte installieren Sie NVIDIA CUDA Toolkit => https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html",
+    );
   }
 }
 
@@ -44,7 +62,7 @@ async function shouldContinueWithoutCuda() {
       name: "continue",
       message: "Möchten Sie ohne CUDA fortfahren?",
       default: false,
-    }
+    },
   ];
   const answers = await inquirer.prompt(questions);
   if (answers.continue) {
@@ -56,9 +74,9 @@ async function shouldContinueWithoutCuda() {
 }
 
 function writeGpuToValue(value) {
-  let lines = readFileSync('./src/.env', 'utf-8').split('\n');
+  let lines = readFileSync("./src/.env", "utf-8").split("\n");
 
-  let gpuIndex = lines.findIndex(line => line.startsWith('GPU='));
+  let gpuIndex = lines.findIndex((line) => line.startsWith("GPU="));
 
   if (gpuIndex !== -1) {
     lines[gpuIndex] = `GPU=${value}`;
@@ -66,35 +84,37 @@ function writeGpuToValue(value) {
     lines.push(`GPU=${value}`);
   }
 
-  writeFileSync('./src/.env', lines.join('\n'));
+  writeFileSync("./src/.env", lines.join("\n"));
 }
-
 
 const sleep = (ms = 2000) => new Promise((r) => setTimeout(r, ms));
 async function checkCUDA() {
   const spinner = ora("Überprüfung von NVIDA CUDA...").start();
   await sleep();
-  const command = "nvcc"
+  const command = "nvcc";
   return new Promise((resolve, reject) => {
-    const child = spawn(command, ["-V"],);
+    const child = spawn(command, ["-V"]);
     let output = "";
-    child.stdout.on('data', (data) => {
+    child.stdout.on("data", (data) => {
       output += data.toString();
     });
-    child.on('error', (error) => {
+    child.on("error", (error) => {
       console.error(`error: ${error.message}`);
     });
     spinner.stop();
     child.on("close", (code) => {
-      if (code === 0 && output.includes("nvcc: NVIDIA (R) Cuda compiler driver")) {
+      if (
+        code === 0 &&
+        output.includes("nvcc: NVIDIA (R) Cuda compiler driver")
+      ) {
         console.log(`Überprüfung von NVIDA CUDA...`, chalk.green("OK"));
-        writeGpuToValue('true')
+        writeGpuToValue("true");
         resolve();
       } else if (code === -2) {
         console.log(`Überprüfung von NVIDA CUDA...`, chalk.red("Error"));
         console.log("NVIDIA CUDA nicht gefunden.");
         shouldContinueWithoutCuda().then(() => {
-          writeGpuToValue('false')
+          writeGpuToValue("false");
           resolve();
         });
       } else {
@@ -106,8 +126,8 @@ async function checkCUDA() {
 }
 
 /*
-* Überprüft ob Umgebungsvariablen für die Tools gesetzt worden sind
-*/
+ * Überprüft ob Umgebungsvariablen für die Tools gesetzt worden sind
+ */
 async function checkEnvForToolPaths() {
   const spinner = ora("Überprüfung der Umgebungsvariablen...").start();
   await sleep();
@@ -134,16 +154,20 @@ async function checkEnvForToolPaths() {
 }
 
 /*
-* Überprüft  die Abhängigkeiten der Tools
-* Für openMVS wird colmap benötigt und für colmap wird openMVS benötigt
-*/
+ * Überprüft  die Abhängigkeiten der Tools
+ * Für openMVS wird colmap benötigt und für colmap wird openMVS benötigt
+ */
 function checkToolDependencies(pathsSet) {
   const toolDependencies = {
-    "openMVS": "colmap",
-    "colmap": "openMVS"
+    openMVS: "colmap",
+    colmap: "openMVS",
   };
   for (let tool in toolDependencies) {
-    if (pathsSet.includes(tool) && (!pathsSet.includes(toolDependencies[tool]) && !pathsSet.includes("meshroom"))) {
+    if (
+      pathsSet.includes(tool) &&
+      !pathsSet.includes(toolDependencies[tool]) &&
+      !pathsSet.includes("meshroom")
+    ) {
       console.log(chalk.red(`${tool} benötigt ${toolDependencies[tool]}`));
       return false;
     }
@@ -153,7 +177,7 @@ function checkToolDependencies(pathsSet) {
 
 function getToolFiles(toolName, exeName) {
   const toolPath = path.join(process.cwd(), "src", "tools", toolName);
-  return readdirSync(toolPath).some(file => file === toolExe[exeName][0]);
+  return readdirSync(toolPath).some((file) => file === toolExe[exeName][0]);
 }
 
 async function getToolPath() {
@@ -178,23 +202,23 @@ async function getToolPath() {
     return -1;
   } else {
     if (downloadedTools.length !== 0) {
-      let lines = readFileSync('./src/.env', 'utf-8').split('\n');
+      let lines = readFileSync("./src/.env", "utf-8").split("\n");
       for (const item of Object.keys(downloadedTools)) {
-        let index = lines.findIndex(line => line.startsWith(item));
+        let index = lines.findIndex((line) => line.startsWith(item));
         if (index !== -1) {
-          lines[index] = `${item} = ${path.join(process.cwd(), "src", "tools", downloadedTools[item])}`;
+          lines[index] =
+            `${item} = ${path.join(process.cwd(), "src", "tools", downloadedTools[item])}`;
         }
-        writeFileSync('./src/.env', lines.join('\n'));
+        writeFileSync("./src/.env", lines.join("\n"));
       }
     }
     return downloadedTools;
   }
 }
 
-
 /*
-* Überprüft ob die Tools bereits im Ordner vorhanden sind
-*/
+ * Überprüft ob die Tools bereits im Ordner vorhanden sind
+ */
 async function verifyToolsInDirectory() {
   const toolPath = path.join(process.cwd(), "src", "tools");
   const spinner = ora("Überprüfung des Ordners...").start();
@@ -217,7 +241,9 @@ async function verifyToolsInDirectory() {
 }
 function verifyFilePresence(type) {
   try {
-    return toolExe[type].every((exe) => existsSync(path.join(process.env[type], exe)));
+    return toolExe[type].every((exe) =>
+      existsSync(path.join(process.env[type], exe)),
+    );
   } catch (err) {
     console.error(err);
     return false;
@@ -225,8 +251,8 @@ function verifyFilePresence(type) {
 }
 
 /*
-* Überprüft ob die Tools korrekt installiert sind
-*/
+ * Überprüft ob die Tools korrekt installiert sind
+ */
 async function verifyToolIntegrity(item) {
   let output = "";
   const command =
@@ -252,7 +278,6 @@ async function verifyToolIntegrity(item) {
     }
   });
 }
-
 
 function validateInstalledTools(items) {
   for (const item of items) {
@@ -323,7 +348,7 @@ async function run() {
         console.log(`
           ${chalk.red("Aktuell kann Meshroom nicht automatisch heruntergeladen werden")}
           ${chalk.white("Folgen Sie bitte den Anweisungen der Webseite http://alicevision.org/meshroom")}
-          `)
+          `);
         // await downloadAndUnpackTool(
         //   downloadPaths["meshroom"][1],
         //   downloadPaths["meshroom"][0],
@@ -380,7 +405,7 @@ async function run() {
   } catch (error) {
     spinner.fail(
       "Es ist ein Fehler beim herunterladen der Software aufgetreten: " +
-      error.message,
+        error.message,
     );
   }
 }
@@ -409,7 +434,7 @@ async function unpack7ZipFile(filename) {
     "tools",
     filename.replace(".7z", ""),
   );
-  await zip7(filename, openMVSPath)
+  await zip7(filename, openMVSPath);
 }
 function zip7(filename, openMVSPath) {
   return new Promise(function (resolved, rejected) {

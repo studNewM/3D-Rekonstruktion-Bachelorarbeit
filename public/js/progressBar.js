@@ -1,7 +1,6 @@
-
 /*
-* Der Fortschrittsbalken wird aktiviert, wenn ein Schritt begonnen wird.
-*/
+ * Der Fortschrittsbalken wird aktiviert, wenn ein Schritt begonnen wird.
+ */
 function activateProgressBar(step) {
   const progressBar = document.getElementById(`progress-${step}-line`);
   progressBar.style.backgroundImage =
@@ -12,9 +11,9 @@ function activateProgressBar(step) {
 }
 
 /*
-* Wenn ein Schritt abgeschlossen ist, wird der Fortschrittsbalken deaktiviert.
-* Ist der letzte Schritt abgeschlossen, wird der Start-Button wieder aktiviert.
-*/
+ * Wenn ein Schritt abgeschlossen ist, wird der Fortschrittsbalken deaktiviert.
+ * Ist der letzte Schritt abgeschlossen, wird der Start-Button wieder aktiviert.
+ */
 function handleProcessCompletion(stepName) {
   const selectedModel = document.getElementById("modelSelector").value;
   if (

@@ -9,8 +9,6 @@ import {
   colmapOpenMvsResult,
 } from "../types/colmapOpenMvsTypes.js";
 
-
-
 function copyFolder() {
   const outputDir = path.join(
     process.cwd(),
@@ -29,9 +27,9 @@ function copyFolder() {
 }
 
 /*
-* Kopiert die Punktewolke und das Mesh in den Ordner assets
-* Kopiert alle Texturdateien in den Ordner assets und erstellt ein Zip-Archiv
-*/
+ * Kopiert die Punktewolke und das Mesh in den Ordner assets
+ * Kopiert alle Texturdateien in den Ordner assets und erstellt ein Zip-Archiv
+ */
 async function copyFiles(type, model) {
   let arrayValues = [];
   let arrayKeys = {};
@@ -48,10 +46,7 @@ async function copyFiles(type, model) {
     if (model === "meshroom") {
       sourceDir = await findHashPath(type);
     } else if (type !== "TextureMesh") {
-      const sourcePath = path.join(
-        "workspace",
-        colmapOpenMvsResultPaths[type],
-      );
+      const sourcePath = path.join("workspace", colmapOpenMvsResultPaths[type]);
       sourceDir = [sourcePath];
     }
     const fileName = arrayKeys[type][0];
@@ -61,7 +56,11 @@ async function copyFiles(type, model) {
         copyFolder();
         await createTextureZip("openMVS");
       } else {
-        const filePath = path.join(process.cwd(), path.join(path.dirname(sourceDir[0])), fileName)
+        const filePath = path.join(
+          process.cwd(),
+          path.join(path.dirname(sourceDir[0])),
+          fileName,
+        );
         copyFileSync(filePath, destinationPath);
         console.log(`Die Datei "${filePath}" wurde erfolgreich kopiert.`);
       }
@@ -74,8 +73,8 @@ async function copyFiles(type, model) {
 }
 
 /*
-* Überprüft, ob die Datei fertig geschrieben wurde
-*/
+ * Überprüft, ob die Datei fertig geschrieben wurde
+ */
 function checkFileWriteStatus(filePath) {
   return new Promise((resolve, reject) => {
     const file = path.dirname(filePath);
@@ -83,11 +82,11 @@ function checkFileWriteStatus(filePath) {
       ignored: /(^|[\/\\])\../,
       awaitWriteFinish: {
         stabilityThreshold: 2000,
-        pollInterval: 100
-      }
+        pollInterval: 100,
+      },
     });
 
-    watcher.on('change', (path, stats) => {
+    watcher.on("change", (path, stats) => {
       if (stats) {
         console.log(`File ${path} changed size to ${stats.size}`);
       }
@@ -95,7 +94,7 @@ function checkFileWriteStatus(filePath) {
       resolve(true);
     });
 
-    watcher.on('error', error => {
+    watcher.on("error", (error) => {
       console.error(`Watcher error: ${error}`);
       watcher.close();
       reject(error);

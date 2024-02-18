@@ -2,7 +2,7 @@ import { setupDragAndDrop } from "./dragAndDrop.js";
 import { setupWebSocketConnection } from "./webSocket.js";
 import {
   initializeReconstructionNodes,
-  changeProgessNodes
+  changeProgessNodes,
 } from "./reconstruction.js";
 import { resetUI } from "./ui.js";
 import { initiateReconstructionProcess } from "./axios.js";
@@ -20,7 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initializeReconstructionNodes();
   setupEventListeners();
   setupWebSocketConnection();
-
 });
 
 function setupEventListeners() {
@@ -72,12 +71,9 @@ function setupDropdownListeners() {
   };
 }
 window.addEventListener("load", function () {
-  setTimeout(
-    function open(event) {
-      document.querySelector(".popup").style.display = "block";
-    },
-    1000
-  )
+  setTimeout(function open(event) {
+    document.querySelector(".popup").style.display = "block";
+  }, 1000);
 });
 document.querySelector("#close").addEventListener("click", function () {
   document.querySelector(".popup").style.display = "none";

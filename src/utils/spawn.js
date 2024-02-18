@@ -69,10 +69,9 @@ export default function spawnCommand(commandText, type = "", stepName) {
   });
 }
 
-
 /*
-* Erfasst den Schritt, bei dem der Fehler aufgetreten ist
-*/
+ * Erfasst den Schritt, bei dem der Fehler aufgetreten ist
+ */
 function extractNodeType(stderrOutput) {
   return stderrOutput
     .split("RuntimeError: Error on node")[1]
@@ -82,8 +81,8 @@ function extractNodeType(stderrOutput) {
     .trimStart();
 }
 /*
-* Sendet den Fehler an den Client
-*/
+ * Sendet den Fehler an den Client
+ */
 function handleFatalErrors(stderrOutput) {
   const nodeType = extractNodeType(stderrOutput);
   const fatalMessage = stderrOutput

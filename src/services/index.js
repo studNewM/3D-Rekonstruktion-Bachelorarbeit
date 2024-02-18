@@ -10,8 +10,8 @@ import { copyFiles } from "../utils/copyResults.js";
 import { deleteAssetsFolder } from "../utils/cleaning.js";
 
 /*
-* Startet die Rekonstruktion mit Meshroom
-*/
+ * Startet die Rekonstruktion mit Meshroom
+ */
 async function meshroom(name, options) {
   const start = performance.now();
   try {
@@ -28,8 +28,8 @@ async function meshroom(name, options) {
 }
 
 /*
-* Startet die Rekonstruktion mit Colmap und OpenMVS
-*/
+ * Startet die Rekonstruktion mit Colmap und OpenMVS
+ */
 function colmapOpenMVS(name, options) {
   const start = performance.now();
   moveImagesToWorkspace(name);

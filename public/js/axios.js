@@ -8,8 +8,8 @@ function toggleButtonState(buttonId, disable) {
 }
 
 /*
-* Initialisiert den Rekonstruktionsprozess durch das Senden der ausgewählten Optionen an den Server
-*/
+ * Initialisiert den Rekonstruktionsprozess durch das Senden der ausgewählten Optionen an den Server
+ */
 async function initiateReconstructionProcess() {
   toggleButtonState("startProcess", true);
   const selectedModel = document.getElementById("modelSelector").value;
@@ -26,10 +26,9 @@ async function initiateReconstructionProcess() {
   }
 }
 
-
 /*
-* Schickt die Liste der Bilder, die zum Löschen markiert wurden, an den Server
-*/
+ * Schickt die Liste der Bilder, die zum Löschen markiert wurden, an den Server
+ */
 async function deleteImages() {
   try {
     await axios.post("/delete", { images: window.imagesMarkedForDeletion });
@@ -39,10 +38,9 @@ async function deleteImages() {
   }
 }
 
-
 /*
-* Holt die Metadaten der Bilder vom Server
-*/
+ * Holt die Metadaten der Bilder vom Server
+ */
 async function fetchMetadata() {
   try {
     const response = await axios.get("/metadata");
@@ -53,8 +51,8 @@ async function fetchMetadata() {
 }
 
 /*
-* Schickt die Bilder an den Server und zeigt sie in der Vorschau an
-*/
+ * Schickt die Bilder an den Server und zeigt sie in der Vorschau an
+ */
 async function uploadImagesAndDisplayPreview(formData, selectedFiles) {
   try {
     await axios.post("/upload", formData);
@@ -68,8 +66,8 @@ async function uploadImagesAndDisplayPreview(formData, selectedFiles) {
 }
 
 /*
-* Behandelt Fehler, die bei der Kommunikation mit dem Server auftreten
-*/
+ * Behandelt Fehler, die bei der Kommunikation mit dem Server auftreten
+ */
 function handleAxiosError(error, errorMessage) {
   console.error(errorMessage, error);
   alert(errorMessage);

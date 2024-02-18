@@ -4,7 +4,6 @@ import chalk from "chalk";
 import spawn_Command from "../utils/spawn.js";
 import { copyFiles } from "../utils/copyResults.js";
 
-
 function callOpenMVS(name, options) {
   const cuda_device = options.cuda_device ? -2 : -1;
   const workspace = path.join(process.cwd(), name);

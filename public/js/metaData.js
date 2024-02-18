@@ -17,10 +17,9 @@ function displayMetadata(metadata) {
   updateTooltips(metadata);
 }
 
-
 /*
-* Aktualisiert die Tooltips für die Kamera Informationen
-*/
+ * Aktualisiert die Tooltips für die Kamera Informationen
+ */
 function updateTooltips(cameraInfo) {
   let imageCountContent = "";
   let cameraTypesContent = "";
@@ -37,12 +36,12 @@ function updateTooltips(cameraInfo) {
       cameraTypesContent += `${camera.combine}<br>`;
       otherInfoContent += `Kamera: ${camera.combine}, ISO: ${camera.isoValues.join(", ")}, Brennweiten: ${camera.focalLengths.join(", ")}<br>`;
     }
-  } else[
-    imageCountContent += `Unbekannt:<br>${cameraInfo.totalImages} Bild(er)<br><br>`,
-    cameraTypesContent += `Unbekannt<br>`,
-    otherInfoContent += `Kamera: Unbekannt, ISO: Unbekannt, Brennweiten: Unbekannt<br>`
-  ]
-
+  } else
+    [
+      (imageCountContent += `Unbekannt:<br>${cameraInfo.totalImages} Bild(er)<br><br>`),
+      (cameraTypesContent += `Unbekannt<br>`),
+      (otherInfoContent += `Kamera: Unbekannt, ISO: Unbekannt, Brennweiten: Unbekannt<br>`),
+    ];
 
   const imagecount = document.getElementById("imageCountTooltip");
   imagecount.innerHTML = imageCountContent;

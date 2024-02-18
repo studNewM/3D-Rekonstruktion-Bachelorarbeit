@@ -4,9 +4,9 @@ import exifr from "exifr";
 const imagesDir = "images";
 
 /*
-* Erfasst die Metadaten der Bilder
-* Metadaten: Kamera-Hersteller, Kamera-Modell, Brennweiten, ISO-Werte, Anzahl der Bilder gruppiert nach Brennweiten
-*/
+ * Erfasst die Metadaten der Bilder
+ * Metadaten: Kamera-Hersteller, Kamera-Modell, Brennweiten, ISO-Werte, Anzahl der Bilder gruppiert nach Brennweiten
+ */
 export async function processImages() {
   try {
     const files = await fs.readdir(imagesDir);
@@ -18,7 +18,9 @@ export async function processImages() {
         const make = exifData.Make || "Unbekannt";
         const lensModel = exifData.LensModel || "";
         const model = exifData.Model || "Modell";
-        const cameraModel = `${make}${lensModel ? ` - ${lensModel}` : ` - ${model}`}` || "Unbekannt";
+        const cameraModel =
+          `${make}${lensModel ? ` - ${lensModel}` : ` - ${model}`}` ||
+          "Unbekannt";
         const focalLength = exifData.FocalLength
           ? exifData.FocalLength + "mm"
           : "Unbekannt";
@@ -44,7 +46,7 @@ export async function processImages() {
         }
         cameraInfo[cameraModel].imageCountsByFocalLength[focalLength]++;
       } else {
-        cameraInfo['Unbekannt'] = {
+        cameraInfo["Unbekannt"] = {
           imagecount: files.length,
         };
       }

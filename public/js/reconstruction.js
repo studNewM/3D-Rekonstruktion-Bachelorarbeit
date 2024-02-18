@@ -1,8 +1,8 @@
 import * as Three from "./three.js";
 
 /*
-* Deaktiviert die Optionen und gibt die ausgewählten Werte zurück
-*/
+ * Deaktiviert die Optionen und gibt die ausgewählten Werte zurück
+ */
 function handleCheckboxChange() {
   const checkbox = document.getElementsByClassName("runOption");
   for (let item of checkbox) {
@@ -16,8 +16,8 @@ function handleCheckboxChange() {
 }
 
 /*
-* Ändert die HTML-Elemente abhängig vom ausgewählten Modell
-*/
+ * Ändert die HTML-Elemente abhängig vom ausgewählten Modell
+ */
 function changeProgessNodes() {
   const selectedModel = document.getElementById("modelSelector").value;
   const meshroomNodesElement = document.getElementById("meshroomNodes");
@@ -29,12 +29,11 @@ function changeProgessNodes() {
     colmapOpenMVSNodesElement.style.display = "";
     const checkbox = document.getElementsByClassName("runOption");
     checkbox[0].disabled = false;
-
   } else if (selectedModel !== "Colmap/OpenMVS") {
     meshroomNodesElement.style.display = "";
     colmapOpenMVSNodesElement.style.display = "none";
     const checkbox = document.getElementsByClassName("runOption");
-    checkbox[0].checked = false
+    checkbox[0].checked = false;
     checkbox[0].disabled = true;
   }
 }
@@ -77,8 +76,8 @@ function enableReconstructionButtons(process) {
 }
 
 /*
-* Ladet das 3D-Modell in die Szene
-*/
+ * Ladet das 3D-Modell in die Szene
+ */
 function triggerDisplayAction(stepName) {
   const selectedModel = document.getElementById("modelSelector").value;
   setTimeout(() => {
@@ -95,5 +94,5 @@ export {
   initializeReconstructionNodes,
   enableReconstructionButtons,
   triggerDisplayAction,
-  triggerExportAction
+  triggerExportAction,
 };

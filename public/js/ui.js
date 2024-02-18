@@ -13,8 +13,8 @@ function toggleSidebar() {
 }
 
 /*
-* Löschung der Metadatenanzeige
-*/
+ * Löschung der Metadatenanzeige
+ */
 function clearMetaDataDisplay() {
   const elementsToClear = [
     "imageCount",
@@ -39,8 +39,8 @@ function clearMetaDataDisplay() {
 }
 
 /*
-* Löschung der HTML-Elemente
-*/
+ * Löschung der HTML-Elemente
+ */
 function clearHtmlElements() {
   window.completedImageCount = 0;
   window.imagesMarkedForDeletion = [];
@@ -57,8 +57,8 @@ function clearHtmlElements() {
 }
 
 /*
-* Setzt die UI zurück, löscht die Szene
-*/
+ * Setzt die UI zurück, löscht die Szene
+ */
 function resetUI() {
   Three.clearScene();
   clearHtmlElements();

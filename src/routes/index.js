@@ -11,6 +11,4 @@ router.post("/upload", upload.array("fileList"), uploadImages);
 router.post("/delete", deleteImages);
 router.get("/metadata", getMetdata);
 
-
-
 export default router;

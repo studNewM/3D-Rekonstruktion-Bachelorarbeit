@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 import chalk from "chalk";
-import * as fsStat from 'node:fs/promises';
+import * as fsStat from "node:fs/promises";
 import { watch } from "chokidar";
 import { meshroomSteps } from "../types/meshroomTypes.js";
 import { copyFiles } from "./copyResults.js";
@@ -15,7 +15,6 @@ const workspaceDir = path.join(process.cwd(), workspace);
 
 let watcher;
 
-
 function startStepLogging(foundStep) {
   console.log(chalk.white(`LOGGING: Step ${chalk.blue(foundStep)} started`));
   sendToAllClients({ step: foundStep, status: "started" });
@@ -23,29 +22,43 @@ function startStepLogging(foundStep) {
 }
 
 function completeStepLogging(currentStep, currentStepStartTime) {
-  console.log(chalk.white(`LOGGING: Step ${chalk.blue(currentStep)} completed`));
+  console.log(
+    chalk.white(`LOGGING: Step ${chalk.blue(currentStep)} completed`),
+  );
   const duration = (Date.now() - currentStepStartTime) / 1000;
   console.log(currentStep, "completed in", duration, "seconds");
   sendToAllClients({ step: currentStep, status: "completed", time: duration });
-
 }
 
 function watchWorkspace() {
-  watcher = watch(`${workspaceDir}/**`, { ignored: /^\./, persistent: true, depth: 2 });
+  watcher = watch(`${workspaceDir}/**`, {
+    ignored: /^\./,
+    persistent: true,
+    depth: 2,
+  });
   let currentStep, currentStepStartTime, missingStep;
 
   watcher.on("add", (filePath) => {
-    const foundStep = Object.values(meshroomSteps).find((step) => filePath.includes(step));
-    if (filePath.includes("log") && !filePath.includes('sfm_log') && foundStep) {
+    const foundStep = Object.values(meshroomSteps).find((step) =>
+      filePath.includes(step),
+    );
+    if (
+      filePath.includes("log") &&
+      !filePath.includes("sfm_log") &&
+      foundStep
+    ) {
       if (foundStep !== currentStep) {
         if (currentStep) {
           if (meshroomResults[currentStep]) {
-            missingStep = currentStep
+            missingStep = currentStep;
             checkStepIsFinished(currentStep)
               .then(() => copyFiles(missingStep, "meshroom"))
-              .then(() => completeStepLogging(missingStep, currentStepStartTime))
+              .then(() =>
+                completeStepLogging(missingStep, currentStepStartTime),
+              );
+          } else {
+            completeStepLogging(currentStep, currentStepStartTime);
           }
-          else { completeStepLogging(currentStep, currentStepStartTime) }
         }
       }
       ({ currentStep, currentStepStartTime } = startStepLogging(foundStep));
@@ -63,23 +76,23 @@ function closeWatcher() {
 }
 
 /*
-* Sortiert die Dateien nach ihrer Endung, sodass die .png Dateien zuerst kopiert werden und die .mtl Dateien zuletzt.
-* Die .mtl Datei referenziert die .png Dateien, daher müssen diese zuerst erfasst und aktualisiert in die .mtl Datei eingefügt werden.
-*/
+ * Sortiert die Dateien nach ihrer Endung, sodass die .png Dateien zuerst kopiert werden und die .mtl Dateien zuletzt.
+ * Die .mtl Datei referenziert die .png Dateien, daher müssen diese zuerst erfasst und aktualisiert in die .mtl Datei eingefügt werden.
+ */
 function sortFiles(a, b) {
   const extA = path.extname(a);
   const extB = path.extname(b);
-  if (extA === '.png' && extB !== '.png') return -1;
-  if (extB === '.png' && extA !== '.png') return 1;
-  if (extA === '.mtl' && extB !== '.mtl') return -1;
-  if (extB === '.mtl' && extA !== '.mtl') return 1;
+  if (extA === ".png" && extB !== ".png") return -1;
+  if (extB === ".png" && extA !== ".png") return 1;
+  if (extA === ".mtl" && extB !== ".mtl") return -1;
+  if (extB === ".mtl" && extA !== ".mtl") return 1;
   return 0;
 }
 
 /*
-* Überwacht das Verzeichnis des Meshroom-Outputs und kopiert die Dateien in das public/assets Verzeichnis.
-* Die .mtl Datei wird aktualisiert, sodass die .png Dateien referenziert werden.
-*/
+ * Überwacht das Verzeichnis des Meshroom-Outputs und kopiert die Dateien in das public/assets Verzeichnis.
+ * Die .mtl Datei wird aktualisiert, sodass die .png Dateien referenziert werden.
+ */
 function watchOutput(name) {
   const outputDir = path.join(process.cwd(), name, "output");
   fs.readdir(outputDir, (err, files) => {
@@ -88,26 +101,37 @@ function watchOutput(name) {
       return;
     }
     if (files.length >= 3) {
-
-      const uniqueFilename = '_' + Date.now();
+      const uniqueFilename = "_" + Date.now();
       const pngFiles = {};
       let pngBase;
       let newBase;
       files.sort(sortFiles).forEach((file) => {
         const ext = path.extname(file);
-        if (ext === '.png') {
+        if (ext === ".png") {
           pngBase = path.basename(file, ext);
-          newBase = pngBase + uniqueFilename
-          pngFiles[pngBase] = newBase
-          fs.copyFileSync(path.join(outputDir, file), path.join(process.cwd(), "public", "assets", newBase + ext));
-        } else if (ext === '.mtl') {
-          let content = fs.readFileSync(path.join(outputDir, file), 'utf8');
+          newBase = pngBase + uniqueFilename;
+          pngFiles[pngBase] = newBase;
+          fs.copyFileSync(
+            path.join(outputDir, file),
+            path.join(process.cwd(), "public", "assets", newBase + ext),
+          );
+        } else if (ext === ".mtl") {
+          let content = fs.readFileSync(path.join(outputDir, file), "utf8");
           for (const pngFile of Object.keys(pngFiles)) {
-            content = content.replace(new RegExp(pngFile, 'g'), pngFiles[pngFile]);
+            content = content.replace(
+              new RegExp(pngFile, "g"),
+              pngFiles[pngFile],
+            );
           }
-          fs.writeFileSync(path.join(process.cwd(), "public", "assets", file), content);
+          fs.writeFileSync(
+            path.join(process.cwd(), "public", "assets", file),
+            content,
+          );
         } else {
-          fs.copyFileSync(path.join(outputDir, file), path.join(process.cwd(), "public", "assets", file));
+          fs.copyFileSync(
+            path.join(outputDir, file),
+            path.join(process.cwd(), "public", "assets", file),
+          );
         }
       });
       sendToAllClients({ step: "Publish", status: "completed" });
@@ -117,16 +141,16 @@ function watchOutput(name) {
   });
 }
 
-
-
-
 async function checkStepIsFinished(step) {
   const sourceDir = await findHashPath(step);
-  const fileName = meshroomResults[step][0]
-  const filePath = path.join(process.cwd(), path.join(path.dirname(sourceDir[0])), fileName)
-  return checkFileStability(filePath)
+  const fileName = meshroomResults[step][0];
+  const filePath = path.join(
+    process.cwd(),
+    path.join(path.dirname(sourceDir[0])),
+    fileName,
+  );
+  return checkFileStability(filePath);
 }
-
 
 async function checkFileStability(filePath, checkDuration = 1000) {
   let lastSize = -1;
@@ -137,12 +161,15 @@ async function checkFileStability(filePath, checkDuration = 1000) {
       const stats = await fsStat.stat(filePath);
       console.log(stats);
       const currentTime = Date.now();
-      if (stats.size === lastSize && (currentTime - lastCheckTime >= checkDuration)) {
+      if (
+        stats.size === lastSize &&
+        currentTime - lastCheckTime >= checkDuration
+      ) {
         return true;
       } else {
         lastSize = stats.size;
         lastCheckTime = currentTime;
-        await new Promise(resolve => setTimeout(resolve, checkDuration));
+        await new Promise((resolve) => setTimeout(resolve, checkDuration));
         return checkSizeChange();
       }
     } catch (err) {
@@ -152,6 +179,5 @@ async function checkFileStability(filePath, checkDuration = 1000) {
 
   return checkSizeChange();
 }
-
 
 export { watchWorkspace, watchOutput, closeWatcher };

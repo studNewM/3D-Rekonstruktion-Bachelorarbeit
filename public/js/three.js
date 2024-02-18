@@ -13,24 +13,26 @@ let objects = [];
 const params = { color: "#ffffff" };
 
 /*
-* Fügt die geladenen Objekte zu einem Array hinzu
-* Ermöglicht es, die Objekte in der Szene einzuschränken
-*/
+ * Fügt die geladenen Objekte zu einem Array hinzu
+ * Ermöglicht es, die Objekte in der Szene einzuschränken
+ */
 function addObject(object) {
   objects.push(object);
 }
 
-
 /* Ermöglicht das Auswählen und Transformieren von Objekten */
 function onPointerDown(event) {
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-  pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
   raycaster.setFromCamera(pointer, camera);
   const intersects = raycaster.intersectObjects(objects, true);
   if (intersects.length > 0) {
     const firstIntersected = intersects[0].object;
-    if (firstIntersected.type === "Mesh" || firstIntersected.type === "Points") {
+    if (
+      firstIntersected.type === "Mesh" ||
+      firstIntersected.type === "Points"
+    ) {
       if (INTERSECTED) transformControls.detach(INTERSECTED);
 
       INTERSECTED = firstIntersected;
@@ -48,10 +50,14 @@ function onPointerDown(event) {
 }
 
 /*
-* Löscht alle Mesh Objekte aus der Szene und gibt den Speicher frei
-*/
+ * Löscht alle Mesh Objekte aus der Szene und gibt den Speicher frei
+ */
 function clearMeshMemory(child) {
-  if ((child.type === "Mesh" && child.geometry !== undefined || child.type === "Points") && child.parent.type !== "Object3D") {
+  if (
+    ((child.type === "Mesh" && child.geometry !== undefined) ||
+      child.type === "Points") &&
+    child.parent.type !== "Object3D"
+  ) {
     child.geometry.dispose();
     child.geometry = undefined;
     if (child.type !== "Points" && child.parent.type !== "Group") {
@@ -67,10 +73,9 @@ function clearGroupMemory(child) {
 }
 
 /*
-* Löscht alle Elemente aus der Szene
-*/
+ * Löscht alle Elemente aus der Szene
+ */
 export function clearScene() {
-
   transformControls.detach();
 
   removeFromGUI();
@@ -97,11 +102,7 @@ export function clearScene() {
   camera.position.y = 1;
   camera.position.x = 0;
   controls.target.set(0, 0, 0);
-
 }
-
-
-
 
 function initScene() {
   const scene = new THREE.Scene();
@@ -129,7 +130,6 @@ function initRenderer() {
   return renderer;
 }
 
-
 function initLights(scene) {
   const ambientLight = new THREE.AmbientLight(0xffffff, 2);
   const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -143,11 +143,11 @@ function initControls(camera, renderer) {
   return new OrbitControls(camera, renderer.domElement);
 }
 function initTransformControls() {
-  const transformControls = new TransformControls(camera, renderer.domElement)
-  transformControls.setMode('rotate')
+  const transformControls = new TransformControls(camera, renderer.domElement);
+  transformControls.setMode("rotate");
   transformControls.visibility = false;
-  scene.add(transformControls)
-  return transformControls
+  scene.add(transformControls);
+  return transformControls;
 }
 function initGridHelper(scene) {
   const size = 10;
@@ -156,11 +156,9 @@ function initGridHelper(scene) {
   scene.add(gridHelper);
 }
 
-
 function updateLightVisibility(light, visibility) {
   light.visible = visibility;
 }
-
 
 function addLightToGui(lights, scene, params) {
   const { ambientLight, directionalLight } = lights;
@@ -209,7 +207,6 @@ function directionalLightHelper(scene, light) {
   return helper;
 }
 
-
 async function loadPly(scene, plyName) {
   const plyloader = new PLYLoader();
 
@@ -233,7 +230,11 @@ async function loadPly(scene, plyName) {
         points.localToWorld(center);
         controls.target.copy(center);
 
-        camera.position.set(geometry.boundingBox.max.x + 5, geometry.boundingBox.max.y + 2, center.z);
+        camera.position.set(
+          geometry.boundingBox.max.x + 5,
+          geometry.boundingBox.max.y + 2,
+          center.z,
+        );
         resolve(points);
       },
       undefined,
@@ -249,7 +250,7 @@ async function loadMeshObject(scene, objName) {
       `/assets/${objName}`,
       (object) => {
         object.position.set(0, 0, 0);
-        object.material = material
+        object.material = material;
         scene.add(object);
         const box = new THREE.Box3().setFromObject(object);
         const center = box.getCenter(new THREE.Vector3());
@@ -294,7 +295,6 @@ async function loadTexturedObject(scene, objName, mtlName) {
   });
 }
 
-
 async function loadColmapPLY(scene, plyName) {
   const plyloader = new PLYLoader();
 
@@ -311,7 +311,7 @@ async function loadColmapPLY(scene, plyName) {
         points.geometry.computeVertexNormals();
         points.geometry.center();
 
-        points.position.y = 2
+        points.position.y = 2;
         points.rotation.set((50 * Math.PI) / 180, 0, Math.PI);
         scene.add(points);
 
@@ -322,7 +322,11 @@ async function loadColmapPLY(scene, plyName) {
         points.localToWorld(center);
         controls.target.copy(center);
 
-        camera.position.set(geometry.boundingBox.max.x + 5, geometry.boundingBox.max.y + 2, center.z);
+        camera.position.set(
+          geometry.boundingBox.max.x + 5,
+          geometry.boundingBox.max.y + 2,
+          center.z,
+        );
         resolve(points);
       },
       undefined,
@@ -343,7 +347,7 @@ async function loadColmapMesh(scene, plyName) {
         geometry.computeVertexNormals();
         geometry.center();
 
-        mesh.position.y = 2
+        mesh.position.y = 2;
         mesh.rotation.set((50 * Math.PI) / 180, 0, Math.PI);
         scene.add(mesh);
 
@@ -354,7 +358,11 @@ async function loadColmapMesh(scene, plyName) {
         mesh.localToWorld(center);
         controls.target.copy(center);
 
-        camera.position.set(geometry.boundingBox.max.x + 5, geometry.boundingBox.max.y + 2, center.z);
+        camera.position.set(
+          geometry.boundingBox.max.x + 5,
+          geometry.boundingBox.max.y + 2,
+          center.z,
+        );
 
         resolve(mesh);
       },
@@ -386,14 +394,17 @@ async function loadColmapTextured(scene, objName) {
                 child.localToWorld(center);
                 controls.target.copy(center);
 
-                camera.position.set(child.geometry.boundingBox.max.x + 5, child.geometry.boundingBox.max.y + 2, center.z);
+                camera.position.set(
+                  child.geometry.boundingBox.max.x + 5,
+                  child.geometry.boundingBox.max.y + 2,
+                  center.z,
+                );
 
                 child.material.map = texture;
                 child.material.needsUpdate = true;
-
               }
             });
-            object.position.y = 2
+            object.position.y = 2;
             object.rotation.set((50 * Math.PI) / 180, 0, Math.PI);
 
             scene.add(object);
@@ -409,10 +420,9 @@ async function loadColmapTextured(scene, objName) {
   });
 }
 
-
 /*
-* Lädt das Modell abhängig von dem ausgewählten Rekonstruktionsprozess
-*/
+ * Lädt das Modell abhängig von dem ausgewählten Rekonstruktionsprozess
+ */
 export async function loadModel(stepName, runType) {
   console.log(stepName);
   let runDict;
@@ -486,12 +496,16 @@ export async function loadModel(stepName, runType) {
 }
 
 /*
-* Entfernt alle Elemente aus den Ordnern in der GUI
-* Wird aufgerufen, wenn die GUI neu geladen wird
-*/
+ * Entfernt alle Elemente aus den Ordnern in der GUI
+ * Wird aufgerufen, wenn die GUI neu geladen wird
+ */
 function removeFromGUI() {
   for (const folder of Object.keys(gui.__folders)) {
-    if (folder === "PointCloud" || folder === "Mesh" || folder === "TexturedMesh") {
+    if (
+      folder === "PointCloud" ||
+      folder === "Mesh" ||
+      folder === "TexturedMesh"
+    ) {
       const item = gui.__folders[folder];
       while (item.__controllers.length > 0) {
         item.remove(item.__controllers[0]);
@@ -501,39 +515,38 @@ function removeFromGUI() {
 }
 
 /*
-* Fügt ein Objekt abhängig von seinem Typ zur einem Ordner in der GUI hinzu
-*/
+ * Fügt ein Objekt abhängig von seinem Typ zur einem Ordner in der GUI hinzu
+ */
 
 function addToGUI(object) {
   if (object.type === "Points") {
     pointCloudFolder
       .add(object, "visible")
       .name("Enabled")
-      .onChange((value) => object.visibility = value);
+      .onChange((value) => (object.visibility = value));
     pointCloudFolder.add(object.material, "size", 0.001, 0.01);
-  }
-  else if (object.type === "Group" && object.material === undefined) {
+  } else if (object.type === "Group" && object.material === undefined) {
     texturedMeshFolder
       .add(object, "visible")
       .name("Enabled")
-      .onChange((value) => object.visibility = value);
-  } else if (object.type === "Mesh" || object.material.type === "MeshStandardMaterial") {
+      .onChange((value) => (object.visibility = value));
+  } else if (
+    object.type === "Mesh" ||
+    object.material.type === "MeshStandardMaterial"
+  ) {
     meshFolder
       .add(object, "visible")
       .name("Enabled")
-      .onChange((value) => object.visibility = value);
+      .onChange((value) => (object.visibility = value));
   }
 }
 
 function animate(camera, scene, renderer, controls) {
   controls.update();
   requestAnimationFrame(() => animate(camera, scene, renderer, controls));
-  helper.update()
+  helper.update();
   renderer.render(scene, camera);
-
 }
-
-
 
 const gui = new dat.GUI();
 const pointCloudFolder = gui.addFolder("PointCloud");
@@ -544,7 +557,6 @@ gui.domElement.id = "gui";
 pointCloudFolder.open();
 meshFolder.open();
 texturedMeshFolder.open();
-
 
 const pointer = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
@@ -558,30 +570,29 @@ const controls = initControls(camera, renderer);
 const transformControls = initTransformControls();
 const lights = initLights(scene);
 
-
 initGridHelper(scene);
 addLightToGui(lights, scene, params);
 const helper = directionalLightHelper(scene, lights.directionalLight);
-transformControls.addEventListener('dragging-changed', function (event) {
-  controls.enabled = !event.value
-})
-window.addEventListener('keydown', function (event) {
+transformControls.addEventListener("dragging-changed", function (event) {
+  controls.enabled = !event.value;
+});
+window.addEventListener("keydown", function (event) {
   switch (event.key) {
-    case 'g':
-      transformControls.setMode('translate')
-      break
-    case 'r':
-      transformControls.setMode('rotate')
-      break
-    case 's':
-      transformControls.setMode('scale')
-      break
-    case 'c':
+    case "g":
+      transformControls.setMode("translate");
+      break;
+    case "r":
+      transformControls.setMode("rotate");
+      break;
+    case "s":
+      transformControls.setMode("scale");
+      break;
+    case "c":
       transformControlsValue = !transformControlsValue;
       transformControls.visible = transformControlsValue;
       transformControls.enabled = transformControlsValue;
       break;
   }
-})
-document.addEventListener('click', onPointerDown);
+});
+document.addEventListener("click", onPointerDown);
 animate(camera, scene, renderer, controls);
