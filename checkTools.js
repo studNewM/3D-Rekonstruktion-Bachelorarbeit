@@ -296,7 +296,11 @@ async function executeToolCheck() {
     console.log(chalk.red("Dieses Tool ist nur für Windows verfügbar."));
     process.exit(1);
   }
-  await checkCUDA();
+  try {
+    await checkCUDA();
+  } catch (error) {
+    console.error('Ein Fehler ist aufgetreten:', error);
+  }
   const paths = await checkEnvForToolPaths();
   if (paths === -1) {
     run();
@@ -405,7 +409,7 @@ async function run() {
   } catch (error) {
     spinner.fail(
       "Es ist ein Fehler beim herunterladen der Software aufgetreten: " +
-        error.message,
+      error.message,
     );
   }
 }
