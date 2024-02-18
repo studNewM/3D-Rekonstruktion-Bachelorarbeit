@@ -2,19 +2,27 @@ function displayMetadata(metadata) {
   const imageCount = document.getElementById("imageCount");
   imageCount.innerText = metadata.totalImages;
 
-  const cameraMakersInfo = metadata.cameras
-    .map((camera) => camera.maker)
-    .join("|");
+  const cameraMakersInfo = metadata.cameras[0] !== "Unbekannt"
+    ? metadata.cameras
+      .map((camera) => camera.maker)
+      .join("|")
+    : "Unbekannt";
+  debugger
   const cameraDetails = document.getElementById("cameraDetails");
   cameraDetails.innerText = cameraMakersInfo;
 
-  const focalLengthsInfo = metadata.cameras
+  const focalLengthsInfo = metadata.cameras[0] !== "Unbekannt" ? metadata.cameras
     .map((camera) => camera.focalLengths)
     .flat()
-    .join("|");
+    .join("|") : "Unbekannt";
   const focalLengths = document.getElementById("focalLength");
   focalLengths.innerText = focalLengthsInfo;
   updateTooltips(metadata);
+}
+
+function updateMetadata(amount) {
+  const imageCount = document.getElementById("imageCount");
+  imageCount.innerText = amount;
 }
 
 /*
@@ -56,4 +64,4 @@ function updateTooltips(cameraInfo) {
   otherInfo.style.backgroundColor = "#525252";
 }
 
-export { displayMetadata };
+export { displayMetadata, updateMetadata };
