@@ -1,14 +1,14 @@
-import fs, { stat } from "fs";
+import fs from "fs";
 import path from "path";
 import chalk from "chalk";
+import * as fsStat from 'node:fs/promises';
 import { watch } from "chokidar";
-import sendToAllClients from "./websocketToClient.js";
 import { meshroomSteps } from "../types/meshroomTypes.js";
-import { copyFiles, checkFileWriteStatus } from "./copyResults.js";
+import { copyFiles } from "./copyResults.js";
 import { createTextureZip } from "./zip.js";
 import { meshroomResults } from "../types/meshroomTypes.js";
 import { findHashPath } from "./findMeshroomHashFolder.js";
-import * as fsStat from 'node:fs/promises';
+import sendToAllClients from "./websocketToClient.js";
 
 const workspace = process.env.workingDir || "workspace";
 const workspaceDir = path.join(process.cwd(), workspace);
@@ -61,6 +61,11 @@ function closeWatcher() {
     console.log("Watcher wurde geschlossen.");
   }
 }
+
+/*
+* Sortiert die Dateien nach ihrer Endung, sodass die .png Dateien zuerst kopiert werden und die .mtl Dateien zuletzt.
+* Die .mtl Datei referenziert die .png Dateien, daher müssen diese zuerst erfasst und aktualisiert in die .mtl Datei eingefügt werden.
+*/
 function sortFiles(a, b) {
   const extA = path.extname(a);
   const extB = path.extname(b);
@@ -70,6 +75,11 @@ function sortFiles(a, b) {
   if (extB === '.mtl' && extA !== '.mtl') return 1;
   return 0;
 }
+
+/*
+* Überwacht das Verzeichnis des Meshroom-Outputs und kopiert die Dateien in das public/assets Verzeichnis.
+* Die .mtl Datei wird aktualisiert, sodass die .png Dateien referenziert werden.
+*/
 function watchOutput(name) {
   const outputDir = path.join(process.cwd(), name, "output");
   fs.readdir(outputDir, (err, files) => {

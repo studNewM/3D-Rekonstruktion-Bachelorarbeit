@@ -2,14 +2,13 @@ import ora from "ora";
 import decompress from "decompress";
 import axios from "axios";
 import path from "path";
-import { createWriteStream, unlinkSync, existsSync } from "fs";
 import inquirer from "inquirer";
 import chalk from "chalk";
 import { spawn } from "child_process";
 import { unpack } from "7zip-min";
-import { callPaths } from "./src/utils/executablePaths.js";
 import { glob } from "glob";
-import fs from 'fs';
+import { createWriteStream, unlinkSync, existsSync, readFileSync, writeFileSync, readdirSync } from "fs";
+import { callPaths } from "./src/utils/executablePaths.js";
 
 const pathMeshroom = process.env.meshroom || "";
 const pathColmap = process.env.colmap || "";
@@ -57,7 +56,7 @@ async function shouldContinueWithoutCuda() {
 }
 
 function writeGpuToValue(value) {
-  let lines = fs.readFileSync('./src/.env', 'utf-8').split('\n');
+  let lines = readFileSync('./src/.env', 'utf-8').split('\n');
 
   let gpuIndex = lines.findIndex(line => line.startsWith('GPU='));
 
@@ -67,7 +66,7 @@ function writeGpuToValue(value) {
     lines.push(`GPU=${value}`);
   }
 
-  fs.writeFileSync('./src/.env', lines.join('\n'));
+  writeFileSync('./src/.env', lines.join('\n'));
 }
 
 
@@ -106,6 +105,9 @@ async function checkCUDA() {
   });
 }
 
+/*
+* Überprüft ob Umgebungsvariablen für die Tools gesetzt worden sind
+*/
 async function checkEnvForToolPaths() {
   const spinner = ora("Überprüfung der Umgebungsvariablen...").start();
   await sleep();
@@ -130,6 +132,11 @@ async function checkEnvForToolPaths() {
     console.error(err);
   }
 }
+
+/*
+* Überprüft  die Abhängigkeiten der Tools
+* Für openMVS wird colmap benötigt und für colmap wird openMVS benötigt
+*/
 function checkToolDependencies(pathsSet) {
   const toolDependencies = {
     "openMVS": "colmap",
@@ -146,7 +153,7 @@ function checkToolDependencies(pathsSet) {
 
 function getToolFiles(toolName, exeName) {
   const toolPath = path.join(process.cwd(), "src", "tools", toolName);
-  return fs.readdirSync(toolPath).some(file => file === toolExe[exeName][0]);
+  return readdirSync(toolPath).some(file => file === toolExe[exeName][0]);
 }
 
 async function getToolPath() {
@@ -171,13 +178,13 @@ async function getToolPath() {
     return -1;
   } else {
     if (downloadedTools.length !== 0) {
-      let lines = fs.readFileSync('./src/.env', 'utf-8').split('\n');
+      let lines = readFileSync('./src/.env', 'utf-8').split('\n');
       for (const item of Object.keys(downloadedTools)) {
         let index = lines.findIndex(line => line.startsWith(item));
         if (index !== -1) {
-          lines[index] = `"${item} = ${path.join(process.cwd(), "src", "tools", downloadedTools[item])}"`;
+          lines[index] = `${item} = ${path.join(process.cwd(), "src", "tools", downloadedTools[item])}`;
         }
-        fs.writeFileSync('./src/.env', lines.join('\n'));
+        writeFileSync('./src/.env', lines.join('\n'));
       }
     }
     return downloadedTools;
@@ -185,7 +192,9 @@ async function getToolPath() {
 }
 
 
-
+/*
+* Überprüft ob die Tools bereits im Ordner vorhanden sind
+*/
 async function verifyToolsInDirectory() {
   const toolPath = path.join(process.cwd(), "src", "tools");
   const spinner = ora("Überprüfung des Ordners...").start();
@@ -214,6 +223,10 @@ function verifyFilePresence(type) {
     return false;
   }
 }
+
+/*
+* Überprüft ob die Tools korrekt installiert sind
+*/
 async function verifyToolIntegrity(item) {
   let output = "";
   const command =
@@ -252,6 +265,7 @@ function validateInstalledTools(items) {
     }
   }
 }
+
 async function executeToolCheck() {
   if (process.platform !== "win32") {
     console.log(chalk.red("Dieses Tool ist nur für Windows verfügbar."));

@@ -1,6 +1,9 @@
 import { glob } from "glob";
 import path from "path";
 
+/*
+* Sucht den Ordner mit dem Hash in dem Verzeichnis workspace
+*/
 async function findHashPath(modelRequest) {
   const workspace = path.join(
     process.cwd(),

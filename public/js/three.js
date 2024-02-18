@@ -12,37 +12,6 @@ let INTERSECTED;
 let objects = [];
 const params = { color: "#ffffff" };
 
-
-
-
-
-
-transformControls.addEventListener('dragging-changed', function (event) {
-  controls.enabled = !event.value
-})
-
-window.addEventListener('keydown', function (event) {
-  switch (event.key) {
-    case 'g':
-      transformControls.setMode('translate')
-      break
-    case 'r':
-      transformControls.setMode('rotate')
-      break
-    case 's':
-      transformControls.setMode('scale')
-      break
-    case 'c':
-      transformControlsValue = !transformControlsValue;
-      transformControls.visible = transformControlsValue;
-      transformControls.enabled = transformControlsValue;
-      break;
-  }
-})
-document.addEventListener('click', onPointerDown);
-
-
-
 /*
 * Fügt die geladenen Objekte zu einem Array hinzu
 * Ermöglicht es, die Objekte in der Szene einzuschränken
@@ -52,9 +21,7 @@ function addObject(object) {
 }
 
 
-/*
-* Ermöglicht das Auswählen und Transformieren von Objekten 
-*/
+/* Ermöglicht das Auswählen und Transformieren von Objekten */
 function onPointerDown(event) {
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
@@ -595,4 +562,26 @@ const lights = initLights(scene);
 initGridHelper(scene);
 addLightToGui(lights, scene, params);
 const helper = directionalLightHelper(scene, lights.directionalLight);
+transformControls.addEventListener('dragging-changed', function (event) {
+  controls.enabled = !event.value
+})
+window.addEventListener('keydown', function (event) {
+  switch (event.key) {
+    case 'g':
+      transformControls.setMode('translate')
+      break
+    case 'r':
+      transformControls.setMode('rotate')
+      break
+    case 's':
+      transformControls.setMode('scale')
+      break
+    case 'c':
+      transformControlsValue = !transformControlsValue;
+      transformControls.visible = transformControlsValue;
+      transformControls.enabled = transformControlsValue;
+      break;
+  }
+})
+document.addEventListener('click', onPointerDown);
 animate(camera, scene, renderer, controls);

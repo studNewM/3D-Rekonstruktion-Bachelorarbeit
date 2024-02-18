@@ -28,6 +28,10 @@ function copyFolder() {
   });
 }
 
+/*
+* Kopiert die Punktewolke und das Mesh in den Ordner assets
+* Kopiert alle Texturdateien in den Ordner assets und erstellt ein Zip-Archiv
+*/
 async function copyFiles(type, model) {
   let arrayValues = [];
   let arrayKeys = {};
@@ -69,6 +73,9 @@ async function copyFiles(type, model) {
   }
 }
 
+/*
+* Überprüft, ob die Datei fertig geschrieben wurde
+*/
 function checkFileWriteStatus(filePath) {
   return new Promise((resolve, reject) => {
     const file = path.dirname(filePath);

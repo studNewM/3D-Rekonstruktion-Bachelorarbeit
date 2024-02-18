@@ -2,14 +2,15 @@ import path from "path";
 import fs from "fs";
 import { processImages } from "../services/exif.js";
 
+/*
+* Löscht alle Bilder im Ordner images
+* Speichert die hochgeladenen Bilder im Ordner images
+*/
 function uploadImages(req, res) {
   const imageDir = path.join(process.cwd(), "images");
-  console.log("Lade Dateien hoch");
-
   if (fs.existsSync(imageDir)) {
     fs.rmSync(imageDir, { recursive: true });
   }
-
   fs.mkdirSync(imageDir);
 
   req.files.forEach((file) => {
@@ -19,6 +20,9 @@ function uploadImages(req, res) {
   res.send("Dateien hochgeladen");
 }
 
+/*
+* Löscht die Bilder, die in req.body.images aufgelistet sind
+*/
 function deleteImages(req, res) {
   const images = req.body.images;
   if (images.length !== 0) {
@@ -34,6 +38,9 @@ function deleteImages(req, res) {
   }
 }
 
+/*
+* Gibt Metadaten zu den hochgeladenen Bildern zurück
+*/
 async function getMetdata(req, res) {
   const cameraInfo = await processImages();
   if (!cameraInfo['Unbekannt']) {

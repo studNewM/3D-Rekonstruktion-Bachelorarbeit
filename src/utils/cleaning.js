@@ -1,6 +1,9 @@
 import path from "node:path";
 import fs from "node:fs";
 
+/*
+* Löscht alle .bin-Dateien in dem  Verzeichnis
+*/
 async function deleteBinFiles(directory) {
   fs.readdir(directory, (err, files) => {
     if (err) throw err;
@@ -15,6 +18,9 @@ async function deleteBinFiles(directory) {
   });
 }
 
+/*
+* Löscht alle erstellten Modelle im Ordner assets
+*/
 function deleteAssetsFolder() {
   const assetsPath = path.join(process.cwd(), "public", "assets");
 

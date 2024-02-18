@@ -55,38 +55,9 @@ export default function spawnCommand(commandText, type = "", stepName) {
       }
       if (code !== 0) {
         if (stderrOutput.includes("fatal")) {
-          const nodeType = stderrOutput
-            .split("RuntimeError: Error on node")[1]
-            .split(":")[0]
-            .split("_1")[0]
-            .replace(/"/g, "")
-            .trimStart();
-          const fatalMessage = stderrOutput
-            .split("[fatal]")[1]
-            .split("\n")[0]
-            .trimStart();
-          sendToAllClients({
-            step: nodeType,
-            status: "failed",
-            message: fatalMessage,
-          });
+          handleFatalErrors(stderrOutput);
         } else if (stderrOutput.includes("RuntimeError")) {
-          const nodeType = stderrOutput
-            .split("RuntimeError: Error on node")[1]
-            .split(":")[0]
-            .split("_1")[0]
-            .replace(/"/g, "")
-            .trimStart();
-          const fatalMessage = stderrOutput
-            .split("RuntimeError: Error on node")[1]
-            .split(":")[1]
-            .split("\n")[0]
-            .trimStart();
-          sendToAllClients({
-            step: nodeType,
-            status: "failed",
-            message: fatalMessage,
-          });
+          handleRuntTimeErrors(stderrOutput);
         }
         closeWatcher();
         reject(new Error("Prozess mit Fehler beendet"));
@@ -95,5 +66,46 @@ export default function spawnCommand(commandText, type = "", stepName) {
         resolve();
       }
     });
+  });
+}
+
+
+/*
+* Erfasst den Schritt, bei dem der Fehler aufgetreten ist
+*/
+function extractNodeType(stderrOutput) {
+  return stderrOutput
+    .split("RuntimeError: Error on node")[1]
+    .split(":")[0]
+    .split("_1")[0]
+    .replace(/"/g, "")
+    .trimStart();
+}
+/*
+* Sendet den Fehler an den Client
+*/
+function handleFatalErrors(stderrOutput) {
+  const nodeType = extractNodeType(stderrOutput);
+  const fatalMessage = stderrOutput
+    .split("[fatal]")[1]
+    .split("\n")[0]
+    .trimStart();
+  sendToAllClients({
+    step: nodeType,
+    status: "failed",
+    message: fatalMessage,
+  });
+}
+function handleRuntTimeErrors(stderrOutput) {
+  const nodeType = extractNodeType(stderrOutput);
+  const fatalMessage = stderrOutput
+    .split("RuntimeError: Error on node")[1]
+    .split(":")[1]
+    .split("\n")[0]
+    .trimStart();
+  sendToAllClients({
+    step: nodeType,
+    status: "failed",
+    message: fatalMessage,
   });
 }

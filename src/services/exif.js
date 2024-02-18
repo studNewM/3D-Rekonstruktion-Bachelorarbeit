@@ -3,6 +3,10 @@ import exifr from "exifr";
 
 const imagesDir = "images";
 
+/*
+* Erfasst die Metadaten der Bilder
+* Metadaten: Kamera-Hersteller, Kamera-Modell, Brennweiten, ISO-Werte, Anzahl der Bilder gruppiert nach Brennweiten
+*/
 export async function processImages() {
   try {
     const files = await fs.readdir(imagesDir);
