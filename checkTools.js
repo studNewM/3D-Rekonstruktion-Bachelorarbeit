@@ -99,7 +99,7 @@ async function checkCUDA() {
       output += data.toString();
     });
     child.on("error", (error) => {
-      console.error(`error: ${error.message}`);
+      reject(error);
     });
     spinner.stop();
     child.on("close", (code) => {
@@ -117,9 +117,6 @@ async function checkCUDA() {
           writeGpuToValue("false");
           resolve();
         });
-      } else {
-        console.error(`Überprüfung von NVIDA CUDA...`, chalk.red("Error"));
-        reject();
       }
     });
   });
@@ -299,7 +296,7 @@ async function executeToolCheck() {
   try {
     await checkCUDA();
   } catch (error) {
-    console.error('Ein Fehler ist aufgetreten:', error);
+    console.error(error);
   }
   const paths = await checkEnvForToolPaths();
   if (paths === -1) {
