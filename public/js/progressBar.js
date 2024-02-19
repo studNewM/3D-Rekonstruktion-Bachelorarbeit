@@ -22,7 +22,6 @@ function handleProcessCompletion(stepName) {
   ) {
     document.getElementById("startProcess").disabled = false;
     window.completedImageCount = 0;
-    // alert("Prozess abgeschlossen!");
   }
 }
 

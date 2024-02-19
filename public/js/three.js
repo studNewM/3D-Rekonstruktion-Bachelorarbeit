@@ -98,8 +98,8 @@ export function clearScene() {
   }
   objects = [];
 
-  camera.position.z = 1.5;
-  camera.position.y = 1;
+  camera.position.z = 7.5;
+  camera.position.y = 5;
   camera.position.x = 0;
   controls.target.set(0, 0, 0);
 }
@@ -117,8 +117,8 @@ function initCamera() {
     0.1,
     1000,
   );
-  camera.position.z = 1.5;
-  camera.position.y = 1;
+  camera.position.z = 7.5;
+  camera.position.y = 5;
   return camera;
 }
 
@@ -235,6 +235,7 @@ async function loadPly(scene, plyName) {
           geometry.boundingBox.max.y + 2,
           center.z,
         );
+
         resolve(points);
       },
       undefined,
@@ -424,7 +425,6 @@ async function loadColmapTextured(scene, objName) {
  * Lädt das Modell abhängig von dem ausgewählten Rekonstruktionsprozess
  */
 export async function loadModel(stepName, runType) {
-  console.log(stepName);
   let runDict;
   let colmapOpenMVSTypes;
 

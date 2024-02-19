@@ -1,7 +1,7 @@
-import { closeWatcher, watchWorkspace } from "./watchDirectory.js";
 import { spawn } from "node:child_process";
 import { callPaths } from "./executablePaths.js";
 import sendToAllClients from "./websocketToClient.js";
+import { closeWatcher, watchWorkspace } from "./watchDirectory.js";
 
 export default function spawnCommand(commandText, type = "", stepName) {
   if (!callPaths[type]) {
