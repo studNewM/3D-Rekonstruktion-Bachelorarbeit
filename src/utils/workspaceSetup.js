@@ -17,7 +17,7 @@ function setupWorkspace(name) {
 };
 
 function setupAssets() {
-  const assets = path.join(process.cwd(), "assets");
+  const assets = path.join(process.cwd(), "public", "assets");
   if (!fs.existsSync(assets)) {
     fs.mkdirSync(assets);
     console.log(`${assets} created`);

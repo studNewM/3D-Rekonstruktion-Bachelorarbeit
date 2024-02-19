@@ -35,28 +35,6 @@ const toolExe = {
   ],
 };
 
-function returnCudaLink() {
-  const otherValues = [
-    "aix",
-    "darwin",
-    "freebsd",
-    "linux",
-    "openbsd",
-    "sunos",
-    "win32",
-  ];
-  const os = process.platform;
-  if (os === "win32") {
-    console.log(
-      "Bitte installieren Sie NVIDIA CUDA Toolkit => https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html",
-    );
-  } else if (otherValues.includes(os)) {
-    console.log(
-      "Bitte installieren Sie NVIDIA CUDA Toolkit => https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html",
-    );
-  }
-}
-
 async function shouldContinueWithoutCuda() {
   const questions = [
     {
@@ -70,7 +48,6 @@ async function shouldContinueWithoutCuda() {
   if (answers.continue) {
     return true;
   } else {
-    returnCudaLink();
     process.exit();
   }
 }
@@ -328,7 +305,7 @@ async function executeToolCheck() {
     }
   }
 }
-const cuda_check = cuda
+const cuda_check = cuda === true ? "cuda" : "no-cuda";
 const downloadPaths = {
   meshroom: [
     "Meshroom-2023.3.0",
@@ -365,14 +342,6 @@ async function run() {
           ${chalk.red("Aktuell kann Meshroom nicht automatisch heruntergeladen werden")}
           ${chalk.white("Folgen Sie bitte den Anweisungen der Webseite http://alicevision.org/meshroom")}
           `);
-        // await downloadAndUnpackTool(
-        //   downloadPaths["meshroom"][1],
-        //   downloadPaths["meshroom"][0],
-        // );
-        // spinner.succeed(
-        //   `${downloadPaths["meshroom"][1]} heruntergeladen and extrahiert`,
-        // );
-        // spinner.stop()
         break;
       case "Colmap":
         await downloadAndUnpackTool(
