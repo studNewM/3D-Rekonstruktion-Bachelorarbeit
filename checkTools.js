@@ -92,10 +92,7 @@ async function checkCUDA() {
     });
     spinner.stop();
     child.on("close", (code) => {
-      if (
-        code === 0 &&
-        output.includes("GPU 0:")
-      ) {
+      if (code === 0 && output.includes("GPU 0:")) {
         console.log(`Überprüfung von NVIDA CUDA...`, chalk.green("OK"));
         writeGpuToValue("true");
         cuda = true;
@@ -366,7 +363,7 @@ async function run() {
           downloadPaths["openMVS"][1],
           downloadPaths["openMVS"][0],
         );
-        await unlink(path.join(process.cwd(), downloadPaths["openMVS"][0]))
+        await unlink(path.join(process.cwd(), downloadPaths["openMVS"][0]));
         spinner.succeed(`Colmap/OpenMVS heruntergeladen and extrahiert`);
         break;
       case "Beide":
@@ -392,7 +389,7 @@ async function run() {
   } catch (error) {
     spinner.fail(
       "Es ist ein Fehler beim herunterladen der Software aufgetreten: " +
-      error.message,
+        error.message,
     );
   }
 }

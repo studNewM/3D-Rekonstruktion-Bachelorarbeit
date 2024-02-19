@@ -14,7 +14,7 @@ function setupWorkspace(name) {
   fs.mkdirSync(workspace);
   console.log(`${workspace} created`);
   setupAssets();
-};
+}
 
 function setupAssets() {
   const assets = path.join(process.cwd(), "public", "assets");
@@ -23,7 +23,6 @@ function setupAssets() {
     console.log(`${assets} created`);
   }
 }
-
 
 function moveImagesToWorkspace(workspace_path) {
   const oldPath = path.normalize(path.join(process.cwd(), "images"));
@@ -35,6 +34,6 @@ function moveImagesToWorkspace(workspace_path) {
   } else {
     console.log("Path does exist");
   }
-};
+}
 
 export { setupWorkspace, moveImagesToWorkspace };

@@ -2,19 +2,20 @@ function displayMetadata(metadata) {
   const imageCount = document.getElementById("imageCount");
   imageCount.innerText = metadata.totalImages;
 
-  const cameraMakersInfo = metadata.cameras[0] !== "Unbekannt"
-    ? metadata.cameras
-      .map((camera) => camera.maker)
-      .join("|")
-    : "Unbekannt";
-  debugger
+  const cameraMakersInfo =
+    metadata.cameras[0] !== "Unbekannt"
+      ? metadata.cameras.map((camera) => camera.maker).join("|")
+      : "Unbekannt";
   const cameraDetails = document.getElementById("cameraDetails");
   cameraDetails.innerText = cameraMakersInfo;
 
-  const focalLengthsInfo = metadata.cameras[0] !== "Unbekannt" ? metadata.cameras
-    .map((camera) => camera.focalLengths)
-    .flat()
-    .join("|") : "Unbekannt";
+  const focalLengthsInfo =
+    metadata.cameras[0] !== "Unbekannt"
+      ? metadata.cameras
+          .map((camera) => camera.focalLengths)
+          .flat()
+          .join("|")
+      : "Unbekannt";
   const focalLengths = document.getElementById("focalLength");
   focalLengths.innerText = focalLengthsInfo;
   updateTooltips(metadata);
