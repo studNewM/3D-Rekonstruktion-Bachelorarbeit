@@ -161,12 +161,12 @@ function checkToolDependencies(pathsSet) {
 }
 
 function getToolFiles(toolName, exeName) {
-  const toolPath = path.join(process.cwd(), "src", "tools", toolName);
+  const toolPath = path.join(process.cwd(), "tools", toolName);
   return readdirSync(toolPath).some((file) => file === toolExe[exeName][0]);
 }
 
 async function getToolPath() {
-  const toolPath = path.join(process.cwd(), "src", "tools");
+  const toolPath = path.join(process.cwd(), "tools");
   const folderNames = await glob(`${toolPath}/*`);
   if (folderNames.length === 0) {
     console.log(chalk.red("Kein Tools wurden gefunden."));
@@ -192,7 +192,7 @@ async function getToolPath() {
         let index = lines.findIndex((line) => line.startsWith(item));
         if (index !== -1) {
           lines[index] =
-            `${item} = ${path.join(process.cwd(), "src", "tools", downloadedTools[item])}`;
+            `${item} = ${path.join(process.cwd(), "tools", downloadedTools[item])}`;
         }
         writeFileSync("./src/.env", lines.join("\n"));
       }
@@ -205,7 +205,7 @@ async function getToolPath() {
  * Überprüft ob die Tools bereits im Ordner vorhanden sind
  */
 async function verifyToolsInDirectory() {
-  const toolPath = path.join(process.cwd(), "src", "tools");
+  const toolPath = path.join(process.cwd(), "tools");
   const spinner = ora("Überprüfung des Ordners...").start();
   await sleep();
   spinner.stop();
@@ -389,7 +389,7 @@ async function run() {
   } catch (error) {
     spinner.fail(
       "Es ist ein Fehler beim herunterladen der Software aufgetreten: " +
-        error.message,
+      error.message,
     );
   }
 }
@@ -407,14 +407,13 @@ async function fetchFileFromUrl(url, filename) {
   });
 }
 async function unpackZipFile(filename) {
-  const toolPath = path.join(process.cwd(), "src", "tools");
+  const toolPath = path.join(process.cwd(), "tools");
   await decompress(filename, toolPath);
   unlinkSync(filename);
 }
 async function unpack7ZipFile(filename) {
   const openMVSPath = path.join(
     process.cwd(),
-    "src",
     "tools",
     filename.replace(".7z", ""),
   );

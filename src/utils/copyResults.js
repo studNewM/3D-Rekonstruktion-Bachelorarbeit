@@ -17,12 +17,14 @@ function copyFolder() {
     "TextureMesh",
   );
   readdir(outputDir, (err, files) => {
-    files.forEach((file) =>
-      copyFileSync(
-        path.join(outputDir, file),
-        path.join(process.cwd(), "public", "assets", file),
-      ),
-    );
+    files.forEach((file) => {
+      if (!file.includes(".mvs")) {
+        copyFileSync(
+          path.join(outputDir, file),
+          path.join(process.cwd(), "public", "assets", file),
+        );
+      }
+    });
   });
 }
 

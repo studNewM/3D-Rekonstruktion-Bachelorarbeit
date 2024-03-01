@@ -5,7 +5,7 @@ async function callMeshroom(workspace) {
   const workspacePath = path.join(process.cwd(), workspace);
   const outputPath = path.join(workspacePath, "output");
   const imagesPath = path.join(process.cwd(), "images");
-  const pipelinePath = path.join(process.cwd(), "run_photogrammetry.mg");
+  const pipelinePath = path.join(process.cwd(), "meshroomPipeline.mg");
   const meshroomOptions = `-i ${imagesPath} -p ${pipelinePath} -o ${outputPath} --cache ${workspacePath} --forceCompute`;
 
   try {

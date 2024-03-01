@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs";
 import chalk from "chalk";
-import spawn_Command from "../utils/spawn.js";
+import spawnCommand from "../utils/spawn.js";
 import { copyFiles } from "../utils/copyResults.js";
 
 function callOpenMVS(name, options) {
@@ -74,7 +74,7 @@ function callOpenMVS(name, options) {
     path.join(openMVS_path, "RefineMesh", "model_dense_mesh_refine.mvs");
 
   async function executeAndLog(command, message) {
-    await spawn_Command(command, "openMVS", message);
+    await spawnCommand(command, "openMVS", message);
     console.log(`${chalk.blue(message)} done`);
     copyFiles(message, "openMVS");
   }

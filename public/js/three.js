@@ -123,6 +123,7 @@ function initCamera() {
 }
 
 function initRenderer() {
+  const threejsContainer = document.getElementById("threeJsContainer");
   const renderer = new THREE.WebGLRenderer();
   renderer.setSize(innerWidth, innerHeight);
   renderer.physicallyCorrectLights = true;
@@ -524,7 +525,7 @@ function addToGUI(object) {
       .add(object, "visible")
       .name("Enabled")
       .onChange((value) => (object.visibility = value));
-    pointCloudFolder.add(object.material, "size", 0.001, 0.01);
+    pointCloudFolder.add(object.material, "size", 0.001, 0.1);
   } else if (object.type === "Group" && object.material === undefined) {
     texturedMeshFolder
       .add(object, "visible")
@@ -560,7 +561,6 @@ texturedMeshFolder.open();
 
 const pointer = new THREE.Vector2();
 const raycaster = new THREE.Raycaster();
-const threejsContainer = document.getElementById("threeJsContainer");
 const innerHeight = window.innerHeight / 1;
 const innerWidth = window.innerWidth / 1;
 const scene = initScene();

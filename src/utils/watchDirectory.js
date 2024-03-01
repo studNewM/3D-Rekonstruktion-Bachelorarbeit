@@ -42,19 +42,14 @@ function watchWorkspace() {
     const foundStep = Object.values(meshroomSteps).find((step) =>
       filePath.includes(step),
     );
-    if (
-      filePath.includes("log") &&
-      !filePath.includes("sfm_log") &&
-      foundStep
-    ) {
+    if (filePath.includes("log") && !filePath.includes("sfm_log") && foundStep) {
       if (foundStep !== currentStep) {
         if (currentStep) {
           if (meshroomResults[currentStep]) {
             missingStep = currentStep;
             checkStepIsFinished(currentStep)
               .then(() => copyFiles(missingStep, "meshroom"))
-              .then(() =>
-                completeStepLogging(missingStep, currentStepStartTime),
+              .then(() => completeStepLogging(missingStep, currentStepStartTime),
               );
           } else {
             completeStepLogging(currentStep, currentStepStartTime);
@@ -159,7 +154,6 @@ async function checkFileStability(filePath, checkDuration = 1000) {
   const checkSizeChange = async () => {
     try {
       const stats = await fsStat.stat(filePath);
-      console.log(stats);
       const currentTime = Date.now();
       if (
         stats.size === lastSize &&
@@ -176,7 +170,6 @@ async function checkFileStability(filePath, checkDuration = 1000) {
       throw err;
     }
   };
-
   return checkSizeChange();
 }
 
