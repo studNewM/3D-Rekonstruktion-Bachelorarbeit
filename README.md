@@ -1,6 +1,6 @@
 # 3D-Rekonstruktion-Bachelorarbeit
 
-Willkommen beim GitHub-Repository von "3D-Rekonstruction-Bachelorarbeit". Dieses Projekt ermöglicht 3D-Rekonstruktionen mit Tools wie Meshroom, COLMAP und OpenMVS. Es ist wichtig zu beachten, dass dieses Projekt aktuell nur auf Windows-Systemen unterstützt wird.
+Willkommen beim GitHub-Repository von "recon4web". Dieses Projekt ermöglicht 3D-Rekonstruktionen mit Tools wie Meshroom, COLMAP und OpenMVS. Es ist wichtig zu beachten, dass dieses Projekt aktuell nur auf Windows-Systemen unterstützt wird.
 
 ## Voraussetzungen
 
@@ -13,7 +13,7 @@ Willkommen beim GitHub-Repository von "3D-Rekonstruction-Bachelorarbeit". Dieses
 Meshroom wird als primäres Rekonstruktionstool verwendet. Folgen Sie der offiziellen Installationsanleitung:
 
 - Meshroom Installationsanleitung: [Meshroom Installation](https://meshroom-manual.readthedocs.io/en/bibtex1/install/install.html)
-- Speichern Sie Meshroom unter `./3D-Rekonstruktion-Bachelorarbeit/src/tools`.
+- Speichern Sie Meshroom unter `./recon4web/src/tools`.
 
 ## Colmap/OpenMVS (Optional)
 
@@ -27,11 +27,11 @@ Für die Nutzung von Colmap und OpenMVS:
 Führen Sie die folgenden Schritte aus, um das Projekt einzurichten:
 
 ```bash
-git clone https://github.com/studNewM/3D-Rekonstruktion-Bachelorarbeit.git
+git clone https://inf-git.fh-rosenheim.de/studhaibma1348/recon4web.git
 ```
 
 ```bash
-cd 3D-Rekonstruktion-Bachelorarbeit
+cd recon4web
 ```
 
 ```bash
